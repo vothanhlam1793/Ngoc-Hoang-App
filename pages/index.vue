@@ -1,6 +1,8 @@
 <template>
   <div>
     <button @click="logout()">Logout</button>
+    <button @click="show()">Show</button>
+    <button @click="getData()">Get data</button>
     <h1>Hello Nuxters! 👋</h1>
     <p>
       This page is rendered on the <strong>{{ rendering }}</strong>
@@ -19,8 +21,8 @@
 </template>
 <script>
 export default {
-  middleware: 'auth',
-  asyncData() {
+  middleware: 'autoLogin',
+  async asyncData() {
     return {
       rendering: process.server ? 'server' : 'client'
     }
@@ -30,6 +32,13 @@ export default {
       console.log("Log out");
       this.$nuxt.$loading.start()
       await this.$auth.logout();
+    },
+    async show(){
+      console.log(this.$auth);
+      console.log(this.$auth.$storage.getCookies());
+    },
+    async getData(){
+      this.$store.dispatch('todos/get_data');
     }
   }
 }

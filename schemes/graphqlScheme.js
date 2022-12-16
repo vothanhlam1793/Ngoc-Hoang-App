@@ -28,6 +28,7 @@ export const USER_DETAILS_QUERY = gql`
             name
             phone
             email
+            username
         }
     }
 `
@@ -65,7 +66,7 @@ export default class GraphQLScheme extends LocalScheme {
         // Fetch user
         await this.fetchUser() // We will define this function next
     
-        return token
+        return response.authenticate.item;
     }
 
     fetchUser() {

@@ -20,8 +20,6 @@
   const credentials = { username: 'examlple', password: 'asrkpvg7' }
 
   export default {
-    middleware: 'auth',
-    auth: 'guest',
     data() {
       return {
         login: {
@@ -35,8 +33,8 @@
         credentials.username = this.login.username;
         credentials.password = this.login.password;
         try {
-          let response = await this.$auth.loginWith('graphql', credentials)
-          console.log(response)
+            let response = await this.$auth.loginWith('graphql', credentials)
+            console.log(this.$auth);
         } catch (err) {
           console.log(err)
         }

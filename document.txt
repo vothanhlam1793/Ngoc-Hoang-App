@@ -1,0 +1,9 @@
+https://vorlume.com/nzesalem/stories/nuxt-graphql-auth-scheme
+
+Sử dụng appllo
+https://alexclark.co.nz/blog/using-apollo-and-graphql-with-nuxt-js
+
+
+Tạo app đơn giản với nuxt
+https://viblo.asia/p/todo-app-don-gian-voi-nuxtjs-va-vuex-LzD5d2wWZjY
+

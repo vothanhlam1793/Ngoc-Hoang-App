@@ -53,6 +53,10 @@ export default {
   auth: {
     strategies: {
       graphql: {
+        cookie: {
+          // (optional) If set, we check this cookie existence for loggedIn check
+          name: 'XSRF-TOKEN',
+        },
         scheme: '~/schemes/graphqlScheme.js',
       },
     },
