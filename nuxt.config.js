@@ -25,7 +25,7 @@ export default {
   ],
 
   router: {
-    // middleware: 'guest'
+    // middleware: ['guest']
   },
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -37,7 +37,40 @@ export default {
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    '@nuxt/content',
+    '@nuxtjs/axios',
+    '@nuxtjs/apollo',
+    '@nuxtjs/auth-next',
   ],
+
+  axios: {
+    baseURL: process.env.API_URL || ' https://camerangochoang.com/admin/api/',
+    debug: process.env.DEBUG || false,
+    proxyHeaders: false,
+    credentials: false,
+  },
+
+  auth: {
+    strategies: {
+      graphql: {
+        scheme: '~/schemes/graphqlScheme.js',
+      },
+    },
+    redirect: {
+      login: '/login',
+      logout: '/login?logout=true',
+      callback: false,
+      home: '/',
+    },
+  },
+
+  apollo: {
+    clientConfigs: {
+      default: {
+        httpEndpoint: 'https://camerangochoang.com/admin/api', // Your graphql endpiont
+      }
+    }
+  },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
