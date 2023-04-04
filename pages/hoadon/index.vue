@@ -1,9 +1,9 @@
 <template>
     <div class="row">
-        <div class="col-2">
-
+        <div class="col-4">
+            <HoaDonCustomer></HoaDonCustomer>
         </div>
-        <div class="col-10">
+        <div class="col-8">
             <HoaDonCreate></HoaDonCreate>
         </div>
     </div>
@@ -11,8 +11,22 @@
 <script>
     export default {
         layout: "app",
+        watch: {
+            hoadon: function(o,n){
+                console.log(o);
+                location.reload();
+            }
+        },
+        computed: {
+            hoadon(){
+                return this.$store.state.hd.hoadon;
+            }
+        },
         mounted(){
-            this.$store.dispatch("sanpham/getSanPham");
+
+        },
+        created(){
+            this.$store.dispatch("hd/getAllSanPham");
         }
     }
 </script>
