@@ -1,6 +1,6 @@
 import { gql } from 'graphql-tag'
 
-import { LocalScheme } from '~auth/runtime'
+import { LocalScheme, RefreshScheme } from '~auth/runtime'
 
 const LOGIN_MUTATION = gql`
   mutation LoginMutation($username: String, $password: String) {
@@ -26,7 +26,6 @@ export const USER_DETAILS_QUERY = gql`
         authenticatedUser {
             id
             name
-            phone
             email
             username
         }
@@ -36,6 +35,7 @@ export const USER_DETAILS_QUERY = gql`
 export default class GraphQLScheme extends LocalScheme {
   // TODO: Override relevant LocalScheme methods
     async login(credentials, { reset = true } = {}) {
+      // console.log("LOGIN", RefreshScheme);
         const {
             apolloProvider: { defaultClient: apolloClient },
             $apolloHelpers,
@@ -56,26 +56,37 @@ export default class GraphQLScheme extends LocalScheme {
         })
         .then(({ data }) => data);
 
+        // console.log(response);
+
         var token = response.authenticate.token;
+
+        // console.log("TOKEN SET: ", this);
+        // console.log("TOKEN: ", token);
+        // console.log("AUTHENTICATE: ", response);
         // Update our cookie token
+        // console.log("TOKEN 1", this.token);
         this.token.set(token)
-    
+        // console.log("TOKEN 2", this.token);
         // Set our graphql-token so subsequent graphql request are authenticated
         await $apolloHelpers.onLogin(token)
     
         // Fetch user
         await this.fetchUser() // We will define this function next
-    
+        console.log(this);
         return response.authenticate.item;
     }
 
     fetchUser() {
+      // console.log("FETCH USER");
         const {
           apolloProvider: { defaultClient: apolloClient },
         } = this.$auth.ctx.app
       
         // Token is required but not available
+        // console.log("RETURN", this.check());
+        // console.log("TOKEN 3", this.token);
         if (!this.check().valid) {
+          // console.log("RETURN", this.check());
           return
         }
         // Try to fetch user
@@ -89,8 +100,9 @@ export default class GraphQLScheme extends LocalScheme {
               return Promise.reject(error)
             }
             // Set the auth user
+            // console.log(data);
+            // console.log("AUTH", this.$auth);
             this.$auth.setUser(data.authenticatedUser)
-      
             return data.authenticatedUser
           })
           .catch((error) => {
@@ -100,7 +112,7 @@ export default class GraphQLScheme extends LocalScheme {
     }
 
     async logout() {
-      console.log("logout server");
+      // console.log("logout server", GraphQLScheme, LocalScheme);
         const {
           apolloProvider: { defaultClient: apolloClient },
           $apolloHelpers,
@@ -117,6 +129,10 @@ export default class GraphQLScheme extends LocalScheme {
         // Reset regardless
         $apolloHelpers.onLogout()
         return this.$auth.reset({ resetInterceptor: false })
+    }
+
+    async refreshTokens() {
+      // console.log("refresh server");
     }
 
     initializeRequestInterceptor() {

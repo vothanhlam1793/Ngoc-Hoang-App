@@ -1,7 +1,20 @@
+function baseURL(){
+    // process.env.API_URL || `/admin/api/`
+    if (process.browser) {
+      return `${window.location.protocol}//${process.env.API_URL || `localhost:3000/admin/api/`}`
+    } else {
+      return 'http://localhost:3000/admin/api/';
+    }
+}
+
+function baseProxy(){
+  // Proxy cho keystone
+  return `http://${process.env.API_KEYSTONE}/admin/api` || 'http://localhost:3001/admin/api';
+}
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'begin-2',
+    title: 'Phần mềm quản trị',
     htmlAttrs: {
       lang: 'en'
     },
@@ -12,7 +25,14 @@ export default {
       { name: 'format-detection', content: 'telephone=no' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/student.ico' },
+      { rel: 'stylesheet',  href:"https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" },
+    ],
+    script: [
+      { src:"https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.slim.min.js" },
+      { src:"https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" },
+      { src:"https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" },
+      // { src: "/extend.js"},
     ]
   },
 
@@ -22,10 +42,11 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    // { src: '~/plugins/bootstrap.js', ssr: false }
   ],
 
   router: {
-    // middleware: ['guest']
+    middleware: []
   },
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -41,21 +62,36 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/apollo',
     '@nuxtjs/auth-next',
+    '@nuxtjs/proxy',
   ],
 
   axios: {
-    baseURL: process.env.API_URL || ' https://camerangochoang.com/admin/api/',
+    baseURL: baseURL(),
     debug: process.env.DEBUG || false,
     proxyHeaders: false,
     credentials: false,
+    proxy: true,
   },
-
+  proxy: {
+    '/admin/api/': baseProxy(),
+  },
   auth: {
     strategies: {
       graphql: {
         cookie: {
           // (optional) If set, we check this cookie existence for loggedIn check
           name: 'XSRF-TOKEN',
+        },
+        token: {
+          property: 'access_token',
+          maxAge: 60*60*24*60,
+          global: true,
+          // type: 'Bearer'
+        },
+        refreshToken: {
+          property: 'refresh_token',
+          data: 'refresh_token',
+          maxAge: 60 * 60 * 24 * 30
         },
         scheme: '~/schemes/graphqlScheme.js',
       },
@@ -71,7 +107,7 @@ export default {
   apollo: {
     clientConfigs: {
       default: {
-        httpEndpoint: 'https://camerangochoang.com/admin/api', // Your graphql endpiont
+        httpEndpoint: baseURL(), // Your graphql endpiont
       }
     }
   },
@@ -79,4 +115,8 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
   },
+  server: {
+    host: '0', // default: localhost
+    // port: 8000 // default: 3000
+  }
 }

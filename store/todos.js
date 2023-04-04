@@ -22,7 +22,6 @@ const GET_USER = gql`
     query {
         allUsers {
             name
-            phone
             id
         }
     }
@@ -33,6 +32,5 @@ export const actions = {
         var data = await client.query({
             query: GET_USER
         });
-        console.log(data);
     },
 }
