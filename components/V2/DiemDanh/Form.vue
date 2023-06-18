@@ -20,9 +20,19 @@ export default {
 
         }
     },
+    watch: {
+        stateLopHoc: function(nS, oS){
+            if(nS == "READY"){
+                this.$store.dispatch('ndd/createPhieuDiemDanhV2');
+            }
+        }
+    },
     computed: {
         lophoc() {
             return this.$store.state.ndd.lophoc;
+        },
+        stateLopHoc(){
+            return this.$store.state.ndd.stateLopHoc;
         },
     },
     created(){
@@ -36,6 +46,9 @@ export default {
             // Control
             this.$store.dispatch("ndd/getLopHoc");
         }
+    },
+    mounted(){
+
     },
     props: ['date', 'lophocId']
 }

@@ -5,9 +5,9 @@
         </div>
         <div class="col-4">
             <div class="text-center">
-                <input @click="btnClick()" class="larger" type="radio" id="one" value="1" v-model="result" />
+                <input class="larger" type="radio" id="one" value="1" v-model="result" />
                 <label for="one">Có</label> |
-                <input @click="btnClick()" class="larger" type="radio" id="one" value="0" v-model="result" />
+                <input class="larger" type="radio" id="one" value="0" v-model="result" />
                 <label for="one">Không</label>
             </div>
         </div>
@@ -21,16 +21,7 @@ export default {
         }
     },
     methods: {
-        getColor() {
-            if (this.result == "0") {
-                return "table-danger"
-            } else {
-                return "table-success"
-            }
-        },
-        btnClick() {
-            // this.$store.commit("ndd/updateStateButtonEdit", true);
-        }
+        
     },
     watch: {
         result: function (nR, oR) {
@@ -42,13 +33,6 @@ export default {
                 this.$store.dispatch('ndd/createPhieuDiemDanhV2');
             }
         },
-        hocsinh: {
-            handler: function(nV, oV){
-                console.log(nV.result);
-            },
-            immediate: true,
-            deep: true
-        }
     },
     props: ['hocsinh']
 }
