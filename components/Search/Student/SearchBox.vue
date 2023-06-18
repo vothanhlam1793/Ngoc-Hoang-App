@@ -17,8 +17,9 @@ export default {
     },
     methods: {
         changed(){
-            this.$store.commit("search/updateInputSearch", this.inpSearch);
+            this.$store.dispatch(this.stateInput, this.inpSearch);
         }
-    }
+    },
+    props: ['stateInput']
 }
 </script>

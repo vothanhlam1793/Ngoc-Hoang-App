@@ -1,6 +1,6 @@
 <template>
     <div class="">
-        <SearchBox></SearchBox>
+        <SearchBox :stateInput="'search/updateInputSearch'"></SearchBox>
         <hr>
         <SearchStudentList :hocsinhs="fHocsinhs"></SearchStudentList>
     </div>

@@ -30,5 +30,7 @@ export const mutations = {
     }
 }
 export const actions = {
-
+    updateInputSearch({commit}, data){
+        commit("updateInputSearch", data);
+    }
 }
