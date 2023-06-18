@@ -94,6 +94,14 @@ export default {
     },
     methods: {
         createHocSinh(){
+            if(this.nameHocSinh.length == 0 || this.nameDad.length == 0 || this.nameMom.length == 0){
+                alert("Không được để trống tên");
+                return;
+            }
+            if(this.phoneDad.length == 0  && this.phoneMom.length == 0){
+                alert("Nhập ít nhất một số điện thoại phụ huynh");
+                return;
+            }
             var client = this.$apolloProvider.defaultClient;
             client.mutate({
                 mutation: gql`

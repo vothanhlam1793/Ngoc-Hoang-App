@@ -1,19 +1,13 @@
 <template>
     <div class="row">
-        <div class="col">
-            <div class="row">
-                <div class="col">
-                    <div class="d-flex justify-content-between mb-3">
-                        <div class="p-2"><a href="/hocsinh" class="btn btn-secondary">Trở về</a></div>
-                        <div class="p-2">
-                            <button class="btn btn-warning" v-if="stateEditHocSinh == 'EDITTING'" @click="saveChange()">Lưu</button>
-                            <a class="btn btn-primary" href="/hocsinh/create">Tạo mới</a>
-                            <button class="btn btn-danger" @click="deleteParent()">Xoá</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
+        <div class="col-3">
+            <HocSinhMenuNav
+                :hocsinh="hocsinh"
+            >
+            </HocSinhMenuNav>
+        </div>
+        <div class="col-9">
+             <div class="row">
                 <div class="col">
                     <HocSinhShow :hocsinh="hocsinh" />
                 </div>
@@ -66,6 +60,14 @@ export default {
     computed: {
         stateEditHocSinh(){
             return this.$store.state.edithocsinh.state;
+        },
+        lophocs(){
+            return this.$store.state.lophoc.lophocs;
+        }
+    },
+    created(){
+        if(typeof window !== undefined){
+            this.$store.dispatch("lophoc/getAllLopHoc");
         }
     },
     layout: "app"

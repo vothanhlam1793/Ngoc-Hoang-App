@@ -9,6 +9,13 @@
                 <div class="col-4">
                     <CoSoVatChat />
                 </div>
+                <div class="col-4">
+                    <VeTre></VeTre>
+                    <br>
+                    <AnChieu></AnChieu>
+                    <br>
+                    <NghiLienTiep></NghiLienTiep>
+                </div>
             </div>
         </div>
     </div>

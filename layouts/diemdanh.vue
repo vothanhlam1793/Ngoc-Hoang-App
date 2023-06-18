@@ -1,7 +1,17 @@
 <template>
     <div class="container-fluid">
-        <Menu />
-
+        <div class="row">
+            <div class="col"
+            v-if="isMobile == false"
+            >
+                <Menu />
+            </div>
+            <div class="col"
+            v-else
+            >
+                <MenuMobile />
+            </div>
+        </div>
         <div class="row">
             <div class="col">
                 <MenuDiemDanh />
@@ -35,10 +45,32 @@ input.larger {
 }
 </style>
 <script>
-
+function detectMob() {
+    const toMatch = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i
+    ];
+    
+    return toMatch.some((toMatchItem) => {
+        return navigator.userAgent.match(toMatchItem);
+    });
+}
 export default {
     data() {
-        return {};
+        return {
+            isMobile: false
+        };
+    },
+    methods: {
+        checkMobile: detectMob
+    },
+    mounted(){
+        this.isMobile = detectMob();
     }
 }
 </script>

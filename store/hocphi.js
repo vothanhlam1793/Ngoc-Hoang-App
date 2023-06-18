@@ -26,7 +26,7 @@ export const actions = {
               }
             `
         }).then(data => {
-            console.log(data);
+            // console.log(data);
             commit("updateHocPhis", data.data.allVariables);
         }).catch(err => {
             console.log(data);

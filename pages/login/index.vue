@@ -7,7 +7,7 @@
         </div>
         <div class="form-group">
           <label>Mật khẩu</label>
-          <input class="form-control"  type="text" v-model="login.password" />
+          <input class="form-control"  type="password" v-model="login.password" />
         </div>
         <div class="text-center">
           <button class="btn btn-success" type="submit">Đăng nhập</button>

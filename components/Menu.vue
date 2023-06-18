@@ -1,14 +1,14 @@
 <template>
-<nav class="navbar navbar-expand-sm bg-light mb-3">
+<nav class="navbar navbar-expand-sm bg-light mb-3 sticky-top">
   <ul class="navbar-nav">
 
     <li class="nav-item">
       <a class="nav-link" href="/">Trang chủ</a>
     </li>
-    <li v-if="checkRole(['quan-tri-vien', 'ke-toan'])" class="nav-item">
-      <a class="nav-link" href="/phuhuynh">Phụ huynh</a>
+    <li v-if="checkRole(['quan-tri-vien','hieu-truong','hieu-pho', 'ke-toan'])" class="nav-item">
+      <a class="nav-link" href="/hocsinh/quanly">Học sinh</a>
     </li>
-    <li v-if="checkRole(['quan-tri-vien', 'giao-vien', 'ke-toan'])" class="nav-item">
+    <li v-if="checkRole(['giao-vien'])" class="nav-item">
       <a class="nav-link" href="/hocsinh">Học sinh</a>
     </li>
     <li 
@@ -30,7 +30,7 @@
     <li 
     v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])" 
     class="nav-item">
-      <a class="nav-link" href="/ketso/2023/03">Kết sổ</a>
+      <a class="nav-link" :href="`/ketso/${getDateKetSo()}`">Kết sổ</a>
     </li>
     <li 
     v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])" 
@@ -61,6 +61,14 @@ export default {
         }
     },
     methods: {
+      getDateKetSo(){
+        var date = new Date();
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        var d1 = new Date(firstDay - 1000);
+        var a = "00" + (d1.getMonth() +1 ).toString();
+        a = a.substring(a.length -2, a.length)
+        return `${d1.getFullYear()}/${a}`
+      },
       checkRole(slugs){
         var ret = false;
         this.roles.forEach(function(e1){

@@ -9,7 +9,6 @@
             </div>
         </div>
         <div class="col-6 d-flex flex-row-reverse">
-            <HocSinhExportFile />
             <HocSinhCreatePage />
         </div>
     </div>

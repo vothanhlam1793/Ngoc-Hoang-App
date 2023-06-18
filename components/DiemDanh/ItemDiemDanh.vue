@@ -1,5 +1,7 @@
 <template>
-    <tr>
+    <tr
+        :class="getColor()"
+    >
         <td>{{ hocsinh.name }}</td>
         <td>
             <div class="text-center">
@@ -25,6 +27,13 @@
             }
         },
         methods: {
+            getColor(){
+                if(this.result == "0"){
+                    return "table-danger"
+                } else {
+                    return "table-success"
+                }
+            },
             btnClick(){
                 this.$store.commit("ndd/updateStateButtonEdit", true);
             }

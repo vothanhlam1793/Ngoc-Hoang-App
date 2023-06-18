@@ -1,11 +1,10 @@
 <template>
-    <div class="row">
+    <div class="row mt-3">
         <div class="col">
             <div class="">
-                <h2>Đi học hàng ngày</h2>
+                <h2>Điểm danh đi học</h2>
             </div>
-            <div class="">
-                <h5>Danh sách lớp quản lý</h5>
+            <div class="my-5">
                 <ul class="list-group">
                     <li 
                         class="list-group-item" 
@@ -61,6 +60,7 @@ export default {
     },
     watch: {
         lophocs: function(newLH, oldLH){
+            
         },
         roles: function(newR, oldR){
             this.$forceUpdate();

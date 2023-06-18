@@ -79,13 +79,15 @@ export default {
         }
     },
     created(){
-        this.year = this.$route.params.year;
-        this.formYear = this.year;
-        this.month = this.$route.params.month;
-        this.formMonth = this.month;
-        this.date = this.$route.params.date;
-        this.id = this.$route.params.id;
-        this.func = this.$route.path.split("/")[1];
+        if(typeof window !== undefined){
+            this.year = this.$route.params.year;
+            this.formYear = this.year;
+            this.month = this.$route.params.month;
+            this.formMonth = this.month;
+            this.date = this.$route.params.date;
+            this.id = this.$route.params.id;
+            this.func = this.$route.path.split("/")[1];
+        }
     }
 }
 </script>

@@ -49,11 +49,31 @@
                             <tr
                                 v-for="lophoc in lophocs"
                             >
+                                <td>{{ lophoc.name }}</td>
                                 <td>
-                                    <a 
+                                    <div v-if="getKetSo(lophoc).status == 'SAVED'">
+                                        <a
+                                        class="btn btn-info"
+                                        :href="`/ketso/${$route.params.year}/${$route.params.month}/${lophoc.id}/view`"
+                                        >Xem kết sổ</a>
+                                        <a
+                                        class="btn btn-success"
+                                        :href="`/ketso/${$route.params.year}/${$route.params.month}/${lophoc.id}/show`"
+                                        >Gởi phụ huynh</a>
+                                        <button
+                                            class="btn btn-danger"
+                                            @click="deleteKetSo(getKetSo(lophoc))"
+                                        >
+                                            Xoá kết sổ
+                                        </button>
+                                    </div>
+                                    <div v-else>
+                                        <a
+                                        class="btn btn-primary"
                                         :href="`/ketso/${$route.params.year}/${$route.params.month}/${lophoc.id}`"
-                                    >{{ lophoc.name }}</a></td>
-                                <td>{{ getKetSo(lophoc).message }}</td>
+                                        >Tạo kết sổ</a>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -63,6 +83,8 @@
     </div>
 </template>
 <script>
+import gql from 'graphql-tag'
+// var client = this.$apolloProvider.defaultClient;
 export default {
     data(){
         return {
@@ -71,6 +93,27 @@ export default {
         }
     },
     methods: {
+        deleteKetSo(pks){
+            if(confirm("Bạn đang xoá phiếu kết sổ, bạn chắc chứ?")){
+
+            } else {
+                return;
+            }
+            var client = this.$apolloProvider.defaultClient;
+            client.mutate({
+                mutation: gql`
+                mutation {
+                    deletePhieuKetSo(id: "${pks.id}"){
+                        id
+                    }
+                }
+                `
+            }).then(data => {
+                location.reload();
+            }).catch(err => {
+                console.log(err);
+            });
+        },
         changeTime(){
             location.href = `/ketso/${this.year}/${this.month}`;
         },
@@ -78,11 +121,13 @@ export default {
             var ret = {};
             this.phieuketsos.forEach(function(pks){
                 if(pks.lophoc.id == lh.id){
-                    ret.message = "Đã kết sổ"
+                    ret = pks;
                 }
             })
-            if(ret.message == undefined){
-                ret.message = "Chưa kết sổ";
+            if(ret.id == undefined){
+                ret = {
+                    status: "NONE"
+                };
             }
             return ret;
         }

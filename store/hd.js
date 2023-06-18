@@ -4,6 +4,7 @@ export const state = () => ({
     sanphams: [],
     sanphamChoose: [],
     total: 0,
+    type: "KETSO",
 
     hocsinhs: [],
     hocsinh: {},
@@ -12,6 +13,9 @@ export const state = () => ({
 });
 
 export const mutations = {
+    updateType(state, data){
+        state.type = data;
+    },
     updateHoaDon(state, data){
         state.hoadon = data;
     },
@@ -97,7 +101,9 @@ export const actions = {
             mutation {
                 createCHoaDon (
                     items: "${JSON.stringify(items).split('"').join('\\"')}",
-                    idParent: "${state.hocsinh.parent.id}"
+                    idParent: "${state.hocsinh.parent.id}",
+                    type: "${state.type}",
+                    idStudent: "${state.hocsinh.id}"
                 ){
                 message
                 content
@@ -119,6 +125,7 @@ export const actions = {
             `
         }).then(data => {
             commit("updateHoaDon", data.data.createCHoaDon.data);
+            console.log(data);
         }).catch(err => {
             console.log(err);
         })

@@ -1,50 +1,64 @@
 <template>
-    <td v-if="item">
-        {{ getHocPhi(item.hocsinh.namhocphi) - getHocPhiGiam(item.hocsinh.hocphigiam) }}        
-        <button @click="giamtien()">Giam</button>
+    <td
+        class="text-right"
+    >
+        <p v-if="item">{{ numberWithCommas(item.hocphi) }}</p>
+        <p v-else>HP</p>
     </td>
+
 </template>
 <script>
 export default {
-    props: ['idItem'],
+    props: ['item'],
     data() {
         return {
         }
     },
     methods: {
-        getHocPhi(year){
-            var ret = 0;
-            this.hocphis.forEach(function(hp){
-                if(hp.key == year){
-                    ret = parseInt(hp.value);
-                }
-            });
-            return ret;
-        },
-        getHocPhiGiam(hp){
-            if(hp == null || hp == 'null'){
-                return 0;
+        numberWithCommas(x) {
+            if(x){
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             } else {
-                return parseInt(hp);
+                return 0;
             }
         },
-        giamtien(){
-            this.$store.commit("ketso/updateItem", {
-                id: this.idItem, 
-                    
+        calculator(){
+            var hp = 0;
+            var that = this;
+            // console.log(that.item)
+            this.hocphis.forEach(function(e){
+                if(that.item.hocsinh.namhocphi == e.key){
+                    hp = e.value;
+                }
+            });
+            var g=parseInt(that.item.hocsinh.hocphigiam);
+            if( g >= 0){
+                 
+            } else {
+                g = 0;
+            }
+
+            return hp - g;
+        }
+    },
+    watch: {
+        hocphis(n, o){
+            // console.log(this.item, n);
+            // console.log(this.calculator(), this.item);
+            this.$store.commit("pks/updateHocPhiItem", {
+                item: this.item,
+                hocphi: this.calculator(),
             })
+            this.$forceUpdate();
         }
     },
     computed: {
         hocphis(){
             return this.$store.state.hocphi.hocphis;
-        },
-        item(){
-            return this.$store.state.ketso.items[this.idItem];
         }
     },
-    mounted(){
-
+    created(){
+        this.$store.dispatch("hocphi/getInfoHocPhi");
     }
 }
 </script>

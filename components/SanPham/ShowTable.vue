@@ -1,15 +1,17 @@
 <template>
     <div class="row">
         <div class="col">
-            <div class="row">
-                <h1>Menu + Title</h1>
+            <div class="d-flex justify-content-between ">
+                <div>
+                    <h2 class="my-3">Danh sách sản phẩm</h2>
+                </div>
             </div>
-            <div class="row">
-                <table class="table">
+            <table class="table table-bordered table-striped">
                     <thead>
-                        <tr>
+                        <tr class="text-center">
                             <th>Tên</th>
                             <th>Giá</th>
+                            <th>Tồn</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -18,16 +20,52 @@
                             :key="sanpham.id"
                         >
                             <td>{{ sanpham.name }}</td>
-                            <td>{{ sanpham.price }}</td>
+                            <td class="text-right">{{ numberWithCommas(sanpham.price) }}</td>
+                            <td class="text-right">{{ numberWithCommas(sanpham.amount) }}</td>
+                            <td class="text-center"><button
+                                class="btn btn-danger"
+                                @click="deleteSanPham(sanpham)"
+                                >
+                                x
+                            </button></td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
         </div>
     </div>
 </template>
 <script>
+import gql from 'graphql-tag'
 export default {
+    methods: {        
+        numberWithCommas(x) {
+            if(x){
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            } else {
+                return 0;
+            }
+        },
+        deleteSanPham(sanpham){
+            if(confirm("Đây là hành động không phục hồi được, bạn chắc chứ?")){
+
+            } else {
+                return;
+            }
+            var that = this;
+            let client = this.$apolloProvider.defaultClient;
+            client.mutate({
+                mutation: gql`
+                mutation {
+                    deleteSanPham(id: "${sanpham.id}"){
+                        id
+                    }
+                }
+                `
+            }).then(data => {
+                location.reload();
+            })
+        }
+    },
     computed: {
         sanphams(){
             

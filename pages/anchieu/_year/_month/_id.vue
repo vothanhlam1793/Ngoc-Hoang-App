@@ -1,7 +1,7 @@
 <template>
-    <div class="col">
-        <h1>ĂN CHIỀU: {{ lophoc.name }}</h1>
-        <table class="table table-bordered">
+    <div class="col mt-2">
+        <h1>{{ lophoc.name }}</h1>
+        <table class="table table-bordered my-2">
             <thead>
                 <tr>
                     <th>Ngày</th>
@@ -12,6 +12,7 @@
             <tbody>
                 <tr
                     v-for="date in dates"
+                    :class="checkDiemDanhColor(date)"
                 >
                     <td>{{ date }}/{{ $route.params.month }}</td>
                     <td >
@@ -26,12 +27,14 @@
                             <a 
                             v-if="checkDiemDanh(date)"
                             :href="getHref(date, 'edit')"
+                            class="btn btn-warning"
                             >
                                 Sửa
                             </a>
                             <a
                             v-else
                             :href="getHref(date)"
+                            class="btn btn-primary"
                             >
                                 Tạo mới
                             </a>
@@ -52,6 +55,13 @@ export default {
         }
     },
     methods: {
+        checkDiemDanhColor(date){
+            if(this.checkDiemDanh(date)){
+                return ""
+            } else {
+                return "table-warning"
+            }
+        },
         getHref(date, path){
             var ret = this.$route.fullPath.split("/");
             if(path){
@@ -100,24 +110,26 @@ export default {
         }
     },
     created(){
-        this.year = this.$route.params.year;
-        this.month = this.$route.params.month;
-        this.idLopHoc = this.$route.params.id;
+        if(typeof window != undefined){
+            this.year = this.$route.params.year;
+            this.month = this.$route.params.month;
+            this.idLopHoc = this.$route.params.id;
 
-        this.$store.commit("diemdanh/updateDateForm", {
-            year: this.year, 
-            month: this.month
-        });
-        this.$store.commit("ndd/updateType", "DIEMDANH545");
-        this.$store.commit("ndd/updateIdLopHoc", this.$route.params.id);
-        this.$store.commit("ndd/updateIdGiaoVien", this.$store.$auth.$state.user.id)
+            this.$store.commit("diemdanh/updateDateForm", {
+                year: this.year, 
+                month: this.month
+            });
+            this.$store.commit("ndd/updateType", "DIEMDANH545");
+            this.$store.commit("ndd/updateIdLopHoc", this.$route.params.id);
+            this.$store.commit("ndd/updateIdGiaoVien", this.$store.$auth.$state.user.id)
 
-        // Control
-        this.$store.dispatch("ndd/getLopHoc");
-        this.$store.dispatch("ndd/getAllPhieuDiemDanhOnMonth", {
-            year: this.year,
-            month: this.month
-        });
+            // Control
+            this.$store.dispatch("ndd/getLopHoc");
+            this.$store.dispatch("ndd/getAllPhieuDiemDanhOnMonth", {
+                year: this.year,
+                month: this.month
+            });
+        }
     },
     mounted(){
 

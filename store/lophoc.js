@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 export const state = () => ({
     lophoc: {}, 
-    lophocs: []
+    lophocs: [],
 });
 export const mutations = {
     updateLopHoc(state, data){
@@ -66,6 +66,10 @@ export const actions = {
                   id
                   name
                 }
+                hocsinhs {
+                  id
+                  name
+                }
               }
             }
             `
@@ -74,5 +78,8 @@ export const actions = {
         }).catch(err => {
           console.log(err);
         })
+    },
+    createLopHoc({commit}, data){
+
     }
 }

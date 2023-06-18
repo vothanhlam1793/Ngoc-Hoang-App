@@ -1,34 +1,45 @@
 <template>
     <tr>
         <td>{{ item.hocsinh.name }}</td>
-        <td>{{ total }}</td>
-        <td>{{ hocphi }}</td>
-        <td><div>
-            <select
-                class="form-control"
-                v-model="csvc"
-                @change="getTotal()"
-            >
-                <option
-                :value="0"
-                >0</option>
-                <option
-                :value="half"
-                >{{ half }}</option>
-                <option
-                :value="full"
-                >{{ full }}</option>
-            </select>
-        </div></td> <!-- CSVC => Tạo mới hàng loạt-->
-        <td>{{ camera }}</td> <!-- CAMERA -->
-        <td>{{ item.total }}</td> <!-- Đồng phục -->
-        <td>{{ item.total }}</td> <!-- Balo -->
-        <td>{{ item.total }}</td> <!-- Ngoài giờ -->
-        <td>{{ item.total }}</td> <!-- Ăn 16g45 -->
-        <td>{{ item.total }}</td> <!-- Khác -->
-        <td>{{ item.total }}</td> <!-- Diễn giải -->
-        <td>{{ item.total }}</td> <!-- Ngày nghỉ liên tục -->
-        <td>{{ item.total }}</td> <!-- Tiền nghỉ -->
+        <KetSoETotal
+            :item="item"
+        ></KetSoETotal>
+        <KetSoEHocPhi
+            :item="item"
+        ></KetSoEHocPhi>
+        <KetSoECoSoVatChat
+            :item="item"
+        ></KetSoECoSoVatChat>
+        <KetSoECamera
+            :item="item"
+        >
+        </KetSoECamera>
+        <KetSoEHoaDon
+            :item="item"
+        >
+        </KetSoEHoaDon>
+        <KetSoEDiemDanhVeTre
+            :item="item"
+        ></KetSoEDiemDanhVeTre>
+        <KetSoEDiemDanhAn545
+            :item="item"
+        ></KetSoEDiemDanhAn545>
+        <KetSoEKhac
+            :item="item"
+        >
+        </KetSoEKhac>
+        <KetSoEDienGiai
+            :item="item"
+        >
+        </KetSoEDienGiai>
+        <KetSoEDiemDanh
+            :item="item"
+            type="DIHOCHANGNGAY"
+        ></KetSoEDiemDanh>
+        <KetSoEThanhTienNghi
+            :item="item"
+        >
+        </KetSoEThanhTienNghi>
     </tr>
 </template>
 <script>
@@ -67,63 +78,6 @@ export default {
             }
             this.hocphi = ret - hp;
         },
-        getCamera(){
-            var that = this;
-            let client = this.$apolloProvider.defaultClient;
-            client.mutate({
-                mutation: gql`
-                mutation {
-                    createOrUpdateCamera(idHocSinh: "${this.item.hocsinh.id}"){
-                        id
-                        key
-                        value
-                        item
-                        idItem
-                    }
-                }
-                `
-            }).then(data => {
-                that.camera = parseInt(data.data.createOrUpdateCamera.value) * 50000;
-                that.getTotal();
-            }).catch(err => {
-                console.log(err);
-            })
-        },
-        getCSVC(){
-            var that = this;
-            let client = this.$apolloProvider.defaultClient;
-            client.query({
-                query: gql`
-                query {
-                    allVariables (where: {
-                        OR: [
-                        {
-                            key_contains: "CSVC_FULL"
-                        },
-                        {
-                            key_contains: "CSVC_HALF"
-                        }
-                        ]
-                    }){
-                        id
-                        key
-                        value
-                    }
-                }
-                `
-            }).then(data => {
-                data.data.allVariables.forEach(function(variable){
-                    if(variable.key == "CSVC_FULL"){
-                        that.full = variable.value;
-                    } else if (variable.key == "CSVC_HALF"){
-                        that.half = variable.value;
-                    }
-                });
-
-            }).catch (err => {
-                console.log(err);
-            });
-        },
         getTotal(){
             this.total = 
                 this.hocphi 
@@ -135,25 +89,13 @@ export default {
                 + this.an545 
                 + this.khac 
                 + this.thanhtiennghi;
+        },
+        createItemKetSo(){
+            console.log(this.item);
         }
     },
     mounted(){
-        if(this.item.hocsinh.luuy == null){
-            this.item.hocsinh.luuy = {};
-        } else {
-            this.item.hocsinh.luuy = JSON.parse(this.item.hocsinh.luuy);
-        }
-        if(this.item.hocsinh.luuy.camera == undefined){
-            this.item.hocsinh.luuy.camera = 0;
-        }
-        if(this.item.hocsinh.luuy.an545 == undefined){
-            this.item.hocsinh.luuy.an545 = "YES";
-        }
-        
-        this.getHocPhi();
-        this.getCamera();
-        this.getCSVC();
-        this.getTotal();
+
     },
     watch: {
         stateCSVC: function(nS, oS){

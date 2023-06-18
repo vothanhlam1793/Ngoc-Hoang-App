@@ -14,7 +14,7 @@
         watch: {
             hoadon: function(o,n){
                 console.log(o);
-                location.reload();
+                // location.reload();
             }
         },
         computed: {

@@ -1,9 +1,6 @@
 <template>
-    <div>
-        <div class="">
-            <HocSinhMenu />
-        </div>
-        <div class="">
+    <div class="row">
+        <div class="col">
             <HocSinhShowTable />
         </div>
     </div>

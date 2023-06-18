@@ -237,7 +237,6 @@ export const actions = {
     },
     async createPhieuDiemDanh({commit, state, dispatch}){
         var client = this.app.apolloProvider.defaultClient;
-      
         var co = state.lophoc.hocsinhs.filter(function(hocsinh){
             return hocsinh.result == "1"; 
         }).map(function(hocsinh){
@@ -311,7 +310,7 @@ export const actions = {
               lophoc: {
                 id: "${state.idLopHoc}"
               },
-            type: "${state.type}"
+              type: "${state.type}"
           }){
                               id
                           co {

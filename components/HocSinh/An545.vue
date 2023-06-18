@@ -3,7 +3,7 @@
         <div class="col">
             <div class="d-flex justify-content-between mb-3">
                 <div class="">
-                    <h4>Camera</h4>
+                    <h4>Đăng ký ăn chiều</h4>
                 </div>
                 <div class="">
                     <button 
@@ -31,6 +31,7 @@
 </template>
 <script>
 import gql from 'graphql-tag'
+// var client = this.$apolloProvider.defaultClient;
 export default {
     data(){
         return {

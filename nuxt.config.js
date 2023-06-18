@@ -1,14 +1,19 @@
 function baseURL(){
     // process.env.API_URL || `/admin/api/`
-    if (process.browser) {
-      return `${window.location.protocol}//${process.env.API_URL || `localhost:3000/admin/api/`}`
-    } else {
-      return 'http://localhost:3000/admin/api/';
-    }
+    // return `http://camerangochoang.com:3001/admin/api`
+
+    // if (process.browser) {
+    //   return `http://camerangochoang.com:3001/admin/api`
+    // } else {
+    //   return 'http://camerangochoang.com:3001/admin/api/';
+    // }
+    return baseProxy();
 }
 
 function baseProxy(){
   // Proxy cho keystone
+  // return `http://camerangochoang.com:3001/admin/api`
+
   return `http://${process.env.API_KEYSTONE}/admin/api` || 'http://localhost:3001/admin/api';
 }
 export default {
@@ -34,7 +39,8 @@ export default {
       { src:"https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" },
       { src:"https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" },
       { src:"https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js" },
-      { src: "https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-*.min.js"},
+      { src: "https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-vi_VN.min.js"},
+      { src: "https://use.fontawesome.com/releases/v5.15.4/js/all.js"}
       // { src: "/i18n.js"},
       // { src: "/extend.js"},
     ]
@@ -119,8 +125,9 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
   },
+
   server: {
-    host: '0', // default: localhost
-    // port: 8000 // default: 3000
-  }
+    // host: '0.0.0.0', // default: localhost
+    port: 3000 // default: 3000
+  },
 }

@@ -1,11 +1,10 @@
 <template>
-    <div class="row">
+    <div class="row mt-3">
         <div class="col">
             <div class="">
-                <h2>Không ăn chiều</h2>
+                <h2>Báo ăn chiều</h2>
             </div>
             <div class="">
-                <h5>Danh sách lớp quản lý</h5>
                 <ul class="list-group">
                     <li 
                         class="list-group-item" 

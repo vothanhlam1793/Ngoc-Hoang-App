@@ -1,7 +1,7 @@
 <template>
     <div class="row">
         <div class="col">
-                <div>
+                <div class="my-3">
                     <button class="btn btn-secondary"
                         @click="$store.commit('ketso/updateStateCSVC', 'NONE')"
                     >NONE</button>
@@ -11,109 +11,127 @@
                     <button class="btn btn-warning"
                     @click="$store.commit('ketso/updateStateCSVC', 'HALF')"
                     >HALF</button>
+                    <button
+                        class="btn btn-warning"
+                        @click="saveChanged()"
+                    >
+                        Lưu lại
+                    </button>
                 </div>
                 <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 10%">Tên</th>
-                                        <th style="width: 5%">Tổng</th>
-                                        <th>Học phí</th> 
-                                        <th>CSVC</th>
-                                        <th>Camera</th>
-                                        <th>Đồng phục</th>
-                                        <th>Balo</th>
-                                        <th>Ngoài giờ</th>
-                                        <th>Ăn 4g45</th>
-                                        <th>Khác</th>
-                                        <th>Diễn giải</th>
-                                        <th>Ngày nghỉ</th>
-                                        <th>Tiền nghỉ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <KetSoElement 
-                                        v-for="item in phieuketso.items"
-                                        :item="item"
-                                        :key="item.id"
-                                    ></KetSoElement>
-                                </tbody>
-                            </table>
-            
+                    <thead>
+                        <tr>
+                            <th style="width: 10%">Tên</th>
+                            <th style="width: 5%">Tổng</th>
+                            <th>Học phí</th> 
+                            <th>CSVC</th>
+                            <th>Camera</th>
+                            <th>Hóa Đơn</th>
+                            <th>Ngoài giờ</th>
+                            <th>Ăn 4g45</th>
+                            <th>Khác</th>
+                            <th>Diễn giải</th>
+                            <th>Ngày nghỉ</th>
+                            <th>Tiền nghỉ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <KetSoElement 
+                            v-for="item in sortItem(phieuketso.items)"
+                            :item="item"
+                            :key="item.id"
+                        ></KetSoElement>
+                    </tbody>
+                </table>
         </div>
     </div>
 </template>
 <script>
-import gql from 'graphql-tag'
 export default {
     data(){
         return {
             year: "",
             month: "",
             idLopHoc: "",
-            phieuketso: {},
         }
     },
     methods: {
-        createOrUpdatePhieuKetSo(){
-            var that = this;
-            let client = this.$apolloProvider.defaultClient;
-            client.mutate({
-                mutation: gql`
-                mutation {
-                    createOrUpdatePhieuKetSo(code: "${this.year}_${this.month}", idLopHoc: "${this.idLopHoc}"){
-                        message
-                        content
-                        data {
-                        id
-                        status
-                        items {
-                            id
-                            data
-                            code
-                            lophoc {
-                            id
-                            }
-                            hocsinh {
-                                id
-                                name
-                                namhocphi
-                                hocphigiam
-                                luuy
-                                status
-                                parent {
-                                    id
-                                    phone {
-                                        number
-                                        id
-                                        name
-                                    }
-                                }
-                            }
-                            total
-                        }
-                        }
+        chuyentiengviet(str) {
+            if(str == undefined){
+                return "";
+            }
+            return str.normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+        },
+        sortItem(items){
+            console.log(items);
+            var ret = [];
+            if(items){
+                var that = this;
+                items.forEach(function(item){
+                    ret.push(item);
+                });
+                ret.sort(function(a,b){
+                    var t = a.hocsinh.name.split(" ");
+                    var u = b.hocsinh.name.split(" ");
+                    if(that.chuyentiengviet(t[t.length - 1]) < that.chuyentiengviet(u[u.length - 1])){
+                        return -1;
                     }
-                }
-                `
-            }).then(data => {
-                console.log(data);
-                if(data.data.createOrUpdatePhieuKetSo.message == "SUCCESS"){
-                    that.phieuketso = data.data.createOrUpdatePhieuKetSo.data;
-                } else {
-                    console.log(data.data.createOrUpdatePhieuKetSo.message, data.data.createOrUpdatePhieuKetSo.content);    
-                }
-            }).then(err => {
-                console.log(err);
-            })
+                    if(that.chuyentiengviet(t[t.length - 1]) > that.chuyentiengviet(u[u.length - 1])){
+                        return 1;
+                    }
+                    return 0;
+                });
+                return ret;
+            }
+            return ret;
+        },
+        sortHocSinh(hocsinhs){
+            var ret = [];
+            if(hocsinhs){
+                var that = this;
+                hocsinhs.forEach(function(hocsinh){
+                    ret.push(hocsinh);
+                });
+                ret.sort(function(a,b){
+                    var t = a.name.split(" ");
+                    var u = b.name.split(" ");
+                    if(that.chuyentiengviet(t[t.length - 1]) < that.chuyentiengviet(u[u.length - 1])){
+                        return -1;
+                    }
+                    if(that.chuyentiengviet(t[t.length - 1]) > that.chuyentiengviet(u[u.length - 1])){
+                        return 1;
+                    }
+                    return 0;
+                });
+                return ret;
+            }
+            return ret;
+        },
+        saveChanged(){
+            this.$store.dispatch("pks/updatePhieuKetSo");
+        }
+    },
+    computed: {
+        phieuketso(){
+            return this.$store.state.pks.phieuketso;
+        },
+        stateEdit(){
+            return this.$store.state.pks.stateEdit;
         }
     },
     mounted(){
         this.year = this.$route.params.year;
         this.month = this.$route.params.month;
         this.idLopHoc = this.$route.params.id;
-        this.createOrUpdatePhieuKetSo();
-        this.$store.dispatch("hocphi/getInfoHocPhi");
+        // this.createOrUpdatePhieuKetSo();
+        this.$store.commit("pks/updateCode", `${this.year}_${this.month}`);
+        this.$store.commit("pks/updateIdLopHoc", this.$route.params.id);
+        
+        this.$store.dispatch("pks/createOrUpdatePhieuKetSo");
     },
+
     layout: "app"
 }
 </script>

@@ -158,10 +158,16 @@ export const actions = {
             })
         });
     },
+    /* Get
+        - Item PKS => Hoc Sinh
+        - Phieu Thu => Phu Huynh
+        - HoaDon
+    */
     async getDebt({commit}, phuhuynh){
         // Get Phieu ket so
         var client = this.app.apolloProvider.defaultClient;
         var hsa = "[";
+        // Item PKS
         phuhuynh.hocsinhs.forEach(function(e,i){
             if(i != 0){
                 hsa += ","
@@ -192,6 +198,7 @@ export const actions = {
             commit("updateItems", data.data.allItemKetSos);
 
         });
+
         // Get Phieu thu
         client.query({
             query: gql`
@@ -220,7 +227,9 @@ export const actions = {
             commit("updatePhieuThus", data.data.allPhieuThus);
         })
 
+
     },
+
     async searchPhuHuynhWithPhone({commit}, phone){
         commit("updateStateSearchPhuHuynhWithPhone", "SEARCHING");
         // updateResultSearchPhuHuynhWithPhone

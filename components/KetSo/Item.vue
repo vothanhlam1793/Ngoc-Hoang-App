@@ -92,28 +92,30 @@ export default {
         }
     },
     created(){
-        this.hsItem.luuy = JSON.parse(this.hocsinh.luuy);
-        this.hsItem.hocphi = this.getHocPhi(this.hocsinh.hocphi);
-        this.hsItem.csvc = 0;
-        if(this.hsItem.luuy == null){
-            this.hsItem.luuy = {};
+        if(typeof window !== undefined){
+            this.hsItem.luuy = JSON.parse(this.hocsinh.luuy);
+            this.hsItem.hocphi = this.getHocPhi(this.hocsinh.hocphi);
+            this.hsItem.csvc = 0;
+            if(this.hsItem.luuy == null){
+                this.hsItem.luuy = {};
+            }
+            if(this.hsItem.luuy.camera == undefined){
+                this.hsItem.luuy.camera = 0;
+            }
+            this.hsItem.camera = 50000 * this.hsItem.luuy.camera;     
+            this.hsItem.dongphuc = 0;
+            this.hsItem.balo = 0;
+            this.hsItem.ngoaigio = 0;
+            this.hsItem.an545 = 0;
+            this.hsItem.khac = 0;
+            this.hsItem.diengiai = "";
+            this.hsItem.ngaynghi = 0;
+            this.hsItem.thanhtiennghi = 0;  
+            this.$store.commit("ketso/updateItemState", {
+                id: this.hocsinh.id,
+                state: "READY"
+            });
         }
-        if(this.hsItem.luuy.camera == undefined){
-            this.hsItem.luuy.camera = 0;
-        }
-        this.hsItem.camera = 50000 * this.hsItem.luuy.camera;     
-        this.hsItem.dongphuc = 0;
-        this.hsItem.balo = 0;
-        this.hsItem.ngoaigio = 0;
-        this.hsItem.an545 = 0;
-        this.hsItem.khac = 0;
-        this.hsItem.diengiai = "";
-        this.hsItem.ngaynghi = 0;
-        this.hsItem.thanhtiennghi = 0;  
-        this.$store.commit("ketso/updateItemState", {
-            id: this.hocsinh.id,
-            state: "READY"
-        });
     },
     watch: {
         state: function(newState, oldState){

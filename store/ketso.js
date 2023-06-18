@@ -119,6 +119,7 @@ export const actions = {
                 }) {
                   id
                   code
+                  status
                   lophoc {
                     id
                   }

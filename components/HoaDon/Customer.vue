@@ -36,7 +36,7 @@
                             </tr>
                             <tr>
                                 <td>Nợ</td>
-                                <td>{{ hocsinh.parent.debt }}</td>
+                                <td>{{ numberWithCommas(hocsinh.parent.debt) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -65,7 +65,14 @@ export default {
             return str.normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
             .replace(/đ/g, 'd').replace(/Đ/g, 'D');
-        }
+        },
+        numberWithCommas(x) {
+            if(x){
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            } else {
+                return 0;
+            }
+        },
     },
     watch: {
         hocsinhs: {
@@ -84,7 +91,9 @@ export default {
         }
     },
     created(){
-        this.$store.dispatch("hd/getHocSinhs");
+        if(typeof window !== undefined){
+            this.$store.dispatch("hd/getHocSinhs");
+        }
     },
     mounted(){
         $('#my-select').selectpicker();
