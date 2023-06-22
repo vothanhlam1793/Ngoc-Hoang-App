@@ -11,16 +11,20 @@
                     <HocSinhLopHoc
                     :hocsinh="hocsinh" />
                 </div>
+                <div class="col">
+                    <HocSinhCamera
+                    :hocsinh="hocsinh"
+                    ></HocSinhCamera>
+                </div>
+                <div class="col">
+                    <HocSinhAn545
+                    :hocsinh="hocsinh"
+                    ></HocSinhAn545>
+                </div>
             </div>
             <div class="row my-3">
                 <div class="col">
                     <HocPhi :id="hocsinh.id"></HocPhi>
-                </div>
-                <div class="col">
-                    <HocSinhCamera></HocSinhCamera>
-                </div>
-                <div class="col">
-                    <HocSinhAn545></HocSinhAn545>
                 </div>
             </div>
             <div class="">
@@ -33,60 +37,17 @@
 export default {
     data(){
         return {
-            // idLH: "",
-            // status: "",
-            // hocphi: 0,
-            // luuy: {}
+
         }
     },
     methods: {
-        // updateHocPhi(){
-        //     this.$store.commit('edithocsinh/updateState', 'EDITTING');     
-        //     this.$store.commit('edithocsinh/updateHocPhi', this.hocphi);       
-        // },
-        // updateStatus(){
-        //     this.$store.commit('edithocsinh/updateState', 'EDITTING');
-        //     this.$store.commit('edithocsinh/updateStatus', this.status);
-        // },
-        // updateLophoc(){
-        //     this.$store.commit('edithocsinh/updateState', 'EDITTING');
-        //     this.$store.commit('edithocsinh/updateIdLophoc', this.idLH);
-        // },
-        // updateLuuY(){
-        //     this.$store.commit('edithocsinh/updateState', 'EDITTING');
-        //     this.$store.commit('edithocsinh/updateLuuY', this.luuy);
-        // }
+
     },
     computed: {
-        // lophocs(){
-        //     console.log(this.$store.state);
-        //     return this.$store.state.createhocsinh.lophocs;
-        // },
-        // idLophoc(){
-        //     if(this.$store.state.edithocsinh.lophoc){
-        //         return this.$store.state.edithocsinh.lophoc.id;
-        //     } else {
-        //         return "";
-        //     }
-        // }
+
     },
     created(){
-        // this.$store.dispatch("createhocsinh/getLopHoc");
-        // if(this.hocsinh.lophoc){
-        //         this.idLH = this.hocsinh.lophoc.id;
-        // } else {
-        //     return "";
-        // }
-        // this.status = this.hocsinh.status;
-        // this.hocphi = this.hocsinh.hocphi || 0;
-        // this.$store.commit('edithocsinh/updateHocsinh', this.hocsinh);
-        // this.luuy = JSON.parse(this.hocsinh.luuy);
-        // if(this.luuy == null){
-        //     this.luuy = {};
-        // }
-        // if(this.luuy.camera == undefined){
-        //     this.luuy.camera = 0;
-        // }
+        
     },
     props: ['hocsinh']
 }

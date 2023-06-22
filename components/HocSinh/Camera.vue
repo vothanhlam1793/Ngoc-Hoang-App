@@ -6,18 +6,11 @@
                     <h4>Camera</h4>
                 </div>
                 <div class="">
-                    <button 
-                        class="btn btn-warning"
-                        v-if="state == 'CHANGED'"
-                        @click="saveChange()"
-                    >Lưu lại</button>
+                    <button class="btn btn-warning" v-if="state == 'CHANGED'" @click="saveChange()">Lưu lại</button>
                 </div>
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" id="usr"
-                    v-model="camera.value"
-                    @change="changed()"
-                >
+                <input type="text" class="form-control" id="usr" v-model="camera.value" @change="changed()">
             </div>
         </div>
     </div>
@@ -25,20 +18,21 @@
 <script>
 import gql from 'graphql-tag'
 export default {
-    data(){
+    props: ['hocsinh'],
+    data() {
         return {
             camera: {},
             state: "NORMAL"
         }
     },
     methods: {
-        createOrUpdateCamera(){
+        createOrUpdateCamera() {
             var that = this;
             var client = this.$apolloProvider.defaultClient;
             client.mutate({
                 mutation: gql`
                 mutation {
-                    createOrUpdateCamera(idHocSinh: "${this.$route.params.id}"){
+                    createOrUpdateCamera(idHocSinh: "${this.hocsinh.id}"){
                         id
                         key
                         value
@@ -53,10 +47,10 @@ export default {
                 console.log(err);
             })
         },
-        changed(){
+        changed() {
             this.state = "CHANGED";
         },
-        saveChange(){
+        saveChange() {
             var that = this;
             var client = this.$apolloProvider.defaultClient;
             client.mutate({
@@ -74,15 +68,14 @@ export default {
                 }
                 `
             }).then(data => {
-                if(data.data.updateVariable.id){
+                if (data.data.updateVariable.id) {
                     that.state = "NORMAL"
                 }
             })
         }
     },
-    created(){
+    created() {
         this.createOrUpdateCamera();
-        console.log(this.$route.params.id);
     },
 }
 </script>

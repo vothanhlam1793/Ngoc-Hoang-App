@@ -195,6 +195,7 @@ export default {
     },
     mounted(){
         if(typeof window !== undefined){
+            // console.log(this.idPhuHuynh);
             if(this.idPhuHuynh){
                 this.$store.commit("log/updateIdPhuHuynh", this.idPhuHuynh);
                 this.$store.dispatch("log/getLogsDebt");

@@ -1,24 +1,17 @@
 <template>
-    <div class="row">
-        <div class="col">
+    <div class="row my-2">
+        <div class="col p-2 border border-primary rounded">
             <div class="d-flex justify-content-between mb-3">
                 <div class="">
                     <h4>Nghỉ liên tiếp</h4>
                 </div>
                 <div class="">
-                    <button 
-                        class="btn btn-warning"
-                        v-if="state == 'CHANGED'"
-                        @click="saveChange()"
-                    >Lưu lại</button>
+                    <button class="btn btn-warning" v-if="state == 'CHANGED'" @click="saveChange()">Lưu lại</button>
                 </div>
             </div>
             <div class="form-group">
                 <label for="usr">Phí:</label>
-                <input type="text" class="form-control" id="usr"
-                    v-model="price"
-                    @change="changed()"
-                >
+                <input type="text" class="form-control" id="usr" v-model="price" @change="changed()">
             </div>
         </div>
     </div>
@@ -26,7 +19,7 @@
 <script>
 import gql from 'graphql-tag'
 export default {
-    data(){
+    data() {
         return {
             type: "NGHI_LIEN_TIEP",
             price: 0,
@@ -35,10 +28,10 @@ export default {
         }
     },
     methods: {
-        saveChange(){
+        saveChange() {
             var that = this;
             let client = this.$apolloProvider.defaultClient;
-            if(this.variable.id){
+            if (this.variable.id) {
                 // Update
                 client.mutate({
                     mutation: gql`
@@ -53,8 +46,8 @@ export default {
                     }
                     `
                 }).then(data => {
-                    that.state="NORMAL";
-                }).catch (err => {
+                    that.state = "NORMAL";
+                }).catch(err => {
                     console.log(err);
                 });
             } else {
@@ -78,7 +71,7 @@ export default {
                 })
             }
         },
-        getVeTre(){
+        getVeTre() {
             var that = this;
             let client = this.$apolloProvider.defaultClient;
             client.query({
@@ -94,7 +87,7 @@ export default {
                 }
                 `
             }).then(data => {
-                if(data.data.allVariables.length > 0){
+                if (data.data.allVariables.length > 0) {
                     that.price = parseInt(data.data.allVariables[0].value) | 0;
                     that.variable = data.data.allVariables[0];
                 } else {
@@ -104,11 +97,11 @@ export default {
 
             });
         },
-        changed(){
+        changed() {
             this.state = "CHANGED";
         }
     },
-    created(){
+    created() {
         this.getVeTre();
     }
 }

@@ -6,20 +6,20 @@
 <script>
 import gql from 'graphql-tag'
 export default {
-    data(){
+    data() {
         return {
             camera: 0
         }
     },
     methods: {
         numberWithCommas(x) {
-            if(x){
+            if (x) {
                 return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             } else {
                 return 0;
             }
         },
-        getCamera(){
+        getCamera() {
             var that = this;
             let client = this.$apolloProvider.defaultClient;
             client.mutate({
@@ -35,6 +35,7 @@ export default {
                 }
                 `
             }).then(data => {
+                
                 that.camera = parseInt(data.data.createOrUpdateCamera.value) * 50000;
                 that.$store.commit("pks/updateCamera", {
                     item: that.item,
@@ -49,13 +50,13 @@ export default {
     watch: {
         item: {
             immediate: true,
-            handler(n, o){
+            handler(n, o) {
                 // console.log(n);
             }
-    }
+        }
     },
     props: ['item'],
-    created(){
+    created() {
         this.getCamera();
     },
     computed: {

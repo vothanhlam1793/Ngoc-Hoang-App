@@ -1,6 +1,8 @@
 <template>
     <td>
-        {{ numberWithCommas(ngaynghilientiep) }}
+        <div>
+            {{ numberWithCommas(ngaynghilientiep) }}
+        </div>
     </td>
 </template>
 <script>
@@ -71,6 +73,7 @@ export default {
                     dates.push("0");
                 }
             }
+
             this.dates = dates;
             this.counts = {
                 "0": 0,
@@ -79,6 +82,7 @@ export default {
             };
             var dateOff = 0;
             // console.log(this.item.hocsinh.name, this.dates);
+
             for (let i = 0; i < this.dates.length; i++) {
                 this.counts[this.dates[i]] = this.counts[this.dates[i]] ? this.counts[this.dates[i]] + 1 : 1;
                 switch(this.dates[i]){
@@ -89,7 +93,7 @@ export default {
                     case "3": {
                         // Di hoc   
                         if(dateOff > 2){
-                            this.ngaynghilientiep += (dateOff - 2);
+                            this.ngaynghilientiep += (dateOff); // Ngay nghi giam 2
                         }
                         dateOff = 0;
                     } break;
@@ -104,7 +108,7 @@ export default {
                 }
             }
             if(dateOff > 2){
-                this.ngaynghilientiep += (dateOff - 2);
+                this.ngaynghilientiep += (dateOff);
             }
             dateOff = 0;
             // console.log(this.item.hocsinh.name, this.dates, this.ngaynghilientiep);

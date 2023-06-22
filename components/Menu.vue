@@ -6,27 +6,27 @@
       <a class="nav-link" href="/">Trang chủ</a>
     </li>
     <li v-if="checkRole(['quan-tri-vien','hieu-truong','hieu-pho', 'ke-toan'])" class="nav-item">
-      <a class="nav-link" href="/hocsinh/quanly">Học sinh</a>
+      <a class="nav-link" href="/hocsinhv2">Học sinh</a>
     </li>
     <li v-if="checkRole(['giao-vien'])" class="nav-item">
       <a class="nav-link" href="/hocsinh">Học sinh</a>
     </li>
     <li 
-    v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'giao-vien'])" 
+    v-if="checkRole(['giao-vien'])" 
     class="nav-item">
       <a class="nav-link" href="/dihoc">Điểm danh</a>
     </li>
     <li 
-    v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'giao-vien'])" 
+    v-if="checkRole(['giao-vien'])" 
     class="nav-item">
       <a class="nav-link" href="/vetre">Về trễ</a>
     </li>
-    <li v-if="checkRole(['quan-tri-vien'])" class="nav-item">
+    <!-- <li v-if="checkRole(['quan-tri-vien'])" class="nav-item">
       <a class="nav-link" href="/sanpham">Sản phẩm</a>
-    </li>
-    <li v-if="checkRole(['quan-tri-vien'])" class="nav-item">
+    </li> -->
+    <!-- <li v-if="checkRole(['quan-tri-vien'])" class="nav-item">
       <a class="nav-link" href="/hoadon">Hoá đơn</a>
-    </li>
+    </li> -->
     <li 
     v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])" 
     class="nav-item">
@@ -37,17 +37,20 @@
     class="nav-item">
       <a class="nav-link" href="/setup">Cài đặt</a>
     </li>
+    <li v-if="checkRole(['quan-tri-vien','hieu-truong','hieu-pho', 'ke-toan'])" class="nav-item">
+      <a class="nav-link" href="/baocao">Báo cáo</a>
+    </li>
     <li 
     v-if="checkRole(['giao-vien'])" 
     class="nav-item">
       <a class="nav-link" href="/anchieu">Ăn chiều</a>
     </li>
-    <li class="nav-item">
-      <LoginButton></LoginButton>
-    </li>
     <!-- <li class="nav-item">
       <a class="nav-link" href="#">Link 3</a>
     </li> -->
+    <li class="nav-item ml-5">
+      <LoginButton></LoginButton>
+    </li>
   </ul>
 </nav>
 </template>

@@ -6,31 +6,26 @@
                     <h4>Học phí</h4>
                 </div>
                 <div class="">
-                    <button 
-                        class="btn btn-warning"
-                        v-if="state == 'CHANGED'"
-                        @click="saveChange()"
-                    >Lưu lại</button>
+                    <button class="btn btn-warning" v-if="state == 'CHANGED'" @click="saveChange()">Lưu lại</button>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="usr">Học phí năm</label>
-                <select class="form-control"
-                    v-model="hocsinh.namhocphi"
-                    @change="changed()"
-                >
-                    <option
-                        v-for="i in 6"
-                        :value="`HPN_${(new Date()).getFullYear() - i}`"
-                    >{{ (new Date()).getFullYear() - i }}</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="usr">Giảm:</label>
-                <input type="text" class="form-control" id="usr"
-                    v-model="hocsinh.hocphigiam"
-                    @change="changed()"
-                >
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="usr">Học phí năm</label>
+                        <select class="form-control" v-model="hocsinh.namhocphi" @change="changed()">
+                            <option v-for="i in 6" :value="`HPN_${(new Date()).getFullYear() - i}`">{{ (new
+                                Date()).getFullYear() -
+                                i }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="usr">Giảm:</label>
+                        <input type="text" class="form-control" id="usr" v-model="hocsinh.hocphigiam" @change="changed()">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -38,14 +33,14 @@
 <script>
 import gql from 'graphql-tag'
 export default {
-    data(){
+    data() {
         return {
             hocsinh: {},
             state: "NORMAL"
         }
     },
     methods: {
-        loadStudent: function(){
+        loadStudent: function () {
             var that = this;
             var client = this.$apolloProvider.defaultClient;
             client.query({
@@ -92,7 +87,7 @@ export default {
                 console.log(err);
             });
         },
-        saveChange(){
+        saveChange() {
             var that = this;
             var client = this.$apolloProvider.defaultClient;
             client.mutate({
@@ -112,11 +107,11 @@ export default {
                 console.log(err);
             })
         },
-        changed(){
+        changed() {
             this.state = "CHANGED";
         }
     },
-    mounted(){
+    mounted() {
         this.loadStudent();
     },
     props: ["id"]

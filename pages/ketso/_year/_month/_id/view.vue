@@ -24,7 +24,7 @@
                         <th>Học phí</th> 
                         <th>CSVC</th>
                         <th>Camera</th>
-                        <th>Hóa Đơn</th>
+                        <!-- <th>Hóa Đơn</th> -->
                         <th>Ngoài giờ</th>
                         <th>Ăn 4g45</th>
                         <th>Khác</th>

@@ -1,56 +1,33 @@
 <template>
     <tr>
         <td>{{ item.hocsinh.name }}</td>
-        <KetSoETotal
-            :item="item"
-        ></KetSoETotal>
-        <KetSoEHocPhi
-            :item="item"
-        ></KetSoEHocPhi>
-        <KetSoECoSoVatChat
-            :item="item"
-        ></KetSoECoSoVatChat>
-        <KetSoECamera
-            :item="item"
-        >
+        <KetSoETotal :item="item"></KetSoETotal>
+        <KetSoEHocPhi :item="item"></KetSoEHocPhi>
+        <KetSoECoSoVatChat :item="item"></KetSoECoSoVatChat>
+        <KetSoECamera :item="item">
         </KetSoECamera>
-        <KetSoEHoaDon
-            :item="item"
-        >
+        <KetSoEHoaDon :item="item">
         </KetSoEHoaDon>
-        <KetSoEDiemDanhVeTre
-            :item="item"
-        ></KetSoEDiemDanhVeTre>
-        <KetSoEDiemDanhAn545
-            :item="item"
-        ></KetSoEDiemDanhAn545>
-        <KetSoEKhac
-            :item="item"
-        >
+        <KetSoEDiemDanhVeTre :item="item"></KetSoEDiemDanhVeTre>
+        <KetSoEDiemDanhAn545 :item="item"></KetSoEDiemDanhAn545>
+        <KetSoEKhac :item="item">
         </KetSoEKhac>
-        <KetSoEDienGiai
-            :item="item"
-        >
+        <KetSoEDienGiai :item="item">
         </KetSoEDienGiai>
-        <KetSoEDiemDanh
-            :item="item"
-            type="DIHOCHANGNGAY"
-        ></KetSoEDiemDanh>
-        <KetSoEThanhTienNghi
-            :item="item"
-        >
+        <KetSoEDiemDanhV2 :item="item" type="DIHOCHANGNGAY"></KetSoEDiemDanhV2>
+        <KetSoEThanhTienNghi :item="item">
         </KetSoEThanhTienNghi>
     </tr>
 </template>
 <script>
 import gql from 'graphql-tag'
 export default {
-    data(){
+    data() {
         return {
             hocphi: 0,
             total: 0,
             csvc: 0,
-            camera: 0, 
+            camera: 0,
             dongphuc: 0,
             balo: 0,
             ngoaigio: 0,
@@ -62,44 +39,44 @@ export default {
         }
     },
     methods: {
-        getHocPhi(){
+        getHocPhi() {
             var year = this.item.hocsinh.namhocphi;
             var hp = this.item.hocsinh.hocphigiam;
             var ret = 0;
-            this.hocphis.forEach(function(hp){
-                if(hp.key == year){
+            this.hocphis.forEach(function (hp) {
+                if (hp.key == year) {
                     ret = parseInt(hp.value);
                 }
             });
-            if(hp == null || hp == 'null'){
+            if (hp == null || hp == 'null') {
                 hp = 0;
             } else {
                 hp = parseInt(hp);
             }
             this.hocphi = ret - hp;
         },
-        getTotal(){
-            this.total = 
-                this.hocphi 
-                + parseInt(this.csvc) 
-                + this.camera 
-                + this.dongphuc 
-                + this.balo 
-                + this.ngoaigio 
-                + this.an545 
-                + this.khac 
+        getTotal() {
+            this.total =
+                this.hocphi
+                + parseInt(this.csvc)
+                + this.camera
+                + this.dongphuc
+                + this.balo
+                + this.ngoaigio
+                + this.an545
+                + this.khac
                 + this.thanhtiennghi;
         },
-        createItemKetSo(){
+        createItemKetSo() {
             console.log(this.item);
         }
     },
-    mounted(){
+    mounted() {
 
     },
     watch: {
-        stateCSVC: function(nS, oS){
-            switch(nS){
+        stateCSVC: function (nS, oS) {
+            switch (nS) {
                 case "NONE": {
                     this.csvc = 0;
                 } break;
@@ -108,16 +85,16 @@ export default {
                 } break;
                 case "HALF": {
                     this.csvc = this.half;
-                }break;
+                } break;
             }
             this.getTotal();
         }
     },
     computed: {
-        hocphis(){
+        hocphis() {
             return this.$store.state.hocphi.hocphis;
         },
-        stateCSVC(){
+        stateCSVC() {
             return this.$store.state.ketso.stateCSVC;
         }
     },

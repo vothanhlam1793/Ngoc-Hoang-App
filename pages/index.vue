@@ -37,15 +37,15 @@
                     <h3 class="my-2">Công cụ quản trị</h3>
                                         <ul class="list-group">
                         <li class="list-group-item">
-                            <a href="/hocsinh/quanly">
+                            <a href="/hocsinhv2">
                                 Quản lý học sinh
                             </a>
                         </li>
-                        <li class="list-group-item">
+                        <!-- <li class="list-group-item">
                             <a href="/hoadon">
                                 Bán hàng
                             </a>
-                        </li>
+                        </li> -->
                         <li class="list-group-item">
                             <a :href="`/ketso/${getDateKetSo()}`">
                                 Kết sổ

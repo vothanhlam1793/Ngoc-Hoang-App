@@ -5,7 +5,7 @@
         <td class="text-right" >{{ numberWithCommas(item.data.hocphi) }}</td>
         <td class="text-right" >{{ numberWithCommas(item.data.csvc) }}</td>
         <td class="text-right" >{{ numberWithCommas(item.data.camera) }}</td>
-        <td class="text-right" >{{ numberWithCommas(item.data.totalHoaDon) }}</td>
+        <!-- <td class="text-right" >{{ numberWithCommas(item.data.totalHoaDon) }}</td> -->
         <td class="text-right" >{{ numberWithCommas(item.data.ngoaigio) }}</td>
         <td class="text-right" >{{ numberWithCommas(item.data.an545) }}</td>
         <td class="text-right" >{{ numberWithCommas(item.data.khac) }}</td>

@@ -1,6 +1,6 @@
 <template>
-    <div class="row">
-        <div class="col">
+    <div class="row my-2">
+        <div class="col p-2 border border-primary rounded">
             <div class="d-flex justify-content-between mb-3">
                 <div class="">
                     <h4>Phí ăn chiều</h4>

@@ -3,7 +3,7 @@
         <div class="col">
             <div class="d-flex justify-content-between mb-3">
                 <div class="">
-                    <h4>Đăng ký ăn chiều</h4>
+                    <h4>Ăn chiều</h4>
                 </div>
                 <div class="">
                     <button 
@@ -33,6 +33,7 @@
 import gql from 'graphql-tag'
 // var client = this.$apolloProvider.defaultClient;
 export default {
+    props: ['hocsinh'],
     data(){
         return {
             an545: {},
@@ -46,7 +47,7 @@ export default {
             client.mutate({
                 mutation: gql`
                 mutation {
-                    createOrUpdateAn545(idHocSinh: "${this.$route.params.id}"){
+                    createOrUpdateAn545(idHocSinh: "${this.hocsinh.id}"){
                         id
                         key
                         value
@@ -90,7 +91,6 @@ export default {
     },
     created(){
         this.createOrUpdateCamera();
-        console.log(this.$route.params.id);
     },
 }
 </script>

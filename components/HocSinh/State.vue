@@ -3,23 +3,17 @@
         <div class="col">
             <div class="d-flex justify-content-between mb-3">
                 <div class="">
-                    <h4>Trạng thái học sinh</h4>
+                    <h4>Trạng thái</h4>
                 </div>
                 <div class="">
-                    <button 
-                        class="btn btn-warning"
-                        v-if="state == 'CHANGED'"
-                        @click="saveChange()"
-                    >Lưu lại</button>
+                    <button class="btn btn-warning" v-if="state == 'CHANGED'" @click="saveChange()">Lưu lại</button>
                 </div>
             </div>
-            <select class="form-control" v-model="status" 
-            @change="changed()"
-            >
-                        <option value="DANG_KY">Đăng ký</option>
-                        <option value="DANG_HOC">Đang học</option>
-                        <option value="TAM_NGHI">Tạm nghỉ</option>
-                        <option value="NGHI_LUON">Nghỉ luôn</option>
+            <select class="form-control" v-model="status" @change="changed()">
+                <option value="DANG_KY">Đăng ký</option>
+                <option value="DANG_HOC">Đang học</option>
+                <option value="TAM_NGHI">Tạm nghỉ</option>
+                <option value="NGHI_LUON">Nghỉ luôn</option>
             </select>
         </div>
     </div>
@@ -28,17 +22,17 @@
 import gql from 'graphql-tag'
 export default {
     props: ['hocsinh'],
-    data(){
+    data() {
         return {
             state: "NORMAL",
             status: ""
         }
     },
     methods: {
-        changed(){
+        changed() {
             this.state = "CHANGED";
         },
-        saveChange(){
+        saveChange() {
             var that = this;
             var client = this.$apolloProvider.defaultClient;
             client.mutate({
@@ -53,7 +47,7 @@ export default {
                 }
                 `
             }).then(data => {
-                if(data.data.updateStudent.id){
+                if (data.data.updateStudent.id) {
                     that.state = "NORMAL"
                 }
             })
@@ -62,8 +56,8 @@ export default {
     computed: {
 
     },
-    created(){
-        if(this.hocsinh.status){
+    created() {
+        if (this.hocsinh.status) {
             this.status = this.hocsinh.status;
         } else {
             this.status = "";

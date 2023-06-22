@@ -6,17 +6,10 @@
                     <h4>Đăng ký lớp</h4>
                 </div>
                 <div class="">
-                    <button 
-                        class="btn btn-warning"
-                        v-if="state == 'CHANGED'"
-                        @click="saveChange()"
-                    >Lưu lại</button>
+                    <button class="btn btn-warning" v-if="state == 'CHANGED'" @click="saveChange()">Lưu lại</button>
                 </div>
             </div>
-            <select 
-                class="form-control" v-model="idLopHoc"
-                @change="changed()"
-            >
+            <select class="form-control" v-model="idLopHoc" @change="changed()">
                 <option v-for="lophoc in lophocs" :value="lophoc.id">{{ lophoc.name }}</option>
             </select>
         </div>
@@ -26,7 +19,7 @@
 import gql from 'graphql-tag'
 export default {
     props: ['hocsinh'],
-    data(){
+    data() {
         return {
             lophocs: [],
             idLopHoc: "",
@@ -34,7 +27,7 @@ export default {
         }
     },
     methods: {
-        getLopHoc(){
+        getLopHoc() {
             var that = this;
             var client = this.$apolloProvider.defaultClient;
             client.query({
@@ -53,10 +46,10 @@ export default {
                 that.lophocs = data.data.allLopHocs;
             })
         },
-        changed(){
+        changed() {
             this.state = "CHANGED";
         },
-        saveChange(){
+        saveChange() {
             var that = this;
             var client = this.$apolloProvider.defaultClient;
             client.mutate({
@@ -75,7 +68,7 @@ export default {
                 }
                 `
             }).then(data => {
-                if(data.data.updateStudent.id){
+                if (data.data.updateStudent.id) {
                     that.state = "NORMAL"
                 }
             })
@@ -84,8 +77,8 @@ export default {
     computed: {
 
     },
-    created(){
-        if(this.hocsinh.lophoc){
+    created() {
+        if (this.hocsinh.lophoc) {
             this.idLopHoc = this.hocsinh.lophoc.id;
         } else {
             this.idLopHoc = "";
