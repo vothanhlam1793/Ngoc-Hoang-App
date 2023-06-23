@@ -19,7 +19,7 @@
                         </li>
                         <li class="list-group-item list-group-item-primary">
                             <a href="/anchieu">
-                                Báo ăn chiều
+                                Ăn chiều
                             </a>
                         </li>
                         <li class="list-group-item">

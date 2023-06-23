@@ -19,7 +19,7 @@
     <li 
     v-if="checkRole(['giao-vien'])" 
     class="nav-item">
-      <a class="nav-link" href="/vetre">Về trễ</a>
+      <a class="nav-link" href="/diemdanhvetre">Về trễ</a>
     </li>
     <!-- <li v-if="checkRole(['quan-tri-vien'])" class="nav-item">
       <a class="nav-link" href="/sanpham">Sản phẩm</a>
