@@ -3,6 +3,7 @@
         <div class="col">
             <Table
                 :idPhuHuynh="hocsinh.parent.id"
+                :loadData="loadData"
             />
         </div>
     </div>
@@ -18,6 +19,6 @@ export default {
 
         }
     },
-    props: ['hocsinh']
+    props: ['hocsinh', 'loadData']
 }
 </script>

@@ -2,29 +2,34 @@
     <div class="row">
         <div class="col">
             <div>
-                <h1>{{ lophoc.name }}</h1>
+                <h3>{{ lophoc.name }} - ĂN CHIỀU</h3>
                 <p>Ngày {{ $route.params.date }}/{{ $route.params.month }}/{{ $route.params.year }}</p>
             </div>
-            <div class="text-right my-2">
+            <ResultDiemDanh v-if="lophoc.id"
+                :lophoc="lophoc"
+            />
+            <div class="text-right">
                 <button 
                 @click="$store.dispatch('ndd/createPhieuDiemDanh')"
-                    class="btn btn-primary"
+                    class="btn btn-primary mb-3"
                 >
                 Tạo mới</button>
             </div>
             <div>
-                <table class="table table-bordered table-stripped">
+                <table class="table-bordered table-stripped">
                     <thead>
-                        <tr>
-                            <th>Tên</th>
-                            <th>Điểm danh</th>
+                        <tr class="text-center">
+                            <th class="p-2">STT</th>
+                            <th class="p-2">Tên</th>
+                            <th class="p-2">Điểm danh</th>
                         </tr>
                     </thead>
                     <tbody>
                         <DiemDanhItemDiemDanh 
-                            v-for="hocsinh in sortHocSinh(lophoc.hocsinhs)"
+                            v-for="hocsinh, index in sortHocSinh(lophoc.hocsinhs)"
                             :hocsinh="hocsinh"
                             :key="hocsinh.id"
+                            :index="index"
                         />
                     </tbody>
                 </table>
@@ -33,7 +38,11 @@
     </div>
 </template>
 <script>
+import ResultDiemDanh from '~/components/DiemDanh/ResultDiemDanh.vue';
 export default {
+    components: {
+        ResultDiemDanh
+    },
     data(){
         return {
             state: "IDLE"

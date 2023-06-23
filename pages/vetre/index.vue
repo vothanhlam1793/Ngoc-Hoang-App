@@ -2,7 +2,7 @@
     <div class="row mt-3">
         <div class="col">
             <div class="">
-                <h2>Về trễ hàng ngày</h2>
+                <h2>Về trễ</h2>
             </div>
             <div class="my-3">
                 <ul class="list-group">

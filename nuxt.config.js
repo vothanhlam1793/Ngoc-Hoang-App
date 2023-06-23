@@ -1,20 +1,10 @@
 function baseURL(){
-    // process.env.API_URL || `/admin/api/`
-    // return `http://camerangochoang.com:3001/admin/api`
-
-    // if (process.browser) {
-    //   return `http://camerangochoang.com:3001/admin/api`
-    // } else {
-    //   return 'http://camerangochoang.com:3001/admin/api/';
-    // }
     return baseProxy();
 }
 
 function baseProxy(){
   // Proxy cho keystone
-  // return `http://camerangochoang.com:3001/admin/api`
-
-  return `http://${process.env.API_KEYSTONE}/admin/api` || 'http://localhost:3001/admin/api';
+  return `https://be.camerangochoang.com/admin/api`
 }
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
@@ -124,10 +114,13 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    transpile: [
+      'defu'
+    ]
   },
 
   server: {
-    // host: '0.0.0.0', // default: localhost
+    host: '0.0.0.0', // default: localhost
     port: 3000 // default: 3000
   },
 }

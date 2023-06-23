@@ -116,6 +116,9 @@ export default {
     },
     computed: {
         phieuketso() {
+            // console.log(this.$store.state.pks.phieuketso);
+            // Cap nhat lai phieu ket so
+            // var phieuketso = this.$store.state.pks.phieuketso;
             return this.$store.state.pks.phieuketso;
         },
         stateEdit() {

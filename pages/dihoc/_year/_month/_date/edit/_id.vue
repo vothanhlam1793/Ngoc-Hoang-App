@@ -15,19 +15,24 @@
             <div>
                 <h1>{{ lophoc.name }}</h1>
             </div>
+            <ResultDiemDanh v-if="lophoc.id"
+                :lophoc="lophoc"
+            />
             <div>
-                <table class="table table-bordered table-stripped">
+                <table class="table-bordered table-stripped">
                     <thead>
                         <tr class="text-center">
-                            <th>Tên</th>
-                            <th>Điểm danh</th>
+                            <th class="p-2">STT</th>
+                            <th class="p-2">Tên</th>
+                            <th class="p-2">Điểm danh</th>
                         </tr>
                     </thead>
                     <tbody>
                         <DiemDanhItemDiemDanh 
-                            v-for="hocsinh in sortHocSinh(lophoc.hocsinhs)"
+                            v-for="hocsinh, index in sortHocSinh(lophoc.hocsinhs)"
                             :hocsinh="hocsinh"
                             :key="hocsinh.id"
+                            :index="index"
                         />
                     </tbody>
                 </table>
@@ -36,7 +41,11 @@
     </div>
 </template>
 <script>
+import ResultDiemDanh from '~/components/DiemDanh/ResultDiemDanh.vue';
 export default {
+    components: {
+        ResultDiemDanh
+    },
     data(){
         return {
             state: "IDLE"

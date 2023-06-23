@@ -2,7 +2,7 @@
     <div class="row my-3">
         <div class="col">
             <div class="">
-                <h2>Xem thông tin lớp</h2>
+                <h2>Thông tin học sinh</h2>
             </div>
             <div class="">
                 <ul class="list-group">

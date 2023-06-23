@@ -229,7 +229,12 @@ export const actions = {
             }
             `
     }).then(data => {
-      commit("updateLopHoc", data.data.LopHoc);
+      // Cap nhat cai nay danh cho viec loc trang thai học sinh
+      var lophoc = data.data.LopHoc;
+      lophoc.hocsinhs = lophoc.hocsinhs.filter(function(hocsinh){
+        return hocsinh.status != "NGHI_LUON";
+      })
+      commit("updateLopHoc", lophoc);
       commit("updateStateLopHoc", "READY");
     }).catch(err => {
       console.log("NDD/ACTIONS/GETLOPCHOC: ", err);

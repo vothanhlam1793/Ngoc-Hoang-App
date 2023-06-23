@@ -19,6 +19,10 @@ export const mutations = {
         state.idLopHoc = data;
     },
     updatePhieuKetSo(state, data){
+        console.log("PKS", data);
+        data.items = data.items.filter(function(item){
+            return item.hocsinh.status != "NGHI_LUON";
+        });
         state.phieuketso = data;
     },
     updateHocPhiItem(state, data){

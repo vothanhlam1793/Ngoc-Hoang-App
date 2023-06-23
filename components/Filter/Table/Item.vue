@@ -20,11 +20,13 @@
                                 <a class="nav-link active" data-toggle="tab" :href="'#home' + hocsinh.id">Thông tin</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" :href="'#menu1' + hocsinh.id">Công nợ</a>
+                                <a 
+
+                                class="nav-link" data-toggle="tab" :href="'#menu1' + hocsinh.id">Công nợ 1</a>
                             </li>
-                            <!-- <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" :href="'#menu2'+hocsinh.id">Anh chị em</a>
-                            </li> -->
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" :href="'#menu2'+hocsinh.id">Phụ huynh</a>
+                            </li>
                         </ul>
 
                         <!-- Tab panes -->
@@ -32,12 +34,18 @@
                             <div class="tab-pane container active" :id="'home' + hocsinh.id">
                                 <Info :hocsinh="hocsinh" />
                             </div>
-                            <div class="tab-pane container fade" :id="'menu1' + hocsinh.id">
-                                <Debt :hocsinh="hocsinh" />
+                            <div class="tab-pane container fade" :id="'menu1' + hocsinh.id"
+                                @click="load"
+                            >
+                                <Debt :hocsinh="hocsinh" 
+                                :loadData="loadDataDebt"
+                                />
                             </div>
-                            <!-- <div class="tab-pane container fade" :id="'menu2'+hocsinh.id">
-                                
-                            </div> -->
+                            <div class="tab-pane container fade" :id="'menu2'+hocsinh.id">
+                                <Parent 
+                                    :hocsinh="hocsinh"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -48,12 +56,27 @@
 <script>
 import Info from '~/components/Filter/Table/Info/Index.vue';
 import Debt from '~/components/Filter/Table/Debt/Index.vue';
+import Parent from '~/components/HocSinh/Info.vue';
 export default {
     components: {
         Info,
-        Debt
+        Debt,
+        Parent
+    },
+    data: () => {
+        return {
+            loadDataDebt: false
+        }
     },
     methods: {
+        loadData(){
+            console.log("LOAD-DATA", this.hocsinh);
+            if(this.loadDataDebt){
+
+            } else {
+                this.loadDataDebt = true;
+            }
+        },
         numberWithCommas(x) {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         },

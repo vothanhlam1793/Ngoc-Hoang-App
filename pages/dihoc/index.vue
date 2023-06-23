@@ -2,9 +2,12 @@
     <div class="row mt-3">
         <div class="col">
             <div class="">
-                <h2>Điểm danh đi học</h2>
+                <h2>Điểm danh hàng ngày</h2>
             </div>
             <div class="my-5">
+                <p
+                    class="pl-4 mb-2"
+                >Danh sách lớp quản lý</p>
                 <ul class="list-group">
                     <li 
                         class="list-group-item" 

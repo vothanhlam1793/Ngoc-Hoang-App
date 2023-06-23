@@ -2,30 +2,35 @@
     <div class="row">
         <div class="col">
             <div class="my-5">
-                <h1>{{ lophoc.name }}</h1>
+                <h3>{{ lophoc.name }} - ĐI HỌC</h3>
                 <p>Ngày {{ $route.params.date }}/{{ $route.params.month }}/{{ $route.params.year }}</p>
             </div>
+            <ResultDiemDanh v-if="lophoc.id"
+                :lophoc="lophoc"
+            />
             <div class="text-right">
                 <button 
                 @click="$store.dispatch('ndd/createPhieuDiemDanh')"
-                    class="btn btn-primary"
+                    class="btn btn-primary mb-3"
                 >
                 Lưu lại</button>
             </div>
             <div>
-                <table class="table table-bordered table-stripped">
+                <table class="table-bordered table-stripped">
                     <thead>
                         <tr class="text-center">
-                            <th>Tên</th>
-                            <th>Điểm danh</th>
+                            <th class="p-2">STT</th>
+                            <th class="p-2">Tên</th>
+                            <th class="p-2">Điểm danh</th>
                         </tr>
                     </thead>
                     <tbody>
                         <DiemDanhItemDiemDanh 
-                            v-for="hocsinh in sortHocSinh(lophoc.hocsinhs)"
+                            v-for="hocsinh, index in sortHocSinh(lophoc.hocsinhs)"
                             :hocsinh="hocsinh"
                             :key="hocsinh.id"
                             :counter="count"
+                            :index="index"
                         />
                     </tbody>
                 </table>
@@ -34,7 +39,11 @@
     </div>
 </template>
 <script>
+import ResultDiemDanh from '~/components/DiemDanh/ResultDiemDanh.vue';
 export default {
+    components: {
+        ResultDiemDanh
+    },
     data(){
         return {
             state: "IDLE", 
@@ -84,7 +93,7 @@ export default {
     },
     watch: {
         monitor: function(nS, oS){
-
+            console.log(this.lophoc);
         },
         stateLopHoc: function(nS, oS){
             if(nS == "READY"){

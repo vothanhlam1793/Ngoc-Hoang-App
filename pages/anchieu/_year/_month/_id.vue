@@ -1,12 +1,12 @@
 <template>
     <div class="col mt-2">
-        <h1>{{ lophoc.name }}</h1>
-        <table class="table table-bordered my-2">
+        <h1>ĂN CHIỀU: {{ lophoc.name }}</h1>
+        <table class="table table-bordered">
             <thead>
-                <tr>
+                <tr class="text-center">
                     <th>Ngày</th>
                     <th>Tình trạng</th>
-                    <th>Hanh dong</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -14,7 +14,7 @@
                     v-for="date in dates"
                     :class="checkDiemDanhColor(date)"
                 >
-                    <td>{{ date }}/{{ $route.params.month }}</td>
+                <td class="text-center">{{ date }}/{{ $route.params.month }}<br>({{ timThuNgay(`${date}/${$route.params.month }/${$route.params.year}`) }})</td>
                     <td >
                         <div>
                             <p
@@ -55,6 +55,16 @@ export default {
         }
     },
     methods: {
+        timThuNgay(dateString) {
+            const parts = dateString.split('/');
+            const day = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            const year = parseInt(parts[2], 10);
+            const date = new Date(year, month, day);
+            const days = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+            const thu = days[date.getDay()];
+            return thu;
+        },
         checkDiemDanhColor(date){
             if(this.checkDiemDanh(date)){
                 return ""

@@ -55,7 +55,7 @@
                                 <td>{{ showDate(log.createdAt) }}</td>
                                 <td>{{ getType(log) }}</td>
                                 <td class="text-right">{{ numberWithCommas(log.valueChange) }}</td>
-                                <td class="text-right">{{ numberWithCommas(log.value) }}</td>
+                                <td class="text-right">{{ numberWithCommas(log.value)}}</td>
                                 <td class="text-center"><button class="btn btn-danger" v-if="log.itemS == 'PhieuThu'"
                                         @click="deletePhieuThu(log)">
                                         x
@@ -71,7 +71,7 @@
 <script>
 import gql from 'graphql-tag'
 export default {
-    props: ['idPhuHuynh'],
+    props: ['idPhuHuynh', 'loadData'],
     data() {
         return {
             item: {},
@@ -116,9 +116,17 @@ export default {
             }
         },
         getType(log) {
+            // console.log("TABLEV2-", log);
             switch (log.itemS) {
                 case "ItemKetSo": {
-                    return "Kết sổ tháng";
+                    var l = this.getItemKetSo(log);
+                    if(l != undefined){
+                        // var d = JSON.parse(l.data);
+                        // console.log(l);
+                        return `KS tháng ${l.phieuketso.code.split("_")[1]}/${l.phieuketso.code.split("_")[0]} : ${l.hocsinh.name}`;
+                    } else {
+                        return "Kết sổ tháng";
+                    }
                 } break;
                 case "HoaDon": {
                     return "Mua hàng trực tiếp"
@@ -166,16 +174,31 @@ export default {
             })
         },
         choose(log) {
-            console.log(log);
-            var client = this.$apolloProvider.defaultClient;
             this.getItem({
                 name: log.itemS,
                 id: log.idItemS
             });
 
+        },
+        getItemKetSo(log){
+            if(log.itemS == "ItemKetSo"){
+                return this.$store.state.pkssp.itemKetSoById[log.idItemS];
+            }
         }
     },
     watch: {
+        loadData: function(){
+            // console.log("LOAD DATA", this.phuhuynh);
+            if(this.logs == undefined){
+                return;
+            }
+            var that = this;
+            this.logs.forEach(function(log){
+                if(log.itemS == "ItemKetSo"){
+                    that.$store.dispatch("pkssp/getPhieuKetSo", log.idItemS);
+                }
+            });
+        },
         monitorPhuhuynh: function(){
             this.phuhuynh = this.phuhuynhById[this.idPhuHuynh];
             this.logs = this.logsById[this.idPhuHuynh];
@@ -183,6 +206,9 @@ export default {
         monitorLog: function(){
             this.phuhuynh = this.phuhuynhById[this.idPhuHuynh];
             this.logs = this.logsById[this.idPhuHuynh];
+        },
+        monitorItemKetSo: function(){
+            this.$forceUpdate();
         }
     },
     computed: {
@@ -197,6 +223,9 @@ export default {
         },
         monitorLog(){
             return this.$store.state.logv2.monitor;
+        },
+        monitorItemKetSo(){
+            return this.$store.state.pkssp.monitor;
         }
     },
     mounted() {

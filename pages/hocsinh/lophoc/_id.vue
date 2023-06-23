@@ -6,9 +6,9 @@
                     <thead
                         class="text-center"
                     >
-                        <tr>
+                        <tr class="text-center">
                             <th>Tên</th>
-                            <th>Hành động</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
