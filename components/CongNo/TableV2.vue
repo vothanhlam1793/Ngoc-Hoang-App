@@ -122,8 +122,11 @@ export default {
                     var l = this.getItemKetSo(log);
                     if(l != undefined){
                         // var d = JSON.parse(l.data);
-                        // console.log(l);
-                        return `KS tháng ${l.phieuketso.code.split("_")[1]}/${l.phieuketso.code.split("_")[0]} : ${l.hocsinh.name}`;
+                        if(l.phieuketso){
+                            return `KS tháng ${l.phieuketso.code.split("_")[1]}/${l.phieuketso.code.split("_")[0]} : ${l.hocsinh.name}`;
+                        } else {
+                            return `${l.code} : ${l.hocsinh.name}`
+                        }
                     } else {
                         return "Kết sổ tháng";
                     }

@@ -10,8 +10,12 @@
                     <tbody>
                         <tr v-for="sanpham in filSanPhams">
                             <td>{{ sanpham.name }}</td>
-                            <td>{{ sanpham.price }}</td>
-                            <td><button class="btn btn-success" @click="$store.commit('hd/addSanPhamChoose', sanpham)">
+                            <td
+                                class="text-right"
+                            >{{ numberWithCommas(sanpham.price) }}</td>
+                            <td
+                                class="text-center" 
+                            ><button class="btn btn-success" @click="sanphamchon(sanpham)">
                                     Chọn
                                 </button></td>
                         </tr>
@@ -28,7 +32,7 @@ function chuyentiengviet(str) {
         .replace(/đ/g, 'd').replace(/Đ/g, 'D');
 }
 export default {
-
+    props: ['sanphams'],
     data() {
         return {
             cntSearch: "",
@@ -36,8 +40,19 @@ export default {
         }
     },
     methods: {
+        numberWithCommas(x) {
+            if(x){
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            } else {
+                return 0;
+            }
+        },
+        sanphamchon(sp){
+            // console.log(sp);
+            this.$emit('update-data', sp);
+        },
         searchSanPham() {
-            console.log(this.filSanPhams, this.cntSearch, this.sanphams);
+            // console.log(this.filSanPhams, this.cntSearch, this.sanphams);
             var changeSearchReg = chuyentiengviet(this.cntSearch).split(" ").join("[ -w]+");
             var reg = new RegExp(changeSearchReg, "i");
             this.filSanPhams = this.sanphams.filter(function (sanpham) {
@@ -51,10 +66,10 @@ export default {
             this.searchSanPham();
         }
     },
-    computed: {
-        sanphams() {
-            return this.$store.state.hd.sanphams;
-        }
-    }
+    // computed: {
+    //     sanphams() {
+    //         return this.$store.state.hd.sanphams;
+    //     }
+    // }
 }
 </script>

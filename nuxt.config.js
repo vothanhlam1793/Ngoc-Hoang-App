@@ -4,7 +4,8 @@ function baseURL(){
 
 function baseProxy(){
   // Proxy cho keystone
-  return `https://be.camerangochoang.com/admin/api`
+  // return `https://be.camerangochoang.com/admin/api`
+  return "http://localhost:3001/admin/api"
 }
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
@@ -38,6 +39,7 @@ export default {
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
+    '@fortawesome/fontawesome-free/css/all.css'
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins

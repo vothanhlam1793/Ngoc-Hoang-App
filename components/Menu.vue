@@ -21,12 +21,12 @@
     class="nav-item">
       <a class="nav-link" href="/diemdanhvetre">Về trễ</a>
     </li>
-    <!-- <li v-if="checkRole(['quan-tri-vien'])" class="nav-item">
+    <li v-if="checkRole(['quan-tri-vien'])" class="nav-item">
       <a class="nav-link" href="/sanpham">Sản phẩm</a>
-    </li> -->
-    <!-- <li v-if="checkRole(['quan-tri-vien'])" class="nav-item">
+    </li>
+    <li v-if="checkRole(['quan-tri-vien'])" class="nav-item">
       <a class="nav-link" href="/hoadon">Hoá đơn</a>
-    </li> -->
+    </li>
     <li 
     v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])" 
     class="nav-item">
