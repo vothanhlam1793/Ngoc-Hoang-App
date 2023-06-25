@@ -8,6 +8,7 @@
                 </div>
                 <div class="col-4">
                     <CoSoVatChat />
+                    <VeTre2 />
                     <VeTre />
                     <AnChieu />
                     <NghiLienTiep />

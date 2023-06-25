@@ -51,6 +51,18 @@
 </template>
 <script>
 import gql from 'graphql-tag'
+function getDaysInMonth(month, year) {
+  const date = new Date(year, month - 1, 1);
+  const days = [];
+
+  while (date.getMonth() === month - 1) {
+    days.push(date.getDate().toString()); // Thêm ngày vào cuối mảng
+    date.setDate(date.getDate() + 1); // Tăng 1 ngày để lặp qua các ngày trong tháng
+  }
+
+  return days;
+}
+
 export default {
     props: ['month', 'year'],
     data() {
@@ -58,7 +70,8 @@ export default {
             lichhoc: [],
             status: "NONE",
             state: "NORMAL",
-            variable: {}
+            variable: {},
+            dateForm: [],
         }
     },
     watch: {
@@ -88,9 +101,10 @@ export default {
         }
     },
     computed: {
-        dateForm() {
-            return this.$store.state.diemdanh.dateForm;
-        }
+        // dateForm() {
+        //     console.log("DATEFORM: ", this.$store.state.diemdanh.dateForm); 
+        //     return this.$store.state.diemdanh.dateForm;
+        // }
     },
     methods: {
         getColor(item) {
@@ -201,10 +215,13 @@ export default {
                 } else {
                     that.lichhoc = [];
                 }
-                that.$store.commit("diemdanh/updateDateForm", {
-                    year: this.year,
-                    month: this.month
-                });
+                that.dateForm = getDaysInMonth(that.month, that.year);
+                console.log(that.month, that.year);
+                console.log(getDaysInMonth(that.month, that.year));
+                // that.$store.commit("diemdanh/updateDateForm", {
+                //     year: this.year,
+                //     month: this.month
+                // });
             }).catch(err => {
                 console.log(err);
             });

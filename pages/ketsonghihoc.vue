@@ -1,14 +1,12 @@
 <template>
     <div class="row">
         <div class="col">
-            <NghiHoc 
-                :idHocSinh="id"
-            />
+            <NghiHoc/>
         </div>
     </div>
 </template>
 <script>
-import NghiHoc from '~/components/KetSo/NghiHoc.vue';
+import NghiHoc from '~/components/KetSo/NghiHoc/Form.vue';
 export default {
     components: {
         NghiHoc
@@ -19,7 +17,7 @@ export default {
         }
     },
     created(){
-        this.id = this.$route.query.id;
+
     },
     layout: "app"
 }

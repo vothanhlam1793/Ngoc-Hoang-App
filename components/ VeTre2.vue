@@ -1,9 +1,9 @@
 <template>
     <div class="row my-2">
-        <div class="col p-2 border border-danger rounded">
+        <div class="col p-2 border border-primary rounded">
             <div class="d-flex justify-content-between mb-3">
                 <div class="">
-                    <h4>Phí về trễ 17 giờ</h4>
+                    <h4>Phí về trễ 18 giờ</h4>
                 </div>
                 <div class="">
                     <button class="btn btn-warning" v-if="state == 'CHANGED'" @click="saveChange()">Lưu lại</button>
@@ -55,7 +55,7 @@ export default {
                     mutation: gql`
                     mutation {
                         createVariable(data: {
-                            key: "PRICE_VE_TRE",
+                            key: "PRICE_VE_TRE_2",
                             value: "${this.price}"
                         }){
                             id
@@ -77,7 +77,7 @@ export default {
                 query: gql`
                 query {
                     allVariables(where: {
-                        key: "PRICE_VE_TRE"
+                        key: "PRICE_VE_TRE_2"
                     }){
                         id
                         key

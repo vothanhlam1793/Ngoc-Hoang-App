@@ -8,13 +8,13 @@
         </KetSoECamera>
         <KetSoEHoaDon :item="item">
         </KetSoEHoaDon>
-        <KetSoEDiemDanhVeTre :item="item"></KetSoEDiemDanhVeTre>
-        <KetSoEDiemDanhAn545 :item="item"></KetSoEDiemDanhAn545>
+        <KetSoEDiemDanhVeTre :item="item" :month="month" :year="year"></KetSoEDiemDanhVeTre>
+        <KetSoEDiemDanhAn545V5 :item="item" :month="month" :year="year"></KetSoEDiemDanhAn545V5>
         <KetSoEKhac :item="item">
         </KetSoEKhac>
         <KetSoEDienGiai :item="item">
         </KetSoEDienGiai>
-        <KetSoEDiemDanhV2 :item="item" type="DIHOCHANGNGAY"></KetSoEDiemDanhV2>
+        <KetSoEDiemDanhV2 :item="item" type="DIHOCHANGNGAY"  :month="month" :year="year"></KetSoEDiemDanhV2>
         <KetSoEThanhTienNghi :item="item">
         </KetSoEThanhTienNghi>
     </tr>
@@ -98,6 +98,6 @@ export default {
             return this.$store.state.ketso.stateCSVC;
         }
     },
-    props: ["item"],
+    props: ["item", 'month', 'year'],
 }
 </script>

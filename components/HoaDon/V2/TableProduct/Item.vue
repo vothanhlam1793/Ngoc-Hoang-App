@@ -1,7 +1,32 @@
 <template>
     <tr>
         <td style="width: 5%;" class="text-center">{{ index }}</td>
-        <td style="width: 50%;" >{{ sanpham.name }}</td>
+        <td style="width: 50%;" >
+            <div class="" v-if="sanpham.type == 'HOC_PHI_THANG'">
+                <div v-if="hocsinh.id == undefined">
+                    <div class="alert alert-danger">
+                        <p>Học phí tháng cần chọn học sinh</p>
+                    </div>
+                </div>
+                <div class="" v-else>
+                    <div class="form-group">
+                        <label for="usr">Học phí tháng:</label>
+                        <select
+                            class="form-control"
+                            v-model="hocphithang"
+                        >
+                            <option 
+                                v-for="month in getMonth()"
+                                :value="month"
+                            >{{ month.split("_").join("/") }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="" v-else>
+                {{ sanpham.name }}
+            </div>
+        </td>
         <td style="width: 10%;"  class="text-center"  @dblclick="editWithModal(price, 'amount')">{{ numberWithCommas(amount) }}
             <ModalEditInput 
                 :id="`amount${sanpham.id}`"
@@ -26,7 +51,45 @@ export default {
     components: {
         ModalEditInput
     },
+    watch: {
+        hocsinh: {
+            immediate: true,
+            handler: function(nV, oV){
+                this.tinhhocphi();
+            }
+        },
+        hocphithang: function(nV, oV){
+            this.$store.commit("hd/updateHocPhiThang", this.hocphithang);
+        }
+    },
+    computed: {
+        hocsinh(){
+            return this.$store.state.hd.hocsinh;
+        },
+        hocphis(){
+            return this.$store.state.hocphi.hocphis;
+        }
+    },
     methods: {
+        tinhhocphi(){
+            if(this.sanpham.type != "HOC_PHI_THANG"){
+                return;
+            }
+            var hp = 0;
+            var that = this;
+            this.hocphis.forEach(function(e){
+                if(that.hocsinh.namhocphi == e.key){
+                    hp = e.value;
+                }
+            });
+            var g=parseInt(that.hocsinh.hocphigiam);
+            if( g >= 0){
+                 
+            } else {
+                g = 0;
+            }
+            this.updatePrice(hp-g);
+        },
         numberWithCommas(x) {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         },
@@ -50,16 +113,37 @@ export default {
                 amount: this.amount,
                 price: this.price,
             })
+        },
+        getMonth(){
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth() + 1; // Tháng tính từ 0, cần +1 để lấy tháng thực tế
+            const currentYear = currentDate.getFullYear();
+
+            const months = [];
+            for (let i = 1; i < 4; i++) {
+                let month = currentMonth + i;
+                let year = currentYear;
+                if (month > 12) {
+                month -= 12;
+                year += 1;
+                }
+                months.push(`${month.toString().padStart(2, '0')}_${year}`);
+            }
+            this.hocphithang = months[0];
+            return months;
         }
     },
     data(){
         return {
             amount: 1,
-            price: 0
+            price: 0,
+            hocphithang: ""
         }
     },
     created(){
+        // console.log(this.sanpham);
         this.price = this.sanpham.price;
+        this.$store.dispatch("hocphi/getInfoHocPhi");
     },
 }
 </script>

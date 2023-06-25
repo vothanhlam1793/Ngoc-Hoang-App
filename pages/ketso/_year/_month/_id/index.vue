@@ -36,7 +36,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <KetSoElement v-for="item in sortItem(phieuketso.items)" :item="item" :key="item.id"></KetSoElement>
+                    <KetSoElement v-for="item in sortItem(phieuketso.items)" :item="item" :key="item.id"
+                        :month="month"
+                        :year="year"
+                    ></KetSoElement>
                 </tbody>
             </table>
         </div>

@@ -11,9 +11,13 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-                        Thêm học sinh
-                    </button>
+                    <div class="row">
+                        <div class="col text-right">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                                Thêm học sinh
+                            </button>
+                        </div>
+                    </div>
 
                     <!-- The Modal -->
                     <div class="modal" id="myModal">
@@ -57,10 +61,12 @@
                                 <td>{{ hocsinh.name }}</td>
                                 <td>{{ hocsinh.lophoc.name }}</td>
                                 <td><select class="form-control" v-model="results[hocsinh.id]">
-                                        <option value="VETRE1" selected>17 giờ</option>
-                                        <option value="VETRE2">18 giờ</option>
+                                        <option value="VETRE2" selected>18 giờ</option>
+                                        <!-- <option value="VETRE2">18 giờ</option> -->
                                     </select></td>
-                                <td><button @click="deleteHocsinh(hocsinh)">x</button></td>
+                                <td
+                                    class="text-center"
+                                ><button @click="deleteHocsinh(hocsinh)" class="btn btn-danger">x</button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -104,7 +110,7 @@ export default {
         },
         updateHocSinhs(hocsinh) {
             this.hocsinhs.push(hocsinh);
-            this.results[hocsinh.id] = "VETRE1";
+            this.results[hocsinh.id] = "VETRE2";
             $("#myModal").modal("hide");
         },
         deleteHocsinh(hs) {
@@ -124,11 +130,11 @@ export default {
                 query: gql`
                 query {
                     allDiemDanhs(where: {
-                    code_contains: "${code}"
-                }){
-                    id
-                    type
-                }
+                        code_contains: "${code}"
+                    }){
+                        id
+                        type
+                    }
                 }
                 `
             }).then(data=>{

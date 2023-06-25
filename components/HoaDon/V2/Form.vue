@@ -93,6 +93,7 @@ export default {
     },
     mounted(){
         this.$store.commit("hd/updateType", this.type);
+        this.$store.dispatch("hocphi/getInfoHocPhi");
     }
 }
 </script>

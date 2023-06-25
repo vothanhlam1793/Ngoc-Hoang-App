@@ -27,7 +27,7 @@ function getMonthRange(month, year) {
 }
 import gql from 'graphql-tag'
 export default {
-    props: ['item', 'month', 'year'],
+    props: ['item', 'hocsinh', 'month', 'year'],
     data(){
         return {
             type: "DIEMDANH545",
@@ -48,8 +48,7 @@ export default {
             var that = this;
             var client = this.$apolloProvider.defaultClient;
             client.query({
-                query: gql`
-                query {
+                query: gql`query {
                     allDiemDanhs(where: {
                         AND: [{
                             type_contains: "${this.type}"
@@ -69,15 +68,16 @@ export default {
                         code
                         type
                     }
-                }
-                `
+                }`
             }).then(data => {
+                console.log(data);
                 that.diemdanhs = data.data.allDiemDanhs;
                 that.total = that.diemdanhs.length * that.priceVeTre;
+                that.$emit("update-data", that.total);
                 that.$store.commit("pks/updateAnChieu", {
-                    item: that.item,
-                    total: that.total,
-                })
+                        item: that.item,
+                        total: that.total,
+                    })
             }).catch(err => {
                 console.log(err);
             })
@@ -101,6 +101,7 @@ export default {
                 if(data.data.allVariables.length > 0){
                     that.priceVeTre = parseInt(data.data.allVariables[0].value) | 0;
                     that.total = that.diemdanhs.length * that.priceVeTre;
+                    that.$emit("update-data", that.total);
                     that.$store.commit("pks/updateAnChieu", {
                         item: that.item,
                         total: that.total,

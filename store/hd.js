@@ -9,7 +9,9 @@ export const state = () => ({
     hocsinhs: [],
     hocsinh: {},
     
-    hoadon: {}
+    hoadon: {},
+
+    hocphithang: "",
 });
 
 export const mutations = {
@@ -58,6 +60,9 @@ export const mutations = {
     },
     updateHocSinh(state, data){
         state.hocsinhs = data;
+    },
+    updateHocPhiThang(state, data){
+        state.hocphithang = data;
     }
 };
 
@@ -86,6 +91,7 @@ export const actions = {
     createHoaDon({commit, state}){
         var client = this.app.apolloProvider.defaultClient;
         var items = [];
+        var checkHocPhiThang = false;
         state.sanphamChoose.forEach(function(sanpham){
             console.log(sanpham);
             items.push({
@@ -94,6 +100,9 @@ export const actions = {
                 amount: sanpham.amount,
                 total: sanpham.price*sanpham.amount,
             });
+            if(sanpham.type == "HOC_PHI_THANG"){
+                checkHocPhiThang = true;
+            }
         });
         // return;
         client.mutate({
@@ -126,6 +135,29 @@ export const actions = {
         }).then(data => {
             commit("updateHoaDon", data.data.createCHoaDon.data);
             console.log(data);
+            if(checkHocPhiThang){
+                // trong hoá đơn này có xuất hiện học phí tháng, nên cần phải điều chỉnh
+                client.mutate({
+                    mutation: gql`
+                    mutation {
+                        createLog(data: {
+                          item: "Student",
+                          idItem: "${state.hocsinh.id}",
+                          itemS: "HoaDon",
+                          idItemS: "${data.data.createCHoaDon.data.id}",
+                          key: "HOC_PHI_THANG",
+                          value: "${state.hocphithang}",
+                        }) {
+                          id
+                        }
+                      }
+                    ` 
+                }).then(data => {
+                    console.log(data);
+                }).catch(err => {
+                    console.log(err);
+                });
+            }
         }).catch(err => {
             console.log(err);
         })
