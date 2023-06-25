@@ -9,7 +9,7 @@
                 <div>
                     <button type="button" class="btn btn-primary" data-toggle="modal"
                         :data-target="'#myModal' + phuhuynh.id">
-                        Thu tiền phụ huynh
+                        Thu/chi phụ huynh
                     </button>
 
                     <!-- The Modal -->

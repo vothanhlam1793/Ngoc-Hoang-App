@@ -1,32 +1,23 @@
 <template>
     <div class="fixed-height alert alert-light border border-danger">
         <div class="row h-100">
-            <div class="col-9 h-100">
-                <div style="height: 20%;" class="row">
+            <div class="col h-100">
+                <div style="height: 15%;" class="row">
                     <div class="h-100 col">
                         <Find 
                             @update-data="updateHocSinh"
                         />
                     </div>
                 </div>
-                <div style="height: 80%;" class="row">
+                <div style="height: 75%;" class="row">
                     <div class="col auto-res-y">
-                        <List/>
+                        <List
+                            :month="month"
+                            :year="year"
+                        />
                     </div>
                 </div>
-            </div>
-            <div class="col-3 h-100 border border-secondary p-4 rounded">
-                <div style="height: 35%;" class="row p-3">
-                    <div class="col auto-res-y">
-
-                    </div>
-                </div>
-                <div style="height: 40%;" class="row">
-                    <div class="col">
-
-                    </div>
-                </div>
-                <div style="height: 25%;" class="row">
+                <div style="height: 10%;" class="row">
                     <div class="col auto-res-y">
                         <Save />
                     </div>
@@ -46,6 +37,7 @@
     }
 </style>
 <script>
+
 import Save from '~/components/KetSo/NghiHoc/Save.vue';
 import Find from '~/components/KetSo/NghiHoc/Find.vue';
 import List from '~/components/KetSo/NghiHoc/Table/List.vue';
@@ -57,13 +49,22 @@ export default {
     },
     data(){
         return {
+            month: (new Date().toISOString().slice(0, 10)).split("-")[1],
+            year: (new Date().toISOString().slice(0, 10)).split("-")[0]
         }
     },
     watch: {
-
+        success(n,o){
+            if(n){
+                alert("Đã tạo thành công");
+                location.reload();
+            }
+        }
     },
     computed: {
-
+        success(){
+            return this.$store.state.ksnh.success;
+        }
     },
     methods: {
         updateHocSinh(hocsinh){

@@ -27,6 +27,11 @@
                                 Thông tin học sinh
                             </a>
                         </li>
+                        <li class="list-group-item list-group-item-danger">
+                            <a href="/diemdanhvetre">
+                                Điểm danh sau (18 giờ)
+                            </a>
+                        </li>
                     </ul> 
                 </div>
             </div>
@@ -59,6 +64,11 @@
                         <li class="list-group-item">
                             <a href="/giaovien">
                                 Quản lý giáo viên
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="/ketsonghihoc">
+                                Kết sổ nghỉ học
                             </a>
                         </li>
                     </ul> 

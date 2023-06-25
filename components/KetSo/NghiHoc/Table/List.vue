@@ -12,7 +12,9 @@
                         <th>Ngoài giờ</th>
                         <th>Ăn chiều</th>
                         <th>Camera</th>
-                        <th>Tổng</th>
+                        <th>HP-{{ `${month}/${year}` }}</th>
+                        <th>HP học</th>
+                        <th>Hoàn trả</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -21,6 +23,8 @@
                         :index="index"
                         :hocsinh="hocsinh"
                         :key="hocsinh.id"
+                        :month="month"
+                        :year="year"
                     />
                 </tbody>
             </table>
@@ -34,6 +38,7 @@ export default {
     components: {
         Item
     },
+    props: ['month', 'year'],
     data(){
         return {
 

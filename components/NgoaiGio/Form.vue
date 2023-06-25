@@ -93,6 +93,7 @@ export default {
         Find,
         InputMonthYear
     },
+    props: ['month', 'year'],
     data() {
         return {
             date: new Date().toISOString().slice(0, 10),

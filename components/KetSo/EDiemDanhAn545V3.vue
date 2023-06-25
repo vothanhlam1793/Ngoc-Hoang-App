@@ -70,7 +70,6 @@ export default {
                     }
                 }`
             }).then(data => {
-                console.log(data);
                 that.diemdanhs = data.data.allDiemDanhs;
                 that.total = that.diemdanhs.length * that.priceVeTre;
                 that.$emit("update-data", that.total);

@@ -19,7 +19,7 @@ export default {
     },
     methods: {
         createKetSo(){
-            
+            this.$store.dispatch("ksnh/createKetSo");
         }
     },
     data(){

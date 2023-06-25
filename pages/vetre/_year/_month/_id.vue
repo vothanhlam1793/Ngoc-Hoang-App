@@ -6,7 +6,7 @@
                 <tr>
                     <th>Ngày</th>
                     <th>Tình trạng</th>
-                    <th>Hanh dong</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>

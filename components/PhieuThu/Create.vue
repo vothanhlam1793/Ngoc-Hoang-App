@@ -29,10 +29,10 @@ export default {
     methods: {
         createPhieuThu(){
             var client = this.$apolloProvider.defaultClient;
-            if(this.purchar <= 0){
-                alert("Nhập số tiền > 0 đồng nhé");
-                return;
-            }
+            // if(this.purchar <= 0){
+            //     alert("Nhập số tiền > 0 đồng nhé");
+            //     return;
+            // }
             client.mutate({
                 mutation: gql`
                 mutation {
