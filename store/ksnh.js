@@ -93,6 +93,13 @@ export const actions = {
                             }
                             `);
                             // Cap nhat phieu ket so
+                            // + this.item.data.csvc
+                            // + this.item.data.camera
+                            // + this.item.data.totalHoaDon
+                            // + this.item.data.hocphi
+                            // + this.item.data.ngoaigio
+                            // + this.item.data.an545
+                            // + this.item.data.khac;
                             client.mutate({
                                 mutation: gql`
                                 mutation {
@@ -104,7 +111,7 @@ export const actions = {
                                             hocphidadong: state.items[item.hocsinh.id].hocphidadong,
                                             anchieu: state.items[item.hocsinh.id].anchieu,
                                             ngoaigio: state.items[item.hocsinh.id].ngoaigio,
-                                            hoadons: []
+                                            hoadons: [],
                                         }).split('"').join('\\"')}",
                                         code: "KS_NGHI_LUON"
                                     }){ id  hocsinh {id}}

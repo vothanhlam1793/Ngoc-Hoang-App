@@ -10,6 +10,7 @@ export const state = () => ({
   dangkyan: [],
   edit: "create",
   stateLopHoc: "NULL",
+  
   stateButtonEdit: false,
 
   phieudiemdanhs: []
@@ -219,6 +220,7 @@ export const actions = {
                       id
                       name
                       status
+                      sName
                     }
                     chunhiem {
                       id

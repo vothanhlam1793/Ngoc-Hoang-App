@@ -10,7 +10,8 @@
                         class="list-group-item" 
                         v-for="lophoc in lophocs" 
                         :key="lophoc.id"
-                        v-if="checkLopHoc(lophoc)"    
+                        v-if="checkLopHoc(lophoc)"   
+                        @click="$router.push(`/anchieu/${year}/${month}/${lophoc.id}`)" 
                     >
                         <a :href="`/anchieu/${year}/${month}/${lophoc.id}`">{{ lophoc.name }}</a>
                     </li>                    
@@ -45,7 +46,7 @@ export default {
         checkLopHoc(lh){
             var ret = false;
             if(this.checkRole(['giao-vien'])){
-                console.log(this.$store.state.user);
+                // console.log(this.$store.state.user);
                 this.$store.state.user.user.lophoc.forEach(function(lophoc){
                     if(lophoc.id == lh.id){
                         ret = true;

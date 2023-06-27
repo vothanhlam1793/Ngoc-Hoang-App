@@ -4,13 +4,13 @@ function baseURL(){
 
 function baseProxy(){
   // Proxy cho keystone
-  // return `https://be.camerangochoang.com/admin/api`
-  return "http://localhost:3001/admin/api"
+  return `https://be.camerangochoang.com/admin/api`
+  // return "http://localhost:3001/admin/api"
 }
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'Phần mềm quản trị',
+    title: 'MN Ngọc Hoàng',
     htmlAttrs: {
       lang: 'en'
     },
@@ -22,6 +22,7 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/student.ico' },
+      { rel: 'apple-touch-icon', size: '180x180', href: '/student.png' },
       { rel: 'stylesheet',  href:"https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" },
       { rel: 'stylesheet', href:"https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css"},
     ],

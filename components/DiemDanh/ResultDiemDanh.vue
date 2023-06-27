@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col">
-      <p>Tổng: {{ lophoc.hocsinhs.length }}<br>Có: {{ calculator(lophoc) }}</p>
+      <p>Sỉ số: {{ lophoc.hocsinhs.length }}<br>Hiện diện: {{ calculator(lophoc) }}</p>
 
     </div>
   </div>
@@ -17,7 +17,7 @@ export default {
     calculator(lophoc) {
       const a = lophoc.hocsinhs;
       const count = a.reduce((accumulator, currentValue) => {
-        console.log(currentValue);
+        // console.log(currentValue);
         if (currentValue.result == 1) {
           return accumulator + 1;
         } else {

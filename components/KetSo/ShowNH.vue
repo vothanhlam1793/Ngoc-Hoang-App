@@ -73,7 +73,7 @@
                             </tr>
                             <tr class="table-primary">
                                 <td class="tb-col-1"><strong>TỔNG CỘNG</strong></td>
-                                <td class="tb-col-2"><strong>{{ numberWithCommas(getTotal()) }}</strong></td>
+                                <td class="tb-col-2"><strong>{{ numberWithCommas(item.data.total)}}</strong></td>
                                 <td class="tb-col-3"></td>
                             </tr>
                             <tr>

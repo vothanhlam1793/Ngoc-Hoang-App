@@ -10,32 +10,20 @@
                 </tr>
             </thead>
             <tbody>
-                <tr
-                    v-for="date in dates"
-                    :class="checkDiemDanhColor(date)"
-                >
+                <tr v-for="date in dates" :class="checkDiemDanhColor(date)">
                     <td>{{ date }}/{{ $route.params.month }}</td>
                     <td>
                         <div>
-                            <p
-                            v-if="checkDiemDanh(date)"
-                            >Đã điểm danh</p>
+                            <p v-if="checkDiemDanh(date)">Đã điểm danh</p>
                             <p v-else>Chưa điểm danh</p>
-                        </div></td>
-                    <td>
+                        </div>
+                    </td>
+                    <td class="text-center">
                         <div>
-                            <a 
-                            v-if="checkDiemDanh(date)"
-                            :href="getHref(date, 'edit')"
-                            class="btn btn-warning"
-                            >
+                            <a v-if="checkDiemDanh(date)" :href="getHref(date, 'edit')" class="btn btn-warning">
                                 Sửa
                             </a>
-                            <a
-                            v-else
-                            :href="getHref(date)"
-                            class="btn btn-primary"
-                            >
+                            <a v-else :href="getHref(date)" class="btn btn-primary">
                                 Tạo mới
                             </a>
                         </div>
@@ -47,7 +35,7 @@
 </template>
 <script>
 export default {
-    data(){
+    data() {
         return {
             year: "",
             month: "",
@@ -55,27 +43,27 @@ export default {
         }
     },
     methods: {
-        checkDiemDanhColor(date){
-            if(this.checkDiemDanh(date)){
+        checkDiemDanhColor(date) {
+            if (this.checkDiemDanh(date)) {
                 return ""
             } else {
                 return "table-warning"
             }
         },
-        getHref(date, path){
+        getHref(date, path) {
             var ret = this.$route.fullPath.split("/");
-            if(path){
+            if (path) {
                 ret.splice(ret.length - 1, 0, date, path);
             } else {
                 ret.splice(ret.length - 1, 0, date);
             }
             return ret.join("/");
         },
-        checkDiemDanh(date){
+        checkDiemDanh(date) {
             var ret = false;
             var that = this;
-            this.phieudiemdanhs.forEach(function(diemdanh){
-                if(diemdanh.code ==  `${that.year}_${that.month}_${date}`){
+            this.phieudiemdanhs.forEach(function (diemdanh) {
+                if (diemdanh.code == `${that.year}_${that.month}_${date}`) {
                     ret = true;
                 }
             });
@@ -83,40 +71,40 @@ export default {
         }
     },
     watch: {
-        stateLopHoc: function(nS, oS){
-            if(nS == "READY"){
+        stateLopHoc: function (nS, oS) {
+            if (nS == "READY") {
                 this.$store.commit("ndd/mergeDiHocToLopHoc");
             }
         },
         phieudiemdanhs: {
             immediate: true,
-            handler(nV, oV){
+            handler(nV, oV) {
 
             }
         }
     },
     computed: {
-        dates(){
+        dates() {
             return this.$store.state.diemdanh.dateForm;
         },
-        lophoc(){
+        lophoc() {
             return this.$store.state.ndd.lophoc;
         },
-        stateLopHoc(){
+        stateLopHoc() {
             return this.$store.state.ndd.stateLopHoc;
         },
-        phieudiemdanhs(){
+        phieudiemdanhs() {
             return this.$store.state.ndd.phieudiemdanhs;
         }
     },
-    created(){
-        if(typeof window !== undefined){
+    created() {
+        if (typeof window !== undefined) {
             this.year = this.$route.params.year;
             this.month = this.$route.params.month;
             this.idLopHoc = this.$route.params.id;
 
             this.$store.commit("diemdanh/updateDateForm", {
-                year: this.year, 
+                year: this.year,
                 month: this.month
             });
             this.$store.commit("ndd/updateType", "VETRE");
@@ -131,7 +119,7 @@ export default {
             });
         }
     },
-    mounted(){
+    mounted() {
 
     },
     layout: "diemdanh"

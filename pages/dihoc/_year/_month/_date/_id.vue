@@ -60,22 +60,27 @@ export default {
             .replace(/đ/g, 'd').replace(/Đ/g, 'D');
         },
         sortHocSinh(hocsinhs){
+            if(hocsinhs == undefined){
+                return [];
+            }
             var ret = [];
             if(hocsinhs){
                 var that = this;
-                hocsinhs.forEach(function(hocsinh){
-                    ret.push(hocsinh);
+                ret = hocsinhs.filter(function(hocsinh){
+                    return hocsinh.status != "NGHI_LUON";
                 });
                 ret.sort(function(a,b){
-                    var t = a.name.split(" ");
-                    var u = b.name.split(" ");
+                    let t = a.name.split(" ");
+                    t = t.filter(e => e != "");
+                    let u = b.name.split(" ");
+                    u = u.filter(e => e != "");
                     if(that.chuyentiengviet(t[t.length - 1]) < that.chuyentiengviet(u[u.length - 1])){
                         return -1;
-                    }
-                    if(that.chuyentiengviet(t[t.length - 1]) > that.chuyentiengviet(u[u.length - 1])){
+                    } else if(that.chuyentiengviet(t[t.length - 1]) > that.chuyentiengviet(u[u.length - 1])){
                         return 1;
+                    } else {
+                        return 0;
                     }
-                    return 0;
                 });
                 return ret;
             }
@@ -93,7 +98,7 @@ export default {
     },
     watch: {
         monitor: function(nS, oS){
-            console.log(this.lophoc);
+            // console.log(this.lophoc);
         },
         stateLopHoc: function(nS, oS){
             if(nS == "READY"){

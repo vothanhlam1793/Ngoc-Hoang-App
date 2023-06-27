@@ -7,27 +7,37 @@
                 <div class="col p-2">
                     <h3 class="my-2">Công cụ lớp học</h3>
                     <ul class="list-group">
-                        <li class="list-group-item list-group-item-primary">
+                        <li class="list-group-item list-group-item-primary"
+                        @click="$router.push(`/dihoc`)"
+                        >
                             <a href="/dihoc">
                                 Điểm danh hàng ngày
                             </a>
                         </li>
-                        <li class="list-group-item">
+                        <li class="list-group-item"
+                        @click="$router.push(`/vetre`)"
+                        >
                             <a href="/vetre">
                                 Về trễ
                             </a>
                         </li>
-                        <li class="list-group-item list-group-item-primary">
+                        <li class="list-group-item list-group-item-primary"
+                        @click="$router.push(`/anchieu`)"
+                        >
                             <a href="/anchieu">
                                 Ăn chiều
                             </a>
                         </li>
-                        <li class="list-group-item">
+                        <li class="list-group-item"
+                        @click="$router.push(`/hocsinh`)"
+                        >
                             <a href="/hocsinh">
                                 Thông tin học sinh
                             </a>
                         </li>
-                        <li class="list-group-item list-group-item-danger">
+                        <li class="list-group-item list-group-item-danger"
+                        @click="$router.push(`/diemdanhvetre`)"
+                        >
                             <a href="/diemdanhvetre">
                                 Điểm danh sau (18 giờ)
                             </a>
@@ -41,34 +51,53 @@
                 <div class="col">
                     <h3 class="my-2">Công cụ quản trị</h3>
                                         <ul class="list-group">
-                        <li class="list-group-item">
+                        <li class="list-group-item"
+                        @click="$router.push(`/hocsinhv2`)"
+                        >
                             <a href="/hocsinhv2">
                                 Quản lý học sinh
                             </a>
                         </li>
-                        <!-- <li class="list-group-item">
+                        <!-- <li class="list-group-item"
+                                                    @click="$router.push(`/hoadon`)"
+                            >
                             <a href="/hoadon">
                                 Bán hàng
                             </a>
                         </li> -->
-                        <li class="list-group-item">
+                        <li class="list-group-item"
+                        @click="$router.push(`/ketso/${getDateKetSo()}`)"
+                        >
                             <a :href="`/ketso/${getDateKetSo()}`">
                                 Kết sổ
                             </a>
                         </li>
-                        <li class="list-group-item">
+                        <li class="list-group-item"
+                        @click="$router.push(`/setup`)"
+                        >
                             <a href="/setup">
                                 Cài đặt thông tin
                             </a>
                         </li>
-                        <li class="list-group-item">
+                        <li class="list-group-item"
+                        @click="$router.push(`/giaovien`)"
+                        >
                             <a href="/giaovien">
                                 Quản lý giáo viên
                             </a>
                         </li>
-                        <li class="list-group-item">
+                        <li class="list-group-item"
+                        @click="$router.push(`/ketsonghihoc`)"
+                        >
                             <a href="/ketsonghihoc">
                                 Kết sổ nghỉ học
+                            </a>
+                        </li>
+                        <li class="list-group-item"
+                        @click="$router.push(`/danhsachketso`)"
+                        >
+                            <a href="/danhsachketso">
+                                Danh sách kết sổ
                             </a>
                         </li>
                     </ul> 

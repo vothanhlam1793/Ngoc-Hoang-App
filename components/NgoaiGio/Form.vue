@@ -1,12 +1,16 @@
 <template>
     <div class="row">
         <div class="col">
-            <div class="row">
+            <div class="row my-3">
                 <div class="col">
                     <InputName @update-data="updateInputName" :defaultValue="name" />
                 </div>
+            </div>
+            <div class="row">
                 <div class="col">
-                    <InputMonthYear @date-updated="updateInputDate" :defaultDate="date" :title="'Ngày: '" />
+                    <div class="col">
+                        <InputMonthYear @date-updated="updateInputDate" :defaultDate="date" :title="'Ngày: '" />
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -64,9 +68,8 @@
                                         <option value="VETRE2" selected>18 giờ</option>
                                         <!-- <option value="VETRE2">18 giờ</option> -->
                                     </select></td>
-                                <td
-                                    class="text-center"
-                                ><button @click="deleteHocsinh(hocsinh)" class="btn btn-danger">x</button></td>
+                                <td class="text-center"><button @click="deleteHocsinh(hocsinh)"
+                                        class="btn btn-danger">x</button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -138,19 +141,19 @@ export default {
                     }
                 }
                 `
-            }).then(data=>{
+            }).then(data => {
                 console.log("PHIEUDIEMDANH:", data.data);
-                if(data.data.allDiemDanhs.length > 0){
+                if (data.data.allDiemDanhs.length > 0) {
                     var str = `[`;
-                    data.data.allDiemDanhs.forEach(function(diemdanh, index){
-                        if(index != 0){
+                    data.data.allDiemDanhs.forEach(function (diemdanh, index) {
+                        if (index != 0) {
                             str += ",";
                         }
                         str += `"${diemdanh.id}"`
                     });
                     str += ']';
                     client.mutate({
-                    mutation: gql`
+                        mutation: gql`
                         mutation {
                             deleteDiemDanhs(ids: ${str}){
                                 id
@@ -168,7 +171,7 @@ export default {
                 console.log(err);
             });
         },
-        createVeTre(code){
+        createVeTre(code) {
             var that = this;
             let client = this.$apolloProvider.defaultClient;
             var v1 = this.hocsinhs.filter(function (hocsinh) {
@@ -179,8 +182,8 @@ export default {
             });
             if (v1.length > 0) {
                 var vt1 = `[`;
-                v1.forEach(function(hocsinh, index){
-                    if(index != 0){
+                v1.forEach(function (hocsinh, index) {
+                    if (index != 0) {
                         vt1 += ",";
                     }
                     vt1 += `{id: "${hocsinh.id}"}`
@@ -209,8 +212,8 @@ export default {
             }
             if (v2.length > 0) {
                 var vt2 = `[`;
-                v2.forEach(function(hocsinh, index){
-                    if(index != 0){
+                v2.forEach(function (hocsinh, index) {
+                    if (index != 0) {
                         vt2 += ",";
                     }
                     vt2 += `{id: "${hocsinh.id}"}`
@@ -233,6 +236,7 @@ export default {
                     `
                 }).then(data => {
                     console.log("VETRE2", data);
+                    that.$router.push(`/vetre/18g_detail?id=${data.data.createDiemDanh.id}`);
                 }).catch(err => {
                     console.log(err);
                 });

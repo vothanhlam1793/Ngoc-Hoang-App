@@ -9,34 +9,34 @@
         <div class="row">
             <div class="col">
                 <div :id="'demo' + hocsinh.id" class="collapse p-3 border border-secondary rounded">
-                    <ul class="nav nav-tabs">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" :href="'#home' + hocsinh.id">Thông tin</a>
-                        </li>
-                        <li class="nav-item" @click="loadData()">
-                            <a class="nav-link" data-toggle="tab" :href="'#menu1' + hocsinh.id">Công nợ</a>
-                        </li>
-                        <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" :href="'#menu2'+hocsinh.id">Phụ huynh</a>
+                    <div v-if="loadItem">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-toggle="tab" :href="'#home' + hocsinh.id">Thông tin</a>
                             </li>
-                    </ul>
+                            <li class="nav-item" @click="loadData()">
+                                <a class="nav-link" data-toggle="tab" :href="'#menu1' + hocsinh.id">Công nợ</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" :href="'#menu2' + hocsinh.id">Phụ huynh</a>
+                            </li>
+                        </ul>
 
-                    <!-- Tab panes -->
-                    <div class="tab-content border border-topborder-secondary rounded">
-                        <div class="tab-pane container active" :id="'home' + hocsinh.id">
-                            <Info :hocsinh="hocsinh" />
-                        </div>
-                        <div class="tab-pane container fade" :id="'menu1' + hocsinh.id">
-                            <Debt :hocsinh="hocsinh"
-                            
-                            :loadData="loadDataDebt"
-                            />
-                        </div>
-                        <div class="tab-pane container fade" :id="'menu2'+hocsinh.id">
-                                <Parent 
-                                    :hocsinh="hocsinh"
-                                />
+                        <!-- Tab panes -->
+                        <div class="tab-content border border-topborder-secondary rounded">
+                            <div class="tab-pane container active" :id="'home' + hocsinh.id">
+                                <Info :hocsinh="hocsinh" />
                             </div>
+                            <div class="tab-pane container fade" :id="'menu1' + hocsinh.id">
+                                <Debt :hocsinh="hocsinh" :loadData="loadDataDebt" />
+                            </div>
+                            <div class="tab-pane container fade" :id="'menu2' + hocsinh.id">
+                                <Parent :hocsinh="hocsinh" />
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else>
+
                     </div>
                 </div>
             </div>
@@ -55,12 +55,13 @@ export default {
     },
     data: () => {
         return {
-            loadDataDebt: false
+            loadDataDebt: false,
+            loadItem: false
         }
     },
     methods: {
-        loadData(){
-            if(this.loadDataDebt){
+        loadData() {
+            if (this.loadDataDebt) {
 
             } else {
                 this.loadDataDebt = true;
@@ -70,6 +71,7 @@ export default {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         },
         run() {
+            this.loadItem = true;
             // Đóng tất cả các TAB lại
             var cols = $('.collapse');
             for (var j = 0; j < cols.length; j++) {

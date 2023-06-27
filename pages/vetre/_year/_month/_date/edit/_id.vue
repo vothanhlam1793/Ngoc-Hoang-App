@@ -5,7 +5,10 @@
                 <h1>{{ lophoc.name }}</h1>
                 <p>Ngày {{ $route.params.date }}/{{ $route.params.month }}/{{ $route.params.year }}</p>
             </div>
-            <div class="text-right my-2">
+            <ResultDiemDanh v-if="lophoc.id"
+                :lophoc="lophoc"
+            />
+            <div class="text-right">
                 <button 
                 @click="$store.dispatch('ndd/createPhieuDiemDanh')"
                     class="btn btn-warning"
@@ -14,18 +17,20 @@
                 Cập nhật</button>
             </div>
             <div>
-                <table class="table table-bordered table-stripped">
+                <table class="table-bordered table-stripped">
                     <thead>
-                        <tr>
+                        <tr class="text-center">
+                            <th>STT</th>
                             <th>Tên</th>
                             <th>Điểm danh</th>
                         </tr>
                     </thead>
                     <tbody>
                         <DiemDanhItemDiemDanh 
-                            v-for="hocsinh in sortHocSinh(lophoc.hocsinhs)"
+                            v-for="hocsinh, index in sortHocSinh(lophoc.hocsinhs)"
                             :hocsinh="hocsinh"
                             :key="hocsinh.id"
+                            :index="index"
                         />
                     </tbody>
                 </table>
@@ -34,7 +39,11 @@
     </div>
 </template>
 <script>
+import ResultDiemDanh from '~/components/DiemDanh/ResultDiemDanh.vue';
 export default {
+    components: {
+        ResultDiemDanh
+    },
     data(){
         return {
             state: "IDLE"
@@ -50,22 +59,27 @@ export default {
             .replace(/đ/g, 'd').replace(/Đ/g, 'D');
         },
         sortHocSinh(hocsinhs){
+            if(hocsinhs == undefined){
+                return [];
+            }
             var ret = [];
             if(hocsinhs){
                 var that = this;
-                hocsinhs.forEach(function(hocsinh){
-                    ret.push(hocsinh);
+                ret = hocsinhs.filter(function(hocsinh){
+                    return hocsinh.status != "NGHI_LUON";
                 });
                 ret.sort(function(a,b){
-                    var t = a.name.split(" ");
-                    var u = b.name.split(" ");
+                    let t = a.name.split(" ");
+                    t = t.filter(e => e != "");
+                    let u = b.name.split(" ");
+                    u = u.filter(e => e != "");
                     if(that.chuyentiengviet(t[t.length - 1]) < that.chuyentiengviet(u[u.length - 1])){
                         return -1;
-                    }
-                    if(that.chuyentiengviet(t[t.length - 1]) > that.chuyentiengviet(u[u.length - 1])){
+                    } else if(that.chuyentiengviet(t[t.length - 1]) > that.chuyentiengviet(u[u.length - 1])){
                         return 1;
+                    } else {
+                        return 0;
                     }
-                    return 0;
                 });
                 return ret;
             }
