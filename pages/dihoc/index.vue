@@ -16,7 +16,7 @@
                         v-if="checkLopHoc(lophoc)"  
                         @click="$router.push(`/dihoc/${year}/${month}/${lophoc.id}`)"  
                     >
-                        <a :href="`/dihoc/${year}/${month}/${lophoc.id}`">{{ lophoc.name }}</a>
+                        <a>{{ lophoc.name }}</a>
                     </li>                    
                 </ul>
             </div>

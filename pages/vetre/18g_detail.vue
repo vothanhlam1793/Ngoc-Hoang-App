@@ -1,9 +1,21 @@
 <template>
     <div class="row">
         <div class="col">
-            <ViewDiemDanh 
-            :diemdanh="diemdanh"
-            ></ViewDiemDanh>
+            <div class="row my-2">
+                <div class="col">
+                    <a
+                        class="btn btn-secondary"
+                        :href="`/vetre/18g`"
+                    > << Lui về </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <ViewDiemDanh 
+                        :diemdanh="diemdanh"
+                    ></ViewDiemDanh>
+                </div>
+            </div>
         </div>
     </div>
 </template>

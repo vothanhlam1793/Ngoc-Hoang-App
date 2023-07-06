@@ -1,10 +1,11 @@
 <template>
     <tr>
+        <td class="text-center">{{ index }}</td>
         <td>{{ hocsinh.name }}</td>
         <td class="text-center">
             <div>
                 <button type="button" class="btn btn-primary" data-toggle="modal" :data-target="`#viewModal${hocsinh.id}`">
-                    Xem thông tin
+                    <i class="fa-solid fa-eye"></i>
                 </button>
 
                 <!-- The Modal -->
@@ -20,14 +21,12 @@
 
                             <!-- Modal body -->
                             <div class="modal-body">
-                                <Info 
-                                    :hocsinh="hocsinh"
-                                />
+                                <Info :hocsinh="hocsinh" />
                             </div>
 
                             <!-- Modal footer -->
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Đóng</button>
                             </div>
 
                         </div>
@@ -43,7 +42,7 @@ export default {
     components: {
         Info
     },
-    props: ['hocsinh'],
+    props: ['hocsinh', 'index'],
     data() {
         return {
 

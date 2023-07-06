@@ -76,7 +76,7 @@ export default {
     proxy: true,
   },
   proxy: {
-    '/admin/api/': baseProxy(),
+    '/admin/api/': baseURL(),
   },
   auth: {
     strategies: {

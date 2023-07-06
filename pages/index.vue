@@ -10,36 +10,29 @@
                         <li class="list-group-item list-group-item-primary"
                         @click="$router.push(`/dihoc`)"
                         >
-                            <a href="/dihoc">
+                            <a>
                                 Điểm danh hàng ngày
                             </a>
                         </li>
                         <li class="list-group-item"
                         @click="$router.push(`/vetre`)"
                         >
-                            <a href="/vetre">
-                                Về trễ
+                            <a>
+                                Về trễ 17 giờ
                             </a>
                         </li>
                         <li class="list-group-item list-group-item-primary"
                         @click="$router.push(`/anchieu`)"
                         >
-                            <a href="/anchieu">
+                            <a>
                                 Ăn chiều
                             </a>
                         </li>
                         <li class="list-group-item"
                         @click="$router.push(`/hocsinh`)"
                         >
-                            <a href="/hocsinh">
+                            <a>
                                 Thông tin học sinh
-                            </a>
-                        </li>
-                        <li class="list-group-item list-group-item-danger"
-                        @click="$router.push(`/diemdanhvetre`)"
-                        >
-                            <a href="/diemdanhvetre">
-                                Điểm danh sau (18 giờ)
                             </a>
                         </li>
                     </ul> 
@@ -54,7 +47,7 @@
                         <li class="list-group-item"
                         @click="$router.push(`/hocsinhv2`)"
                         >
-                            <a href="/hocsinhv2">
+                            <a>
                                 Quản lý học sinh
                             </a>
                         </li>
@@ -68,36 +61,43 @@
                         <li class="list-group-item"
                         @click="$router.push(`/ketso/${getDateKetSo()}`)"
                         >
-                            <a :href="`/ketso/${getDateKetSo()}`">
+                            <a>
                                 Kết sổ
                             </a>
                         </li>
                         <li class="list-group-item"
                         @click="$router.push(`/setup`)"
                         >
-                            <a href="/setup">
+                            <a>
                                 Cài đặt thông tin
                             </a>
                         </li>
                         <li class="list-group-item"
                         @click="$router.push(`/giaovien`)"
                         >
-                            <a href="/giaovien">
+                            <a>
                                 Quản lý giáo viên
                             </a>
                         </li>
                         <li class="list-group-item"
                         @click="$router.push(`/ketsonghihoc`)"
                         >
-                            <a href="/ketsonghihoc">
+                            <a>
                                 Kết sổ nghỉ học
                             </a>
                         </li>
                         <li class="list-group-item"
                         @click="$router.push(`/danhsachketso`)"
                         >
-                            <a href="/danhsachketso">
+                            <a>
                                 Danh sách kết sổ
+                            </a>
+                        </li>
+                        <li class="list-group-item list-group-item"
+                        @click="$router.push(`/vetre/18g`)"
+                        >
+                            <a>
+                                Danh sách phiếu điểm danh
                             </a>
                         </li>
                     </ul> 

@@ -2,7 +2,7 @@
     <div class="row mt-3">
         <div class="col">
             <div class="">
-                <h2>Về trễ</h2>
+                <h2>Về trễ 17 giờ</h2>
             </div>
             <div class="my-3">
                 <ul class="list-group">
@@ -13,7 +13,7 @@
                         v-if="checkLopHoc(lophoc)"
                         @click="$router.push(`/vetre/${year}/${month}/${lophoc.id}`)"
                     >
-                        <a :href="`/vetre/${year}/${month}/${lophoc.id}`">{{ lophoc.name }}</a>
+                        <a>{{ lophoc.name }}</a>
                     </li>                    
                 </ul>
             </div>

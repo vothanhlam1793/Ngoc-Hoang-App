@@ -7,15 +7,17 @@
                         class="text-center"
                     >
                         <tr class="text-center">
+                            <th>STT</th>
                             <th>Tên</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         <HocSinhItem
-                            v-for="hocsinh in lophoc.hocsinhs"
+                            v-for="hocsinh, index in lophoc.hocsinhs"
                             :hocsinh="hocsinh"
                             :key="hocsinh.id"
+                            :index="index"
                         >
                         </HocSinhItem>
                     </tbody>
@@ -35,6 +37,14 @@ export default {
         }
     },
     methods: {
+        chuyentiengviet(str) {
+            if(str == undefined){
+                return "";
+            }
+            return str.normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+        },
         getLopHoc(){
             var that = this;
             var client = this.$apolloProvider.defaultClient;
@@ -62,6 +72,19 @@ export default {
                 `
             }).then(data => {
                 that.lophoc = data.data.LopHoc;
+                that.lophoc.hocsinhs.sort(function(a,b){
+                    let t = a.name.split(" ");
+                    t = t.filter(e => e != "");
+                    let u = b.name.split(" ");
+                    u = u.filter(e => e != "");
+                    if(that.chuyentiengviet(t[t.length - 1]) < that.chuyentiengviet(u[u.length - 1])){
+                        return -1;
+                    } else if(that.chuyentiengviet(t[t.length - 1]) > that.chuyentiengviet(u[u.length - 1])){
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
             }).catch(err => {
                 console.log("ERROR - LOPHOC", err);
             });

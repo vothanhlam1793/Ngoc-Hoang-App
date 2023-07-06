@@ -1,6 +1,7 @@
 <template>
     <div class="col">
-        <h1>Về trễ: {{ lophoc.name }}</h1>
+        <h4>Về trễ 17 giờ</h4>
+        <p><b>Lớp: {{ lophoc.name }}</b></p>
         <table class="table table-bordered">
             <thead>
                 <tr>

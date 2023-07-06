@@ -8,16 +8,26 @@
                         <tr
                             class="text-center"
                         >
+                            <td>STT</td>
                             <td>Tên</td>
                             <td>Lớp</td>
                         </tr>
                     </thead>
                     <tbody>
                         <tr
-                            v-for="hocsinh in diemdanh.co"
+                            v-for="hocsinh, index in diemdanh.co"
                         >
-                            <td>{{ hocsinh.name }}</td>
-                            <td>{{ hocsinh.lophoc.name }}</td>
+                            <td
+                                class="text-center"
+                                style="width: 15%;"
+                            >{{ index + 1 }}</td>
+                            <td
+                            style="width: 65%;"
+                            >{{ hocsinh.name }}</td>
+                            <td
+                            style="width: 20%;"
+                            class="text-center"
+                            >{{ hocsinh.lophoc.name }}</td>
                         </tr>
                     </tbody>
                 </table>

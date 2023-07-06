@@ -92,15 +92,17 @@ export const mutations = {
     state.dangkyan.forEach(function (variable) {
       state.lophoc.hocsinhs.forEach(function (hocsinh) {
         if (hocsinh.id == variable.idItem) {
-          hocsinh.result = "1"
+          hocsinh.result = variable.value;
         }
       });
     });
+    console.log(    state.dangkyan);
     state.lophoc.hocsinhs.forEach(function (hocsinh) {
       if (hocsinh.result == undefined) {
         hocsinh.result = "0";
       }
     });
+    console.log(state.lophoc);
     state.monitor += 1;
   },
   mergeDiHocToLopHoc(state) {

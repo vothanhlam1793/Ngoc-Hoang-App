@@ -11,8 +11,9 @@
                         v-for="lophoc in lophocs" 
                         :key="lophoc.id"
                         v-if="checkLopHoc(lophoc)"    
+                        @click="$router.push(`/hocsinh/lophoc/${lophoc.id}`)"
                     >
-                        <a :href="`/hocsinh/lophoc/${lophoc.id}`">{{ lophoc.name }}</a>
+                        <a>{{ lophoc.name }}</a>
                     </li>                    
                 </ul>
             </div>

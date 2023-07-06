@@ -4,6 +4,7 @@
             <FilterElement></FilterElement>
         </div>
         <div class="col-9">
+            <HocSinhCreateModal></HocSinhCreateModal>
             <FilterResult
                 :hocsinhs="hocsinhs"
             />

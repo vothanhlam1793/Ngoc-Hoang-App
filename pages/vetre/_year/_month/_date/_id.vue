@@ -3,6 +3,7 @@
         <div class="col">
             <div>
                 <h1>{{ lophoc.name }}</h1>
+                <p>Điểm danh về trễ 17 giờ</p>
                 <p>Ngày {{ $route.params.date }}/{{ $route.params.month }}/{{ $route.params.year }}</p>
             </div>
             <ResultDiemDanh v-if="lophoc.id" :lophoc="lophoc" />

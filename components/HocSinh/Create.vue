@@ -6,17 +6,13 @@
                 <div class="col-8">
                     <div class="form-group">
                         <label for="usr">Tên học sinh:</label>
-                        <input type="text" class="form-control" id="nameHocSinh"
-                        v-model="nameHocSinh"
-                        >
+                        <input type="text" class="form-control" id="nameHocSinh" v-model="nameHocSinh">
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="form-group">
                         <label for="usr">Ngày tháng năm sinh:</label>
-                        <input type="date" class="form-control" id="birthday"
-                            v-model="birthday.split('T')[0]"
-                        >
+                        <input type="date" class="form-control" id="birthday" v-model="birthday.split('T')[0]">
                     </div>
                 </div>
             </div>
@@ -26,17 +22,13 @@
                         <div class="col-8">
                             <div class="form-group">
                                 <label for="usr">Họ và tên bố:</label>
-                                <input type="text" class="form-control" :id="`nameDad`"
-                                    v-model="nameDad"
-                                >
+                                <input type="text" class="form-control" :id="`nameDad`" v-model="nameDad">
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-group">
                                 <label for="usr">Số điện thoại bố:</label>
-                                <input type="text" class="form-control" :id="`usrPhoneDad`"
-                                    v-model="phoneDad"
-                                >
+                                <input type="text" class="form-control" :id="`usrPhoneDad`" v-model="phoneDad">
                             </div>
                         </div>
                     </div>
@@ -48,17 +40,13 @@
                         <div class="col-8">
                             <div class="form-group">
                                 <label for="usr">Họ và tên mẹ:</label>
-                                <input type="text" class="form-control" :id="`nameMom`"
-                                    v-model="nameMom"
-                                >
+                                <input type="text" class="form-control" :id="`nameMom`" v-model="nameMom">
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-group">
                                 <label for="usr">Số điện thoại mẹ:</label>
-                                <input type="text" class="form-control" :id="`usrPhoneMom`"
-                                    v-model="phoneMom"
-                                >
+                                <input type="text" class="form-control" :id="`usrPhoneMom`" v-model="phoneMom">
                             </div>
                         </div>
                     </div>
@@ -66,10 +54,7 @@
             </div>
             <div class="row my-2">
                 <div class="col text-center">
-                    <button
-                        class="btn btn-success"
-                        @click="createHocSinh()"
-                    >Tạo</button>
+                    <button class="btn btn-success" @click="createHocSinh()">Tạo</button>
                 </div>
             </div>
         </div>
@@ -78,9 +63,9 @@
 <script>
 import gql from 'graphql-tag'
 export default {
-    data(){
+    data() {
         return {
-            name: "", 
+            name: "",
             inpSearch: "",
             contentInputSearch: "Nhập số điện thoại phụ huynh",
             sltSearch: "PHONE",
@@ -93,12 +78,12 @@ export default {
         }
     },
     methods: {
-        createHocSinh(){
-            if(this.nameHocSinh.length == 0 || this.nameDad.length == 0 || this.nameMom.length == 0){
+        createHocSinh() {
+            if (this.nameHocSinh.length == 0 || this.nameDad.length == 0 || this.nameMom.length == 0) {
                 alert("Không được để trống tên");
                 return;
             }
-            if(this.phoneDad.length == 0  && this.phoneMom.length == 0){
+            if (this.phoneDad.length == 0 && this.phoneMom.length == 0) {
                 alert("Nhập ít nhất một số điện thoại phụ huynh");
                 return;
             }
@@ -133,55 +118,58 @@ export default {
                 }
                 `
             }).then(data => {
-                if(data.data.createStudentFromFull.message == "SUCCESS"){
-                    location.href="/hocsinh/" + data.data.createStudentFromFull.data.student.id;
+                if (data.data.createStudentFromFull.message == "SUCCESS") {
+                    location.href = "/hocsinh/" + data.data.createStudentFromFull.data.student.id;
                 }
             }).catch(err => {
                 console.log(err);
             });
         },
-        findParent(){
-            if(this.sltSearch == "PHONE"){
+        findParent() {
+            if (this.sltSearch == "PHONE") {
                 this.$store.dispatch("phuhuynh/searchPhuHuynhWithPhone", this.inpSearch);
             }
-            if(this.sltSearch == "NAME_HOCSINH"){
+            if (this.sltSearch == "NAME_HOCSINH") {
                 this.$store.dispatch("phuhuynh/searchPhuHuynhWithNameHocSinh", this.inpSearch);
             }
 
         },
-        changeContent(){
+        changeContent() {
             this.inpSearch = "";
-            switch(this.sltSearch){
+            switch (this.sltSearch) {
                 case "PHONE": {
                     this.contentInputSearch = "Nhập số điện thoại phụ huynh"
                 }
-                break;
+                    break;
                 case "NAME_HOCSINH": {
                     this.contentInputSearch = "Nhập tên học sinh"
                 }
-                break;
+                    break;
             }
         }
     },
     watch: {
-        stateSearchPhone: function(newState, oldState){
+        birthday(){
+            console.log(this);
+        },
+        stateSearchPhone: function (newState, oldState) {
             console.log(this.resultSearch)
         }
     },
     computed: {
-        lophocs(){
+        lophocs() {
             return this.$store.state.apphs.lophocs;
         },
-        stateSearchPhone(){
+        stateSearchPhone() {
             return this.$store.state.phuhuynh.stateSearchPhuHuynhWithPhone;
         },
-        resultSearch(){
+        resultSearch() {
             return this.$store.state.phuhuynh.resultSearchPhuHuynhWithPhone;
         }
     },
-    mounted(){
+    mounted() {
         this.$store.dispatch("apphs/getLophoc");
         console.log(this.birthday);
-    }, 
+    },
 }
 </script>
