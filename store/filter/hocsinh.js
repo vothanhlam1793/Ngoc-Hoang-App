@@ -6,13 +6,23 @@ export const state = () => ({
     lophocs: [],
     choseAll: false,
     
-    monitor: 0
+    monitor: 0,
+
+    status: ['DANG_HOC','TAM_NGHI','DANG_KY','NGHI_LUON']
 });
 
 export const mutations = {
     updateHocsinhs(state, data) {
         state.hocsinhs = data;
         state.filterHocsinhs = data;
+        state.hocsinhs.forEach(function(hocsinh){
+            if(state.status.indexOf(hocsinh.status) >= 0){
+
+            } else {
+                state.status.push(hocsinh.status);
+            }
+        });
+        console.log(state.status);
         this.commit("filter/hocsinh/updateFilterEle1All", true);
     },
     filterHS(state){   
@@ -29,9 +39,17 @@ export const mutations = {
             }
             return hasChose;
         });
+        state.filterHocsinhs = state.filterHocsinhs.filter(function(hocsinh){
+            return state.status.indexOf(hocsinh.status) >= 0;
+        })
     },
     updateLopHocs(state, data){
         state.lophocs = data;
+
+    },
+    updateFilterEle2(state, data){
+        state.status = data;
+        this.commit("filter/hocsinh/filterHS");
     },
     updateFilterEle1(state, data){
         if((state.choseAll == true) && (state.choseAll != data.chose)){

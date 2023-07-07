@@ -26,6 +26,11 @@
                 <div class="col">
                     <HocPhi :id="hocsinh.id"></HocPhi>
                 </div>
+                <div class="col">
+                    <HocSinhSName
+                    :hocsinh="hocsinh"
+                    ></HocSinhSName>
+                </div>
             </div>
             <div class="">
 

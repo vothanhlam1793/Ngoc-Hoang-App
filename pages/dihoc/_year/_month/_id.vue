@@ -1,6 +1,15 @@
 <template>
     <div class="col">
-        <h1>ĐI HỌC: {{ lophoc.name }}</h1>
+        <div class="d-flex justify-content-between">
+            <div>
+                <h1>ĐI HỌC: {{ lophoc.name }}</h1>
+            </div>
+            <div>
+                <a 
+                    class="btn btn-info"
+                :href="`/xemdiemdanh?type=${type}&idLopHoc=${idLopHoc}&year=${year}&month=${month}`">Xem điểm danh tháng</a>
+            </div>
+        </div>
         <table class="table table-bordered">
             <thead>
                 <tr class="text-center">
@@ -39,7 +48,8 @@ export default {
         return {
             year: "",
             month: "",
-            idLopHoc: ""
+            idLopHoc: "",
+            type: "DIHOCHANGNGAY"
         }
     },
     methods: {
@@ -117,7 +127,7 @@ export default {
                 year: this.year,
                 month: this.month
             });
-            this.$store.commit("ndd/updateType", "DIHOCHANGNGAY");
+            this.$store.commit("ndd/updateType", this.type);
             this.$store.commit("ndd/updateIdLopHoc", this.$route.params.id);
             this.$store.commit("ndd/updateIdGiaoVien", this.$store.$auth.$state.user.id)
 

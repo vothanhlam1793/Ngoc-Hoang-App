@@ -5,7 +5,7 @@
         <td
             class="text-center p-2"
         >{{ index + 1 }}</td>
-        <td style="width: 55%;" class="pl-2">{{ hocsinh.name }}</td>
+        <td style="width: 55%;" class="pl-2">{{ hocsinh.name }} <span v-if="sName.value != ''">({{ sName.value }})</span></td>
         <td style="width: 35%;" class="p-2">
             <div class="text-center">
                 <input 
@@ -37,10 +37,12 @@
     </tr>
 </template>
 <script>
+import {getVariableByKey, createVariable, updateVariable} from '~/plugins/variable.js'
     export default {
         data(){
             return {
-                result: "0"
+                result: "0",
+                sName: {}
             }
         },
         methods: {
@@ -57,7 +59,22 @@
             },
             btnClick(){
                 this.$store.commit("ndd/updateStateButtonEdit", true);
+            },
+            querySName(){
+                var that = this;
+                getVariableByKey(this.$apolloProvider.defaultClient, {
+                    item: "Student",
+                    idItem: this.hocsinh.id,
+                    key: "SNAME"
+                }).then(variable => {
+                    that.sName = variable;
+                }).catch(err => {
+                    console.log(err);
+                });
             }
+        },
+        mounted(){
+            this.querySName();
         },
         watch: {
             result: function(nR, oR){

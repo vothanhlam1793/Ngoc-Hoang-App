@@ -1,6 +1,15 @@
 <template>
     <div class="col mt-2">
-        <h1>ĂN CHIỀU: {{ lophoc.name }}</h1>
+        <div class="d-flex justify-content-between">
+            <div>
+                <h1>ĂN CHIỀU: {{ lophoc.name }}</h1>
+            </div>
+            <div>
+                <a 
+                    class="btn btn-info"
+                :href="`/xemdiemdanh?type=ANCHIEU&idLopHoc=${idLopHoc}&year=${year}&month=${month}`">Xem điểm danh tháng</a>
+            </div>
+        </div>
         <table class="table table-bordered">
             <thead>
                 <tr class="text-center">

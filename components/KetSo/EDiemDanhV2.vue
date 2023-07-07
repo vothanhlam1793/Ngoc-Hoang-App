@@ -18,7 +18,13 @@
                         <!-- Modal body -->
                         <div class="modal-body">
                             <div class="table-responsive">
-                                <ShowDiemDanh @update-data="updateResult" :hocsinh="item" :type="type" :year="year" :month="month" />
+                                <ShowDiemDanh 
+                                    @update-data="updateResult" 
+                                    :hocsinh="item" 
+                                    :type="type" 
+                                    :year="year" 
+                                    :month="month" 
+                                />
                             </div>
                         </div>
 

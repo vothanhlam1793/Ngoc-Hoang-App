@@ -4,9 +4,19 @@
             <h4>Tạo học sinh mới</h4>
             <div class="row my-5">
                 <div class="col-8">
-                    <div class="form-group">
-                        <label for="usr">Tên học sinh:</label>
-                        <input type="text" class="form-control" id="nameHocSinh" v-model="nameHocSinh">
+                    <div class="row">
+                        <div class="col-9">
+                            <div class="form-group">
+                                <label for="usr">Tên học sinh:</label>
+                                <input type="text" class="form-control" id="nameHocSinh" v-model="nameHocSinh">
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+                                <label for="usr">Biệt danh:</label>
+                                <input type="text" class="form-control" id="nameHocSinh" v-model="sName">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-4">
@@ -62,6 +72,7 @@
 </template>
 <script>
 import gql from 'graphql-tag'
+import {createVariable} from '~/plugins/variable.js'
 export default {
     data() {
         return {
@@ -74,7 +85,8 @@ export default {
             nameDad: "",
             nameMom: "",
             phoneDad: "",
-            phoneMom: ""
+            phoneMom: "",
+            sName: ""
         }
     },
     methods: {
@@ -88,6 +100,7 @@ export default {
                 return;
             }
             var client = this.$apolloProvider.defaultClient;
+            var that = this;
             client.mutate({
                 mutation: gql`
                 mutation {
@@ -119,7 +132,21 @@ export default {
                 `
             }).then(data => {
                 if (data.data.createStudentFromFull.message == "SUCCESS") {
-                    location.href = "/hocsinh/" + data.data.createStudentFromFull.data.student.id;
+                    if(that.sName != ""){
+                        createVariable(client, {
+                            item: "Student",
+                            idItem: data.data.createStudentFromFull.data.student.id,
+                            key: "SNAME",
+                            value: that.sName
+                        }).then(variable => {
+                            location.href = "/hocsinh/" + data.data.createStudentFromFull.data.student.id;
+                        }).catch(err => {
+                            alert("Tạo tên riêng thât bại");
+                            location.href = "/hocsinh/" + data.data.createStudentFromFull.data.student.id;
+                        });
+                    } else {
+                        location.href = "/hocsinh/" + data.data.createStudentFromFull.data.student.id;
+                    }
                 }
             }).catch(err => {
                 console.log(err);
