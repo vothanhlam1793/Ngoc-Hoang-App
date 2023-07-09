@@ -100,6 +100,13 @@
                                 Danh sách phiếu điểm danh
                             </a>
                         </li>
+                        <li class="list-group-item list-group-item"
+                        @click="$router.push(`/diemdanhtonghop`)"
+                        >
+                            <a>
+                                Phiếu điểm danh tổng hợp
+                            </a>
+                        </li>
                     </ul> 
                 </div>
             </div>
