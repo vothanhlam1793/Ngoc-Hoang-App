@@ -101,6 +101,34 @@ export default {
             }
             var client = this.$apolloProvider.defaultClient;
             var that = this;
+            console.log(`
+                mutation {
+                    createStudentFromFull(
+                        nameDad: "${this.nameDad}", 
+                        phoneDad: "${this.phoneDad}", 
+                        nameMom: "${this.nameMom}", 
+                        phoneMom: "${this.phoneMom}", 
+                        nameStudent: "${this.nameHocSinh}",
+                        birthday: "${this.birthday}"
+                    ) {
+                        message
+                        content
+                        data {
+                        student {
+                            id
+                            name
+                        }
+                        parent {
+                            id
+                            name
+                            phone {
+                            number
+                            }
+                        }
+                        }
+                    }
+                }
+                `);
             client.mutate({
                 mutation: gql`
                 mutation {
