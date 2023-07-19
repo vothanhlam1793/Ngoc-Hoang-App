@@ -54,3 +54,16 @@ fragment fVariable on Variable {
 	id key value item idItem slug
 }
 `
+
+export const fragmentStudent = `
+fragment fStudent on Student {
+    id
+    name
+    status
+    parent {id}
+    lophoc {id name}    
+    namhocphi
+    hocphigiam
+    birthday
+}
+`

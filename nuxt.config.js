@@ -66,8 +66,14 @@ export default {
     '@nuxtjs/apollo',
     '@nuxtjs/auth-next',
     '@nuxtjs/proxy',
+    'bootstrap-vue/nuxt',
   ],
 
+  bootstrapVue: {
+    // Install the `IconsPlugin` plugin (in addition to `BootstrapVue` plugin)
+    icons: true
+  },
+  
   axios: {
     baseURL: baseURL(),
     debug: process.env.DEBUG || false,

@@ -88,9 +88,25 @@ export default {
             if(n == "DONE" && this.stateDiemDanh == "DONE"){
                 this.calculate();
             }   
+        },
+        year: function(n,o){
+            this.reloadPage();
+        },
+        month: function(n,o){
+            this.reloadPage();
         }
     },
     methods: {
+        reloadPage(){
+            this.diemdanhs = [];
+            this.lichhoc = [];
+            this.stateLichHoc = "NONE";
+            this.stateDiemDanh = "NONE";
+            this.result = [];
+            this.stateResult = false;
+            this.getPhieuDiemDanh();
+            this.getLichHoc();
+        },
         getColorDiHoc(r){
             if(r.result == "2"){
                 return "table-danger"
@@ -151,7 +167,7 @@ export default {
                     }
                 }
             }
-            console.log(this.result);
+            // console.log(this.result);
             this.result = this.result.filter(function(e){
                 return e.date;
             });
@@ -164,29 +180,29 @@ export default {
         getPhieuDiemDanh(){
             var that = this;
             var client = this.$apolloProvider.defaultClient;
-            console.log(`
-            query {
-                    allDiemDanhs(where: {
-                        AND: [{
-                            type_contains: "${this.type}"
-                        }, {
-                        co_some: {
-                            id: "${this.hocsinh.hocsinh.id}"
-                        }
-                        }, 
+            // console.log(`
+            // query {
+            //         allDiemDanhs(where: {
+            //             AND: [{
+            //                 type_contains: "${this.type}"
+            //             }, {
+            //             co_some: {
+            //                 id: "${this.hocsinh.hocsinh.id}"
+            //             }
+            //             }, 
                         
-                            {
-                                date_gte: "${getMonthRange(this.month, this.year).date_gte}",
-                                date_lte: "${getMonthRange(this.month, this.year).date_lte}"
-                            }
-                    ]
-                    }){
-                        id
-                        code
-                        type
-                    }
-                }
-            `)
+            //                 {
+            //                     date_gte: "${getMonthRange(this.month, this.year).date_gte}",
+            //                     date_lte: "${getMonthRange(this.month, this.year).date_lte}"
+            //                 }
+            //         ]
+            //         }){
+            //             id
+            //             code
+            //             type
+            //         }
+            //     }
+            // `)
             client.query({
                 query: gql`
                 query {

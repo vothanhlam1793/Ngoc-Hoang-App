@@ -1,5 +1,5 @@
 <template>
-    <div class="row border border-primary rounded p-2">
+    <div class="row rounded">
         <div class="col">
             <div class="d-flex justify-content-between mb-3">
                 <div class="">

@@ -1,7 +1,11 @@
 <template>
     <div class="row">
         <div class="col">
-            <h1>{{ hocsinh.name }}</h1>
+            <div class="my-2">
+                <EditName 
+                    :hocsinh="hocsinh"
+                />
+            </div>
             <div class="row">
                 <div class="col">
                     <HocSinhState
@@ -23,13 +27,34 @@
                 </div>
             </div>
             <div class="row my-3">
-                <div class="col">
+                <div class="col-4">
                     <HocPhi :id="hocsinh.id"></HocPhi>
+                    <DateAccess
+                        :hocsinh="hocsinh"
+                    ></DateAccess>
                 </div>
-                <div class="col">
-                    <HocSinhSName
-                    :hocsinh="hocsinh"
-                    ></HocSinhSName>
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col-4">
+                            <HocSinhSName
+                            :hocsinh="hocsinh"
+                            ></HocSinhSName>
+                            <div class="row">
+                                <div class="col">
+                                    <ShowDiemDanh
+                                        :hocsinh="hocsinh"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <Note
+                                :hocsinh="hocsinh"
+                            >
+
+                            </Note>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="">
@@ -39,7 +64,15 @@
     </div>
 </template>
 <script>
+import EditName from '~/components/HocSinh/EditName.vue';
+import Note from '~/components/HocSinh/Note.vue';
+import DateAccess from '~/components/HocSinh/DateAccess.vue';
+import ShowDiemDanh from '~/components/HocSinh/ShowDiemDanh.vue';
 export default {
+    components: {
+        EditName, Note, DateAccess,
+        ShowDiemDanh
+    },
     data(){
         return {
 
