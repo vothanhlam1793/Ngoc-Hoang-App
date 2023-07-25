@@ -59,7 +59,7 @@ export default {
     },
     methods: {
         updateResult(result){
-            console.log("RESULT: ",result);
+            // console.log("RESULT: ",result);
             // Loc ra nhung ngay di hoc
             this.result = result.filter(function(r){
                 return r.state == "CO";
@@ -81,10 +81,10 @@ export default {
                 } else {
                     totalCount += 0;
                 }
-                console.log(j, this.result[j].date, this.result[j].result, count, totalCount);
+                // console.log(j, this.result[j].date, this.result[j].result, count, totalCount);
             }
             this.ngaynghilientiep = totalCount;
-            console.log(this.ngaynghilientiep, this.result)
+            // console.log(this.ngaynghilientiep, this.result)
             this.getNghiLienTiep();
         },
         numberWithCommas(x) {

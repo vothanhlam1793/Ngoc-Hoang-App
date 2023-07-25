@@ -58,7 +58,7 @@ export default {
                     }
                 }`
             }).then(data => {
-                console.log(data);
+                // console.log(data);
                 that.total = 0;
                 data.data.allHoaDons.forEach(function(hoadon){
                     that.total += hoadon.total;

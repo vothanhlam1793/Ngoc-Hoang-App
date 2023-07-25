@@ -60,7 +60,7 @@ export default {
                     that.dadonghocphi = false;
                 }
                 this.checkDone = true;
-                console.log("CHECK", that.dadonghocphi, data);
+                // console.log("CHECK", that.dadonghocphi, data);
             }).catch(err => {
 
             })
@@ -87,7 +87,7 @@ export default {
             } else {
                 g = 0;
             }
-            console.log("CHECK2", this.dadonghocphi);
+            // console.log("CHECK2", this.dadonghocphi);
             if (this.dadonghocphi) {
                 return 0;
             } else {

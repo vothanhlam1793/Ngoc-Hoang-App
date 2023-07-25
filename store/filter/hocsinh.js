@@ -8,7 +8,8 @@ export const state = () => ({
     
     monitor: 0,
 
-    status: ['DANG_HOC','TAM_NGHI','DANG_KY','NGHI_LUON']
+    status: ['DANG_HOC','TAM_NGHI','DANG_KY','NGHI_LUON'],
+    // loadingHocSinh: false
 });
 
 export const mutations = {
