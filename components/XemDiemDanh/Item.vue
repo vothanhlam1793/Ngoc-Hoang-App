@@ -129,6 +129,30 @@ export default {
         getPhieuDiemDanh() {
             var that = this;
             var client = this.$apolloProvider.defaultClient;
+            console.log(`
+                query {
+                    allDiemDanhs(where: {
+                        AND: [{
+                            type_contains: "${this.type}"
+                        }, {
+                        co_some: {
+                            id: "${this.hocsinh.id}"
+                        }
+                        }, 
+                        
+                            {
+                                date_gte: "${getMonthRange(this.month, this.year).date_gte}",
+                                date_lte: "${getMonthRange(this.month, this.year).date_lte}"
+                            }
+                    ]
+                    }){
+                        id
+                        code
+                        type
+                        date
+                    }
+                }
+                `);
             client.query({
                 query: gql`
                 query {

@@ -7,7 +7,10 @@
             </div>
             <div class="">
                 <div class="form-group">
-                    <input type="text" class="form-control" id="usr"
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="usr"
                         placeholder="Nhập số tiền cần thu"
                         v-model="purchar"
                     >
@@ -27,12 +30,9 @@ import gql from 'graphql-tag'
 export default {
     props: ['phuhuynh'],
     methods: {
-        createPhieuThu(){
+        createPhieuThu() {
             var client = this.$apolloProvider.defaultClient;
-            // if(this.purchar <= 0){
-            //     alert("Nhập số tiền > 0 đồng nhé");
-            //     return;
-            // }
+            var that = this;
             client.mutate({
                 mutation: gql`
                 mutation {
@@ -51,7 +51,8 @@ export default {
                 `
             }).then(data => {
                 console.log(data);
-                location.reload();
+                // location.reload();
+                that.$emit("update-state", "CREATED");
             }).catch(err => {
                 console.log(err);
             })
@@ -60,18 +61,18 @@ export default {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         },
     },
-    data(){
+    data() {
         return {
             debt: 0,
             purchar: ""
         }
     },
     watch: {
-        phuhuynh(n,o){
+        phuhuynh(n, o) {
             this.debt = n.debt;
         }
     },
-    created(){
+    created() {
         this.debt = this.phuhuynh.debt;
     }
 }

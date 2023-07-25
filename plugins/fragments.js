@@ -67,3 +67,19 @@ fragment fStudent on Student {
     birthday
 }
 `
+
+export const fragmentItemKetSo = `
+fragment fItemKetSo on ItemKetSo {
+    id data total code phieuketso { code id createdAt }
+    hocsinh { name id lophoc {id name} }
+}
+`
+
+export const fragmentHoaDon = `
+fragment fHoaDon on HoaDon{
+    id createdAt 
+    items { id sanpham { id name } price amount total }
+   	code total parent {id name phone {number}} student {id name lophoc {id name}}
+  	type  
+}
+`

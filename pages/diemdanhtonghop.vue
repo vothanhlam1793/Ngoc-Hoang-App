@@ -67,7 +67,7 @@
                         <td class="text-center">
                             <a 
                     class="btn btn-warning"
-                :href="`/xemdiemdanh?type=ANCHIEU&idLopHoc=${lophoc.id}&year=${year}&month=${month}`">Ăn chiều</a>
+                :href="`/xemdiemdanh?type=DIEMDANH545&idLopHoc=${lophoc.id}&year=${year}&month=${month}`">Ăn chiều</a>
                         </td>
                     </tr>
                 </tbody>

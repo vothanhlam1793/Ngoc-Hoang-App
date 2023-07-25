@@ -8,21 +8,39 @@
                         <div class="col-9">
                             <div class="form-group">
                                 <label for="usr">Tên học sinh:</label>
-                                <input type="text" class="form-control" id="nameHocSinh" v-model="nameHocSinh">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="nameHocSinh"
+                                    v-model="nameHocSinh"
+                                >
                             </div>
                         </div>
                         <div class="col-3">
                             <div class="form-group">
                                 <label for="usr">Biệt danh:</label>
-                                <input type="text" class="form-control" id="nameHocSinh" v-model="sName">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="nameHocSinh"
+                                    v-model="sName"
+                                >
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="form-group">
-                        <label for="usr">Ngày tháng năm sinh:</label>
-                        <input type="date" class="form-control" id="birthday" v-model="birthday.split('T')[0]">
+                        <DatePicker
+                            @update-data="updateBirthDay"
+                            title="Ngày tháng năm sinh: "
+                        ></DatePicker>
+                        <!-- <input
+                            type="date"
+                            class="form-control"
+                            id="birthday"
+                            v-model="birthday.split('T')[0]"
+                        > -->
                     </div>
                 </div>
             </div>
@@ -32,13 +50,23 @@
                         <div class="col-8">
                             <div class="form-group">
                                 <label for="usr">Họ và tên bố:</label>
-                                <input type="text" class="form-control" :id="`nameDad`" v-model="nameDad">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    :id="`nameDad`"
+                                    v-model="nameDad"
+                                >
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-group">
                                 <label for="usr">Số điện thoại bố:</label>
-                                <input type="text" class="form-control" :id="`usrPhoneDad`" v-model="phoneDad">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    :id="`usrPhoneDad`"
+                                    v-model="phoneDad"
+                                >
                             </div>
                         </div>
                     </div>
@@ -50,13 +78,23 @@
                         <div class="col-8">
                             <div class="form-group">
                                 <label for="usr">Họ và tên mẹ:</label>
-                                <input type="text" class="form-control" :id="`nameMom`" v-model="nameMom">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    :id="`nameMom`"
+                                    v-model="nameMom"
+                                >
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-group">
                                 <label for="usr">Số điện thoại mẹ:</label>
-                                <input type="text" class="form-control" :id="`usrPhoneMom`" v-model="phoneMom">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    :id="`usrPhoneMom`"
+                                    v-model="phoneMom"
+                                >
                             </div>
                         </div>
                     </div>
@@ -64,15 +102,19 @@
             </div>
             <div class="row my-2">
                 <div class="col text-center">
-                    <button class="btn btn-success" @click="createHocSinh()">Tạo</button>
+                    <button
+                        class="btn btn-success"
+                        @click="createHocSinh()"
+                    >Tạo</button>
                 </div>
             </div>
         </div>
     </div>
 </template>
 <script>
+import moment from 'moment'
 import gql from 'graphql-tag'
-import {createVariable} from '~/plugins/variable.js'
+import { createVariable } from '~/plugins/variable.js'
 export default {
     data() {
         return {
@@ -90,6 +132,10 @@ export default {
         }
     },
     methods: {
+        updateBirthDay(date){
+            this.birthday = moment(date).toISOString();
+            console.log(this.birthday);
+        },
         createHocSinh() {
             if (this.nameHocSinh.length == 0 || this.nameDad.length == 0 || this.nameMom.length == 0) {
                 alert("Không được để trống tên");
@@ -160,7 +206,7 @@ export default {
                 `
             }).then(data => {
                 if (data.data.createStudentFromFull.message == "SUCCESS") {
-                    if(that.sName != ""){
+                    if (that.sName != "") {
                         createVariable(client, {
                             item: "Student",
                             idItem: data.data.createStudentFromFull.data.student.id,
@@ -204,7 +250,7 @@ export default {
         }
     },
     watch: {
-        birthday(){
+        birthday() {
             console.log(this);
         },
         stateSearchPhone: function (newState, oldState) {

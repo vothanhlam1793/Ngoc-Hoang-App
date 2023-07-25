@@ -18,7 +18,17 @@ export const mutations = {
 export const actions = {
     getLogsDebt({commit, state}, idPhuHuynh){
         var client = this.app.apolloProvider.defaultClient;
+        console.log(`query {
+            allLogs (where: {
+              item: "Parent",
+              idItem: "${idPhuHuynh}",
+              key: "debt"
+            }){
+                id item itemS idItem idItemS key value createdTime valueChange createdAt type
+            }
+        }`);
         client.query({
+            fetchPolicy: 'network-only',
             query: gql`
             query {
                 allLogs (where: {
@@ -36,6 +46,7 @@ export const actions = {
                 var d2 = (new Date(b.createdAt)).getTime();
                 return - d1 + d2;
             });
+            console.log(data.data.allLogs);
             commit("updateLogs", {
                 id: idPhuHuynh,
                 logs: data.data.allLogs
