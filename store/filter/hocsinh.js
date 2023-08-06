@@ -84,25 +84,29 @@ query {
         name
         status
         parent {
-        id
-        name
-        phone {
-            number
-        }
-        debt
-        code
-        hocsinhs {
-            name
-            lophoc {
             id
             name
-            chunhiem {
-                name
+            phone {
+                number
             }
-            }
+            debt
+            code
+            # hocsinhs {
+            #     name
+            #     lophoc {
+            #         id
+            #         name
+            #         chunhiem {
+            #             name
+            #         }
+            #     }
+            # }
         }
-        }
-        lophoc { id name chunhiem { name } } hocphi hocphigiam namhocphi luuy
+        lophoc { 
+            id name 
+            # chunhiem { name } 
+        } 
+        # hocphi hocphigiam namhocphi luuy
     }
 }
 `

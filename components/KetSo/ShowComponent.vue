@@ -2,8 +2,12 @@
     <div class="row my-5">
         <div class="col-7 border border-primary rounded p-2">
             <div class="row">
-                <div class="col-4">
-                    <h2>LOGO</h2>
+                <div class="col-4 pb-4 pl-5">
+                    <b-img
+                        src="/student.png"
+                        width="80"
+                        alt="Center image"
+                    ></b-img>
                 </div>
                 <div class="col-8 text-center">
                     <h5>TRƯỜNG MẦM NON NGỌC HOÀNG</h5>

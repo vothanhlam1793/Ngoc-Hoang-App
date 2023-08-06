@@ -1,9 +1,6 @@
 <template>
     <div class="row">
-        <div class="col-3">
-            <p>Bộ lọc</p>
-        </div>
-        <div class="col-9">
+        <div class="col">
             <div class="row">
                 <div class="col">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">

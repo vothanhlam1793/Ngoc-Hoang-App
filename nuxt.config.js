@@ -4,7 +4,7 @@ function baseURL(){
 
 function baseProxy(){
   // Proxy cho keystone
-  // return `https://be.camerangochoang.com/admin/api`
+  // return `http://camerangochoang.com:3015/admin/api`
   return "http://localhost:3001/admin/api"
 }
 export default {
@@ -46,6 +46,8 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     // { src: '~/plugins/bootstrap.js', ssr: false }
+    '~/plugins/moment',
+    '~/plugins/format',
   ],
 
   router: {
@@ -125,7 +127,10 @@ export default {
   build: {
     transpile: [
       'defu'
-    ]
+    ],
+    // babel: {
+    //   compact: true,
+    // },
   },
 
   server: {

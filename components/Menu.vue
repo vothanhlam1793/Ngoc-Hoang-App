@@ -19,7 +19,7 @@
         <a class="nav-link" href="/vetre">Về trễ 17 giờ</a>
       </li>
       <li v-if="checkRole(['quan-tri-vien'])" class="nav-item" >
-        <a class="nav-link" href="/sanpham">Sản phẩm</a>
+        <a class="nav-link" href="/no">Phụ huynh</a>
       </li>
       <li v-if="checkRole(['quan-tri-vien'])" class="nav-item">
         <a class="nav-link" href="/hoadon">Hoá đơn</a>

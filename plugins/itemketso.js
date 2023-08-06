@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import { fragmentItemKetSo } from "./fragments";
 
-export async function getItemKetSo(client, id) {
+export async function getItemKetSoWithDate(client, id) {
   return new Promise((resolve, reject) => {
     client
       .query({
@@ -26,5 +26,31 @@ export async function getItemKetSo(client, id) {
       .catch((err) => {
         reject(err);
       });
+  });
+}
+
+
+export async function getItemKetSo(client, dates) {
+  return new Promise((resolve, reject) => {
+    client.query({
+        query: gql`
+        query {
+        allPhieuThus (
+        where: {
+            createdAt_gte: "${dates.from}",
+            createdAt_lte: "${dates.to}"
+        },
+        sortBy: createdAt_DESC
+        ) {
+                ...fItemKetSo
+        }
+        }
+        ${fragmentItemKetSo}
+        `
+    }).then(data => {
+        resolve(data.data.allPhieuThus);
+    }).catch (err => {
+        reject(err);
+    });
   });
 }

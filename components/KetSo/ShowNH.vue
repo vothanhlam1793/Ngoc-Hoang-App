@@ -2,8 +2,12 @@
     <div class="row my-5">
         <div class="col-7 border border-primary rounded p-2">
             <div class="row">
-                <div class="col-4">
-                    <h2>LOGO</h2>
+                <div class="col-4 pb-4 pl-5">
+                    <b-img
+                        src="/student.png"
+                        width="80"
+                        alt="Center image"
+                    ></b-img>
                 </div>
                 <div class="col-8 text-center">
                     <h5>TRƯỜNG MẦM NON NGỌC HOÀNG</h5>
@@ -73,14 +77,20 @@
                             </tr>
                             <tr class="table-primary">
                                 <td class="tb-col-1"><strong>TỔNG CỘNG</strong></td>
-                                <td class="tb-col-2"><strong>{{ numberWithCommas(item.data.total)}}</strong></td>
+                                <td class="tb-col-2"><strong>{{ numberWithCommas(item.data.total) }}</strong></td>
                                 <td class="tb-col-3"></td>
                             </tr>
                             <tr>
                                 <td class="tb-col-1">Khoản trừ nghỉ học liên tiếp</td>
                                 <td class="tb-col-2">{{ numberWithCommas(item.data.thanhtiennghi) }}</td>
-                                <td class="tb-col-3" v-if="item.data.thanhtiennghi > 0">{{ item.data.ngaynghi }} ngày</td>
-                                <td class="tb-col-3" v-else></td>
+                                <td
+                                    class="tb-col-3"
+                                    v-if="item.data.thanhtiennghi > 0"
+                                >{{ item.data.ngaynghi }} ngày</td>
+                                <td
+                                    class="tb-col-3"
+                                    v-else
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="tb-col-1">Khoản trừ khác</td>
@@ -115,7 +125,8 @@
             </div>
             <div class="row">
                 <div class="col-10 text-right">
-                    <p>Ngày {{ this.date.getDate() }} tháng {{ this.date.getMonth() + 1 }} năm {{ this.date.getFullYear() }}</p>
+                    <p>Ngày {{ this.date.getDate() }} tháng {{ this.date.getMonth() + 1 }} năm {{ this.date.getFullYear() }}
+                    </p>
                 </div>
                 <div class="col-2">
 
@@ -144,7 +155,10 @@
                             <h4>Thông tin phụ huynh</h4>
                         </div>
                     </div>
-                    <div class="row" v-if="item.hocsinh.parent.hocsinhs.length > 0">
+                    <div
+                        class="row"
+                        v-if="item.hocsinh.parent.hocsinhs.length > 0"
+                    >
                         <div class="col">
                             <h6>Thông tin ACE</h6>
                             <table class="table table-bordered table-striped">
@@ -163,8 +177,11 @@
                                     <td>{{ phone.name }}</td>
                                     <td>{{ phone.number }}</td>
                                     <td>
-                                        <a :href="`https://zalo.me/${phone.number}`" class="btn btn-primary"
-                                            target="_blank">Zalo</a>
+                                        <a
+                                            :href="`https://zalo.me/${phone.number}`"
+                                            class="btn btn-primary"
+                                            target="_blank"
+                                        >Zalo</a>
                                     </td>
                                 </tr>
                             </table>
@@ -176,6 +193,20 @@
     </div>
 </template>
 <script>
+import moment from 'moment'
+function getNextMonth(inputMonth, inputYear) {
+    // Tạo đối tượng moment từ thông tin tháng và năm đầu vào
+    let currentMoment = moment(`${inputYear}-${inputMonth}`, 'YYYY-MM');
+
+    // Thêm 1 tháng để tính tháng kế tiếp
+    let nextMoment = currentMoment.add(1, 'months');
+
+    // Lấy thông tin về tháng và năm kế tiếp
+    let nextMonth = nextMoment.format('MM');
+    let nextYear = nextMoment.format('YYYY');
+
+    return { nextMonth, nextYear };
+}
 export default {
     data() {
         return {
@@ -187,7 +218,7 @@ export default {
     methods: {
         numberWithCommas(x) {
             var t;
-            if(x == undefined){
+            if (x == undefined) {
                 t = 0;
             } else {
                 t = x;
@@ -214,6 +245,10 @@ export default {
         if (typeof window !== undefined) {
             this.year = this.$route.params.year;
             this.month = this.$route.params.month;
+            let { nextMonth, nextYear } = getNextMonth(this.month, this.year);
+            console.log(nextMonth, nextYear);
+            this.month = nextMonth;
+            this.year = nextYear;
             this.idLopHoc = this.$route.params.id;
             this.date = new Date(this.phieuketso.createdAt);
         }

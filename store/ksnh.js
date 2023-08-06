@@ -37,7 +37,7 @@ export const actions = {
             mutation{
                 createPhieuKetSo (data: {
                     status: "NORMAL",
-                  code: "KSNH",
+                    code: "KSNH",
                 }){ id }}
             `
         }).then(data => {

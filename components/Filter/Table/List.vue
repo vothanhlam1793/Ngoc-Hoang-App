@@ -4,10 +4,17 @@
             <div class="row header px-3 text-center">
                 <div class="col border p-2">Tên</div>
                 <div class="col border p-2">Điện thoại</div>
-                <div class="col border p-2"  @click="change()">Công nợ</div>
+                <div
+                    class="col border p-2"
+                    @click="change()"
+                >Công nợ</div>
                 <div class="col border p-2">Trạng thái</div>
             </div>
-            <ItemTable v-for="hocsinh in sortHocsinhs" :key="hocsinh.id" :hocsinh="hocsinh" />
+            <ItemTable
+                v-for="hocsinh in first20Hocsinhs"
+                :key="hocsinh.id"
+                :hocsinh="hocsinh"
+            />
         </div>
     </div>
 </template>
@@ -33,6 +40,11 @@ export default {
                 });;
             },
             immediate: true
+        }
+    },
+    computed: {
+        first20Hocsinhs() {
+            return this.sortHocsinhs.slice(0, 60);
         }
     },
     methods: {

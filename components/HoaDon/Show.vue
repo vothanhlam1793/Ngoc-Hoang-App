@@ -4,21 +4,18 @@
         v-if="invoice.id"
     >
         <div class="col">
-            <div class="row my-2">
-                <div class="col-2">
-
-                </div>
-                <div class="col-2 h-100">
+            <div class="row">
+                <div class="text-center col-4 pb-4 pl-5">
                     <b-img
                         src="/student.png"
-                        width="100"
+                        width="80"
                         alt="Center image"
                     ></b-img>
+                    <p style="font-size: 6px;" class="mt-1">NGOC HOANG KINDERGARTEN</p>
                 </div>
-                <div class="col-8 d-flex flex-column justify-content-center align-items-center">
-                    <h4>TRƯỜNG MẦM NON NGỌC HOÀNG</h4>
-                    <p>Trảng Dài - Biên Hoà</p>
-                    <p><b>0933.064.964 - 0978.087.992</b></p>
+                <div class="col-8 text-center">
+                    <h5>TRƯỜNG MẦM NON NGỌC HOÀNG</h5>
+                    <p><strong><i class="fa-solid fa-phone"></i> 0933.064.964 - 0978.087.992</strong></p>
                 </div>
             </div>
             <div class="row text-right">
@@ -27,8 +24,8 @@
             </div>
             <div class="row my-3">
                 <div class="col text-center">
-                    <h1>HOÁ ĐƠN</h1>
-                    <p>Mã HĐ: {{ this.invoice.code }}</p>
+                    <h1>PHIẾU THU</h1>
+                    <p>Mã PT: {{ this.invoice.code }}</p>
                 </div>
             </div>
             <div class="row">

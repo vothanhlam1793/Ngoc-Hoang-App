@@ -71,7 +71,7 @@ fragment fStudent on Student {
 export const fragmentItemKetSo = `
 fragment fItemKetSo on ItemKetSo {
     id data total code phieuketso { code id createdAt }
-    hocsinh { name id lophoc {id name} }
+    hocsinh { name id lophoc {id name} parent {id debt} status}
 }
 `
 
@@ -81,5 +81,27 @@ fragment fHoaDon on HoaDon{
     items { id sanpham { id name } price amount total }
    	code total parent {id name phone {number}} student {id name lophoc {id name}}
   	type  
+}
+`
+
+export const fragmentPhieuThu = `
+fragment fPhieuThu on PhieuThu {
+    id code total parent {id name phone {number} hocsinhs {id name lophoc { id name } status }} createdAt createdBy {id name username}
+    itemThu idItemThu createdBy {id name} updatedBy {id name} createdAt
+}
+`
+export const fragmentPhieuKetSo = `
+fragment fPhieuKetSo on PhieuKetSo {
+    id code lophoc {id name} status createdAt createdBy {id name} updatedBy {id name}
+  items {
+    ...fItemKetSo
+  }
+}
+${fragmentItemKetSo}
+`
+
+export const fragmentPhuHuynh = `
+fragment fPhuHuynh on Parent {
+    id code debt hocsinhs {id name lophoc {id name} status} name
 }
 `

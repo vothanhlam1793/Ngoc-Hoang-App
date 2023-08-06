@@ -139,7 +139,7 @@
 </template>
 <script>
 import gql from 'graphql-tag'
-import { getItemKetSo } from '~/plugins/Itemketso'
+import { getItemKetSo } from '~/plugins/itemketso'
 import ShowKSComponent from '~/components/KetSo/ShowComponentV2.vue'
 import ShowHoaDon from '~/components/HoaDon/Show.vue'
 export default {
