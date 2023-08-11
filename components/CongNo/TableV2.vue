@@ -172,7 +172,8 @@ export default {
             this.$bvModal.show(`modal-hd-${log.id}`);
         },
         showTableKetSo(log) {
-            // console.log(this.phuhuynh);
+            console.log(this.phuhuynh);
+            console.log(log);
             // return;
             var that = this;
             getItemKetSo(this.$apolloProvider.defaultClient, log.idItemS)

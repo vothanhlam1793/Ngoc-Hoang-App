@@ -7,6 +7,7 @@
                 :year="year"
                 :month="month"
                 :type="type"
+                :idLopHoc="idLopHoc"
             />
         </div>
     </div>

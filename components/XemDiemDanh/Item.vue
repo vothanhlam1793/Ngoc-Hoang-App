@@ -1,5 +1,6 @@
 <template>
     <tr>
+        <td>{{ index + 1 }}</td>
         <td class="p-1 sticky sticky-col">{{ hocsinh.name }}</td>
         <td v-for="r, i in result" :key="i" :class="getColorDiHoc(r)">{{ getValueDiHoc(r) }}</td>
     </tr>
@@ -28,7 +29,7 @@ function getMonthRange(month, year) {
 }
 import gql from 'graphql-tag'
 export default {
-    props: ['hocsinh', 'type', 'month', 'year', 'lichhoc', 'stateLichHoc'],
+    props: ['hocsinh', 'type', 'month', 'year', 'lichhoc', 'stateLichHoc', 'index'],
     data() {
         return {
             diemdanhs: [],

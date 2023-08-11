@@ -1,8 +1,14 @@
 <template>
     <div class="">
-        <table class="table-bordered" data-spy="scroll" data-target=".black" data-offset="50">
-            <thead class="black"> 
+        <table
+            class="table-bordered"
+            data-spy="scroll"
+            data-target=".black"
+            data-offset="50"
+        >
+            <thead class="black">
                 <tr>
+                    <th></th>
                     <th class="">Tên</th>
                     <th
                         v-for="r, i in lichhoc"
@@ -13,15 +19,25 @@
             </thead>
             <tbody>
                 <tr class="">
+                    <td>STT</td>
                     <td class="">Lịch học</td>
                     <td
-                    v-for="r, i in lichhoc"
-                    :key="i"
-                    :class="getColorLichHoc(r)"
-                    ></td>                    
+                        v-for="r, i in lichhoc"
+                        :key="i"
+                        :class="getColorLichHoc(r)"
+                    >{{ getDiHoc(r) }}</td>
                 </tr>
-                <Item v-for="hocsinh in hocsinhs" :key="hocsinh.id" :hocsinh="hocsinh" :type="type" :month="month"
-                    :year="year" :lichhoc="lichhoc" :stateLichHoc="stateLichHoc" />
+                <Item
+                    v-for="hocsinh, index in hocsinhs"
+                    :key="hocsinh.id"
+                    :hocsinh="hocsinh"
+                    :type="type"
+                    :month="month"
+                    :year="year"
+                    :lichhoc="lichhoc"
+                    :stateLichHoc="stateLichHoc"
+                    :index="index"
+                />
             </tbody>
         </table>
     </div>
@@ -29,28 +45,42 @@
 <script>
 import gql from 'graphql-tag'
 import Item from '~/components/XemDiemDanh/Item.vue';
+import {getPhieuDiemDanh} from '~/plugins/phieudiemdanh.js';
 export default {
     components: {
         Item
     },
-    props: ['month', 'year', 'type', 'hocsinhs'],
+    props: ['month', 'year', 'type', 'hocsinhs', 'idLopHoc'],
     data() {
         return {
-            // hocsinhs: [{
-            //     name: "Nguyễn Lê Khánh An",
-            //     id: "649c5ed04350495522dd70d9"
-            // }],
             lichhoc: [],
             stateLichHoc: "NONE",
             variable: {},
-            // year: "2023",
-            // month: "07",
-            // type: "DIHOCHANGNGAY"
+            diemdanhs: [],
+        }
+    },
+    watch: {
+        diemdanhs(n,o){
+            this.$forceUpdate();
         }
     },
     methods: {
-        getColorLichHoc(r){
-            if(r.state == "CO"){
+        getDiHoc(r){
+            let t = 0;
+            let n = "";
+            var that  = this;
+            this.diemdanhs.forEach(function(diemdanh){
+                if(diemdanh.code == `${that.year}_${that.month}_${r.date.padStart(2, "0")}`){
+                    t = diemdanh.co.length;
+                    // if(diemdanh.giaovien){
+                    //     n = diemdanh.giaovien.name;
+                    // }
+                }
+            });
+            return t + " " + n;
+        },
+        getColorLichHoc(r) {
+            if (r.state == "CO") {
                 return ""
             } else {
                 return "table-secondary"
@@ -87,7 +117,14 @@ export default {
         },
     },
     mounted() {
-
+        var that = this;
+        getPhieuDiemDanh(this.$apolloProvider.defaultClient, `${this.year}_${this.month}`, this.type, this.idLopHoc)
+        .then(data => {
+            console.log(data);
+            that.diemdanhs = data;
+        }).catch(err => {
+            console.log(err);
+        })
     },
     created() {
         if (typeof window !== undefined) {

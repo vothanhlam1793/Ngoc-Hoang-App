@@ -59,6 +59,7 @@ export default {
             }
         },
         hocphithang: function(nV, oV){
+            this.tinhhocphi();
             this.$store.commit("hd/updateHocPhiThang", this.hocphithang);
         }
     },
@@ -67,17 +68,21 @@ export default {
             return this.$store.state.hd.hocsinh;
         },
         hocphis(){
+            console.log(this.$store.hocphi);
             return this.$store.state.hocphi.hocphis;
         }
     },
     methods: {
         tinhhocphi(){
+            // console.log("TINH-HOC-PHÍ");
             if(this.sanpham.type != "HOC_PHI_THANG"){
                 return;
             }
+
             var hp = 0;
             var that = this;
             this.hocphis.forEach(function(e){
+                console.log(e);
                 if(that.hocsinh.namhocphi == e.key){
                     hp = e.value;
                 }
@@ -88,6 +93,7 @@ export default {
             } else {
                 g = 0;
             }
+            // console.log("TINH-HOC-PHÍ", this.hocphis, that.hocsinh, hp-g);
             this.updatePrice(hp-g);
         },
         numberWithCommas(x) {
@@ -129,6 +135,7 @@ export default {
                 }
                 months.push(`${month.toString().padStart(2, '0')}_${year}`);
             }
+            console.log(months, "HOS", this.sanpham);
             this.hocphithang = months[0];
             return months;
         }

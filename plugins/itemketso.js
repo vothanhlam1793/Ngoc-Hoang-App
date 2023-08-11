@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import { fragmentItemKetSo } from "./fragments";
 
-export async function getItemKetSoWithDate(client, id) {
+export async function getItemKetSo(client, id) {
   return new Promise((resolve, reject) => {
     client
       .query({
@@ -30,7 +30,7 @@ export async function getItemKetSoWithDate(client, id) {
 }
 
 
-export async function getItemKetSo(client, dates) {
+export async function getItemKetSoWithDate(client, dates) {
   return new Promise((resolve, reject) => {
     client.query({
         query: gql`

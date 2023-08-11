@@ -91,22 +91,22 @@ query {
             }
             debt
             code
-            # hocsinhs {
-            #     name
-            #     lophoc {
-            #         id
-            #         name
-            #         chunhiem {
-            #             name
-            #         }
-            #     }
-            # }
+            hocsinhs {
+                name
+                lophoc {
+                    id
+                    name
+                    chunhiem {
+                        name
+                    }
+                }
+            }
         }
         lophoc { 
             id name 
-            # chunhiem { name } 
+            chunhiem { name } 
         } 
-        # hocphi hocphigiam namhocphi luuy
+        hocphi hocphigiam namhocphi luuy
     }
 }
 `
