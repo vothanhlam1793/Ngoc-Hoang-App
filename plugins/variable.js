@@ -56,6 +56,27 @@ export async function getVariableByKey(client, item){
     });
 }
 
+export async function getVariablesByKey(client, key){
+    return new Promise((resolve, reject) => {
+        client.query({
+            query: gql`
+                query {
+                    allVariables (where: {
+                        key: "${key}"
+                    }) {
+                        ...fVariable
+                    }
+                }
+                ${fragmentVariable}
+            `
+        }).then(data => {
+            resolve(data.data.allVariables);   
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
 export async function createVariable(client, variable){
     return new Promise((resolve, reject) => {
         client.mutate({

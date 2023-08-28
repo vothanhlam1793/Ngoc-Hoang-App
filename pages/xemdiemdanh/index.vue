@@ -8,6 +8,7 @@
                 :month="month"
                 :type="type"
                 :idLopHoc="idLopHoc"
+                :lophoc="lophoc"
             />
         </div>
     </div>
@@ -27,7 +28,6 @@
 </style>
 <script>
 import FormDiemDanh from '~/components/XemDiemDanh/Form.vue';
-import gql from 'graphql-tag'
 export default {
     components: {
         FormDiemDanh
@@ -39,6 +39,7 @@ export default {
             month: "06",
             type: "DIHOCHANGNGAY",
             idLopHoc: "642f81dd9a34bd0026c035a2",
+
         }
     },    
     methods: {
