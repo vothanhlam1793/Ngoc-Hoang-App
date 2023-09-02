@@ -2,6 +2,11 @@
     <div class="row">
         <div class="col">
             <h1>Trang cài đặt</h1>
+            <div class="row border border-primary rounded p-2">
+                <div class="col">
+                    <PhiMoRong />
+                </div>
+            </div>
             <div class="row">
                 <div class="col-3">
                     <HocPhiYear></HocPhiYear>
@@ -22,10 +27,10 @@
 </template>
 <script>
 import LichHocSetup from '~/components/LichHocSetup.vue'
-// import LichHocSetup from '~/components/Filter/Table/Index.vue';
+import PhiMoRong from '~/components/PhiMoRong/Form.vue';
 export default {
     components: {
-        LichHocSetup
+        LichHocSetup, PhiMoRong
     },
     data: ()=> {
         return {
