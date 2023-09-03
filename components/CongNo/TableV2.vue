@@ -172,8 +172,8 @@ export default {
             this.$bvModal.show(`modal-hd-${log.id}`);
         },
         showTableKetSo(log) {
-            console.log(this.phuhuynh);
-            console.log(log);
+            // console.log(this.phuhuynh);
+            // console.log(log);
             // return;
             var that = this;
             getItemKetSo(this.$apolloProvider.defaultClient, log.idItemS)
@@ -181,7 +181,12 @@ export default {
                     this.$bvModal.show(`modal-${log.id}`);
                     that.itemKetSo = data;
                     that.itemKetSo.data = JSON.parse(data.data);
-                    that.itemKetSo.lophoc = that.itemKetSo.hocsinh.lophoc;
+                    try {
+                        that.itemKetSo.lophoc = that.itemKetSo.hocsinh.lophoc;
+                    } catch (err) {
+                        console.log(err);
+                        that.itemKetSo.lophoc = {};
+                    }
                     console.log(data);
                 }).catch(err => {
                     console.log(err);
@@ -223,13 +228,17 @@ export default {
             }
         },
         getType(log) {
-            // console.log("TABLEV2-", log);
+            console.log("TABLEV2-", log);
             switch (log.itemS) {
                 case "ItemKetSo": {
                     var l = this.getItemKetSo(log);
+                    // console.log("HERE", l);
                     if (l != undefined) {
-                        // var d = JSON.parse(l.data);
+                        if(l.hocsinh == null){
+                            l.hocsinh = {};
+                        }
                         if (l.phieuketso) {
+                            
                             return `KS tháng ${l.phieuketso.code.split("_")[1]}/${l.phieuketso.code.split("_")[0]} : ${l.hocsinh.name}`;
                         } else {
                             return `${l.code} : ${l.hocsinh.name}`

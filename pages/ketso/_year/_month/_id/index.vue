@@ -1,17 +1,35 @@
 <template>
     <div class="row">
         <div class="col">
-            <div class="my-3">
-                <button class="btn btn-warning" @click="saveChanged()">
-                    Lưu lại
-                </button>
+            <div class="row my-3">
+                <div class="col-6 p-3">
+                    <button class="btn btn-warning" @click="saveChanged()">
+                        Lưu lại
+                    </button>
+                </div>
+                <div class="col-6 p-3 text-right">
+                    <b-button @click="showModal" class="btn btn-success">Thêm phí mở rộng</b-button>
+                    <b-modal v-model="show" title="Các phí mở rộng" ok-only>
+                        <div>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Phí</th>
+                                    <th>Số tiền</th>
+                                    <th></th>
+                                </tr>
+                                <tr v-for="pmr in pmrs">
+                                    <td>{{ pmr.label }}</td>
+                                    <td>{{ pmr.value }}</td>
+                                    <td><div>
+                                        <button v-if="pmr.checked" class="btn btn-danger" @click="handleCheckboxChange(pmr)">Huỷ</button>
+                                        <button v-else class="btn btn-success" @click="handleCheckboxChange(pmr)">Chọn</button>
+                                    </div></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </b-modal>
+                </div>
             </div>
-            <!-- <ShowDiemDanh v-if="phieuketso.items"
-                :hocsinh="phieuketso.items[0]"
-                :type="'DIHOCHANGNGAY'"
-                :year="'2023'"
-                :month="'06'"
-            /> -->
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr class="text-center">
@@ -29,6 +47,7 @@
                         <th>Hóa Đơn</th>
                         <th>Ngoài giờ</th>
                         <th>Ăn 4g45</th>
+                        <th>Phí mở rộng</th>
                         <th>Khác</th>
                         <th>Diễn giải</th>
                         <th>Ngày nghỉ</th>
@@ -39,6 +58,8 @@
                     <KetSoElement v-for="item in sortItem(phieuketso.items)" :item="item" :key="item.id"
                         :month="month"
                         :year="year"
+                        :pmrs="pmrs"
+                        :statePmrs="statePmrs"
                     ></KetSoElement>
                 </tbody>
             </table>
@@ -47,6 +68,7 @@
 </template>
 <script>
 import ShowDiemDanh from '~/components/KetSo/ShowDiemDanh.vue';
+import {  getVariablesStartWithKey } from '~/plugins/variable.js'
 export default {
     components: {
         ShowDiemDanh
@@ -57,9 +79,30 @@ export default {
             year: "",
             month: "",
             idLopHoc: "",
+            pmrs: [],
+            statePmrs: 0,
+            show: false,
+            fields: [
+                {
+                    key: 'label',
+                    label: "Phí"
+                },
+                {
+                    key: 'value',
+                    label: "Số tiền"
+                },
+                { key: 'checked', label: 'Chọn' },
+            ]
         }
     },
     methods: {
+        handleCheckboxChange(pmr) {
+            pmr.checked = !pmr.checked;
+            this.statePmrs += 1;
+        },
+        showModal(){
+            this.show = true;
+        },
         chuyentiengviet(str) {
             if (str == undefined) {
                 return "";
@@ -69,7 +112,6 @@ export default {
                 .replace(/đ/g, 'd').replace(/Đ/g, 'D');
         },
         sortItem(items) {
-            console.log(items);
             var ret = [];
             if (items) {
                 var that = this;
@@ -115,7 +157,57 @@ export default {
         },
         saveChanged() {
             this.$store.dispatch("pks/updatePhieuKetSo");
-        }
+        },
+        parseKey(key){
+            var parts = key.split("_");
+            var part1 = parts[0]; // MR
+            var part2 = parts.slice(1, -1).join("_"); // bo_him_y_t
+            var part3 = parts[parts.length - 1]; // VALUE
+            return {
+                key: part2,
+                value: part3
+            }
+        },
+        updatePMRs(variables){
+            var that = this;
+            var pmrs = {};
+            variables.forEach(function(variable){
+                let p = that.parseKey(variable.key);
+                if(pmrs[p.key] == undefined){
+                    pmrs[p.key] = {
+                        key: p.key
+                    };
+                }
+                pmrs[p.key][p.value] = variable.value;
+                pmrs[p.key]["ID" + p.value] = variable.id;
+            });
+            that.pmrs = [];
+            for (const key in pmrs) {
+                if (pmrs.hasOwnProperty(key)) {
+                    that.pmrs.push({ 
+                        idLabel: pmrs[key].IDLABEL,
+                        idValue: pmrs[key].IDVALUE,
+                        idType: pmrs[key].IDTYPE,
+                        label: pmrs[key].LABEL,
+                        value: pmrs[key].VALUE,
+                        type: pmrs[key].TYPE,
+                        key: pmrs[key].key,
+                        state: "IDLE",
+                        checked: false
+                    });
+                }
+            }
+            console.log("PMR:", this.pmrs);
+        },
+        getPhiMoRongs(){
+            var that = this;
+            getVariablesStartWithKey(this.$apolloProvider.defaultClient, "MR_")
+            .then(data => {
+                that.updatePMRs(data);
+            }).catch(err => {
+                console.log(err);
+            });
+        },
     },
     computed: {
         phieuketso() {
@@ -137,6 +229,7 @@ export default {
         this.$store.commit("pks/updateIdLopHoc", this.$route.params.id);
 
         this.$store.dispatch("pks/createOrUpdatePhieuKetSo");
+        this.getPhiMoRongs();
     },
 
     layout: "app"

@@ -74,6 +74,19 @@
                                 <td class="tb-col-2">{{ numberWithCommas(item.data.an545) }}</td>
                                 <td class="tb-col-3"></td>
                             </tr>
+                            <tr  v-if="item.data.phimorong > 0">
+                                <td class="tb-col-1"><b>Phí mở rộng</b></td>
+                                <td class="tb-col-2"><b>{{ numberWithCommas(item.data.phimorong) }}</b></td>
+                                <td class="tb-col-3"></td>
+                            </tr>
+                            <tr
+                                v-if="(Object.keys(item.data.detailPhiMoRong).length > 0 && item.data.detailPhiMoRong[key].checked)"
+                                v-for="key in Object.keys(item.data.detailPhiMoRong)"
+                            >
+                                <td class="tb-col-1">- {{ item.data.detailPhiMoRong[key].label }}</td>
+                                <td class="tb-col-2">{{ numberWithCommas(item.data.detailPhiMoRong[key].value) }}</td>
+                                <td class="tb-col-3">CT</td>
+                            </tr>
                             <tr>
                                 <td class="tb-col-1">Phát sinh</td>
                                 <td
@@ -267,6 +280,7 @@ export default {
                 + this.item.data.totalHoaDon
                 + this.item.data.hocphi
                 + this.item.data.ngoaigio
+                + this.item.data.phimorong
                 + this.item.data.an545;
             if (this.item.data.khac > 0) {
                 ret += this.item.data.khac;
@@ -282,6 +296,10 @@ export default {
         }
     },
     created() {
+        if(this.item.data.phimorong == undefined){
+            this.item.data.phimorong = 0;
+            this.item.data.detailPhiMoRong = [];
+        }
         if (typeof window !== undefined) {
             this.year = this.$route.params.year;
             this.month = this.$route.params.month;

@@ -121,6 +121,14 @@
                         </li>
                         <li
                             class="list-group-item"
+                            @click="$router.push(`/ketso/edit`)"
+                        >
+                            <a>
+                                Chỉnh sửa kết sổ
+                            </a>
+                        </li>
+                        <li
+                            class="list-group-item"
                             @click="$router.push(`/baocao`)"
                         >
                             <a>

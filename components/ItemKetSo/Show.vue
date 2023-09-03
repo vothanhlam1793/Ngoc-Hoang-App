@@ -7,12 +7,12 @@
             >
                 <div class="col">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <h4>Kỳ: {{ item.phieuketso.code }}</h4>
                             <p>Số tiền: {{ numberWithCommas(hocphi.total) }}</p>
                         </div>
                         <div
-                            class="col-6 text-right"
+                            class="col-4 text-right"
                             v-if="state == 'EDIT'"
                         >
                             <b-button
@@ -27,6 +27,9 @@
                             >
                                 Huỷ
                             </b-button>
+                        </div>
+                        <div class="col-4">
+                            <b-button @click="addPhiMoRong" class="btn btn-success">Thêm phí mở rộng</b-button>
                         </div>
                     </div>
                     <div class="row">
@@ -52,6 +55,16 @@
                                     <td><b>{{ keyToLabel('an545') }}</b></td>
                                     <td class="text-right pr-5">{{ numberWithCommas(hocphi.an545) }}</td>
                                 </tr>
+                                <tr>
+                                    <td><b>{{ keyToLabel('phimorong') }}</b></td>
+                                    <td class="text-right pr-5">{{ numberWithCommas(hocphi.phimorong) }}
+                                        <b-button
+                                            :key="`btn-${item.id}`"
+                                            @click="showModalId(`md-${item.id}`)"
+                                            variant="warning"
+                                        >Chỉnh</b-button>
+                                    </td>
+                                </tr>
                                 <tr @dblclick="showModal('khac')">
                                     <td><b>{{ keyToLabel('khac') }}</b></td>
                                     <td class="text-right pr-5">{{ numberWithCommas(hocphi.khac) }}</td>
@@ -71,6 +84,45 @@
                                 :label="keyToLabel(key)"
                                 @update-data="updateDataEdit"
                             />
+                            <b-modal
+                                :key="`md-${item.id}`"
+                                :id="`md-${item.id}`"
+                                :title="item.hocsinh.name"
+                                ok-only
+                            >
+                                <table class="table table-bordered table-striped">
+                                    <tr>
+                                        <th>Phí</th>
+                                        <th>Tiền</th>
+                                        <td></td>
+                                    </tr>
+                                    <tr
+                                        v-for="key in Object.keys(pmr)"
+                                        :class="getClass(key)"
+                                    >
+                                        <td>{{ pmr[key].label }}</td>
+                                        <td>
+                                            <input
+                                                class="form-control"
+                                                v-model="pmr[key].value"
+                                                @change="calcTotal(true)"
+                                            />
+                                        </td>
+                                        <td>
+                                            <button
+                                                class="btn btn-danger"
+                                                v-if="pmr[key].checked"
+                                                @click="addLocal(key)"
+                                            >Huỷ</button>
+                                            <button
+                                                class="btn btn-success"
+                                                v-else
+                                                @click="addLocal(key)"
+                                            >Thêm</button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </b-modal>
                         </div>
                     </div>
                 </div>
@@ -89,7 +141,8 @@
 </template>
 <script>
 import EModal from '~/components/ItemKetSo/EditModal.vue';
-import { updateItemKetSo } from '~/plugins/itemketso.js'
+import { updateItemKetSo } from '~/plugins/itemketso.js';
+import {  getVariablesStartWithKey } from '~/plugins/variable.js';
 export default {
     props: ['item'],
     components: {
@@ -109,25 +162,94 @@ export default {
                 camera: "Camera",
                 ngoaigio: "Ngoài giờ",
                 an545: "Ăn chiều",
+                phimorong: "Phí mở rộng",
                 khac: "Thu khác",
                 thanhtiennghi: "Thành tiền nghỉ",
                 total: "Tổng"
-            }
+            },
+            pmr: {},
+            pmrs: []
         }
     },
     watch: {
         item(n, o) {
             this.updateData();
+            console.log(this.hocphi);
         },
         state(n, o) {
             this.$emit("update-state", n);
         }
     },
     methods: {
+        handleCheckboxChange(pmr) {
+            pmr.checked = !pmr.checked;
+            this.calcPMR();
+        },
+        addPhiMoRong(local){
+            var that = this;
+            that.pmrs.forEach(function(variable){
+                if(that.pmr[variable.key] == undefined){
+                    that.pmr[variable.key] = {};
+                    that.pmr[variable.key].label = variable.label;
+                    that.pmr[variable.key].value = variable.value;
+                    that.pmr[variable.key].type = variable.type;
+                    that.pmr[variable.key].checked = false;
+                }
+            });
+            this.calcPMR();    
+            // console.log(this.pmr, this.pmrs, this.hocphi);
+            this.$forceUpdate();
+        },
+        calcPMR(){
+            var that = this;
+            var total = 0;
+            Object.keys(this.pmr).forEach(function(key){
+                if(that.pmr[key].checked == true){
+                    total += parseInt(that.pmr[key].value);
+                }
+            });
+            if(that.hocphi.phimorong != total){
+                this.state = "EDIT";
+                that.hocphi.phimorong = total;
+                this.uploadHocPhi();
+            }
+            that.hocphi.phimorong = total;
+            that.hocphi.detailPhiMoRong = that.pmr;
+            // that.calcTotal();
+        },
+        addLocal(key){
+            // console.log(key, this.pmr[key]);
+            this.pmr[key].checked = !this.pmr[key].checked;
+            this.calcPMR();
+            this.calcTotal();
+            this.$forceUpdate();
+        },
+        calcTotal(local){
+            var that = this;
+            var total = 0;
+            Object.keys(this.pmr).forEach(function(key){
+                if(that.pmr[key].checked == true){
+                    total += parseInt(that.pmr[key].value);
+                }
+            });
+            if(that.hocphi.phimorong != total){
+                this.state = "EDIT";
+                that.hocphi.phimorong = total;
+                this.uploadHocPhi();
+            }
+        },
+        getClass(key){
+            if(this.pmr[key].checked){
+                return "table-success"
+            } else {
+                return ""
+            }
+        },
         actionButton(action) {
             var that = this;
             if (action == "SAVE") {
                 // Tạo mới dữ liệu
+                this.hocphi.detailPhiMoRong = this.pmr;
                 updateItemKetSo(this.$apolloProvider.defaultClient, this.item.id, this.hocphi)
                     .then(data => {
                         that.state = "IDLE";
@@ -142,16 +264,27 @@ export default {
                 this.updateData();
             }
         },
+        showModalId(id){
+            this.$bvModal.show(id);
+        },
         showModal(key) {
             this.value = this.hocphi[key].toString();
             this.key = key;
             this.openModalEdit = true;
         },
         uploadHocPhi(key) {
-            this.hocphi.total = this.hocphi.total - this.hocphi[key];
-            this.hocphi[key] = parseInt(this.value);
-            this.hocphi.total += this.hocphi[key];
-            console.log(this.hocphi);
+            var that = this;
+            var total = 0;
+            total = that.hocphi.hocphi
+            + that.hocphi.csvc
+            + that.hocphi.camera
+            + that.hocphi.totalHoaDon
+            + that.hocphi.ngoaigio
+            + that.hocphi.phimorong
+            + that.hocphi.khac
+            - that.hocphi.thanhtiennghi;
+
+            that.hocphi.total = total;
         },
         updateDataEdit(data) {
             if (this.value !== data) {
@@ -191,6 +324,7 @@ export default {
                             an545: this.item.data.an545 || 0,
                             khac: this.item.data.khac || 0,
                             thanhtiennghi: this.item.data.thanhtiennghi || 0,
+                            phimorong: this.item.data.phimorong || 0,
                             total: this.item.data.total || 0,
 
                         }
@@ -201,12 +335,69 @@ export default {
                             this.hocphi[key] = this.item.data[key];
                         }
                     }
+                    if(this.item.data.phimorong == undefined){
+                        this.hocphi.phimorong = 0;
+                        this.pmr = {}
+                    } else {
+                        this.pmr = this.item.data.detailPhiMoRong;
+                    }
                 } break;
             }
-        }
+        },
+        parseKey(key){
+            var parts = key.split("_");
+            var part1 = parts[0]; // MR
+            var part2 = parts.slice(1, -1).join("_"); // bo_him_y_t
+            var part3 = parts[parts.length - 1]; // VALUE
+            return {
+                key: part2,
+                value: part3
+            }
+        },
+        updatePMRs(variables){
+            var that = this;
+            var pmrs = {};
+            variables.forEach(function(variable){
+                let p = that.parseKey(variable.key);
+                if(pmrs[p.key] == undefined){
+                    pmrs[p.key] = {
+                        key: p.key
+                    };
+                }
+                pmrs[p.key][p.value] = variable.value;
+                pmrs[p.key]["ID" + p.value] = variable.id;
+            });
+            that.pmrs = [];
+            for (const key in pmrs) {
+                if (pmrs.hasOwnProperty(key)) {
+                    that.pmrs.push({ 
+                        idLabel: pmrs[key].IDLABEL,
+                        idValue: pmrs[key].IDVALUE,
+                        idType: pmrs[key].IDTYPE,
+                        label: pmrs[key].LABEL,
+                        value: pmrs[key].VALUE,
+                        type: pmrs[key].TYPE,
+                        key: pmrs[key].key,
+                        state: "IDLE",
+                        checked: false
+                    });
+                }
+            }
+            console.log("PMR:", this.pmrs);
+        },
+        getPhiMoRongs(){
+            var that = this;
+            getVariablesStartWithKey(this.$apolloProvider.defaultClient, "MR_")
+            .then(data => {
+                that.updatePMRs(data);
+            }).catch(err => {
+                console.log(err);
+            });
+        },
     },
     mounted() {
         this.updateData();
+        this.getPhiMoRongs();
     }
 }
 </script>

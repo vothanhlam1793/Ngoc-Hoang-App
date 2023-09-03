@@ -5,8 +5,8 @@ function baseURL(){
 function baseProxy(){
   // Proxy cho keystone
   // return `http://camerangochoang.com:3015/admin/api`
-  // return `https://be.camerangochoang.com/admin/api`
-  return "http://localhost:3001/admin/api"
+  return `https://be.camerangochoang.com/admin/api`
+  // return "http://localhost:3001/admin/api"
 }
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head

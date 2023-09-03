@@ -10,6 +10,7 @@
         </KetSoEHoaDon>
         <KetSoEDiemDanhVeTre :item="item" :month="month" :year="year"></KetSoEDiemDanhVeTre>
         <KetSoEDiemDanhAn545V5 :item="item" :month="month" :year="year"></KetSoEDiemDanhAn545V5>
+        <KetSoEPhiMoRong :item="item" :pmrs="pmrs" :statePmrs="statePmrs"></KetSoEPhiMoRong>
         <KetSoEKhac :item="item">
         </KetSoEKhac>
         <KetSoEDienGiai :item="item">
@@ -34,6 +35,7 @@ export default {
             an545: 0,
             khac: 0,
             thanhtiennghi: 0,
+            phimorong: 0,
             full: 0,
             half: 0
         }
@@ -65,6 +67,7 @@ export default {
                 + this.ngoaigio
                 + this.an545
                 + this.khac
+                + this.phimorong
                 + this.thanhtiennghi;
         },
         createItemKetSo() {
@@ -98,6 +101,6 @@ export default {
             return this.$store.state.ketso.stateCSVC;
         }
     },
-    props: ["item", 'month', 'year'],
+    props: ["item", 'month', 'year', 'pmrs', 'statePmrs'],
 }
 </script>

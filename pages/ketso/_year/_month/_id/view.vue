@@ -27,6 +27,7 @@
                         <!-- <th>Hóa Đơn</th> -->
                         <th>Ngoài giờ</th>
                         <th>Ăn 4g45</th>
+                        <th>Phí mở rộng</th>
                         <th>Khác</th>
                         <th>Diễn giải</th>
                         <th>Ngày nghỉ</th>

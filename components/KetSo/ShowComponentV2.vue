@@ -70,6 +70,19 @@
                                 <td class="tb-col-2 p-1 text-right">{{ numberWithCommas(item.data.an545) }}</td>
                                 <td class="tb-col-3 p-1"></td>
                             </tr>
+                            <tr v-if="item.data.phimorong > 0">
+                                <td class="tb-col-1 p-1"><b>Phí mở rộng</b></td>
+                                <td class="tb-col-2 p-1 text-right"><b>{{ numberWithCommas(item.data.phimorong) }}</b></td>
+                                <td class="tb-col-3"></td>
+                            </tr>
+                            <tr
+                                v-if="(Object.keys(item.data.detailPhiMoRong).length > 0 && item.data.detailPhiMoRong[key].checked)"
+                                v-for="key in Object.keys(item.data.detailPhiMoRong)"
+                            >
+                                <td class="tb-col-1 p-1">- {{ item.data.detailPhiMoRong[key].label }}</td>
+                                <td class="tb-col-2 p-1 text-right">{{ numberWithCommas(item.data.detailPhiMoRong[key].value) }}</td>
+                                <td class="tb-col-3">CT</td>
+                            </tr>
                             <tr>
                                 <td class="tb-col-1">Phát sinh</td>
                                 <td class="tb-col-2 p-1 text-right" v-if="parseInt(item.data.khac) > 0">{{ numberWithCommas(item.data.khac) }}</td>
@@ -155,6 +168,7 @@ export default {
                 + this.item.data.totalHoaDon
                 + this.item.data.hocphi
                 + this.item.data.ngoaigio
+                + (this.item.data.phimorong | 0)
                 + this.item.data.an545;
             if(this.item.data.khac > 0){
                 ret += this.item.data.khac;
@@ -171,6 +185,10 @@ export default {
     },
     created() {
         console.log(this.item);
+        if(this.item.data.phimorong == undefined){
+            this.item.data.phimorong = 0;
+            this.item.data.detailPhiMoRong = [];
+        }
         if (typeof window !== undefined) {
             if(this.item.phieuketso){
                 this.year = this.item.phieuketso.code.split("_")[0];

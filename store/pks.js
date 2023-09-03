@@ -101,6 +101,15 @@ export const mutations = {
         });
         this.commit("pks/updateTotal", data);
     },
+    updatePhiMoRong(state, data){
+        state.phieuketso.items.forEach(function(item){
+            if(item.id == data.item.id){
+                item.phimorong = data.total;
+                item.detailPhiMoRong = data.detail;
+            }
+        });
+        this.commit("pks/updateTotal", data);
+    },
     updateDienGiai(state, data){
         state.phieuketso.items.forEach(function(item){
             if(item.id == data.item.id){
@@ -119,6 +128,7 @@ export const mutations = {
                 + (item.ngoaigio | 0)
                 + (item.an545 | 0)
                 + (item.khac | 0)
+                + (item.phimorong | 0)
                 - (item.thanhtiennghi | 0);
             }
         });
@@ -239,6 +249,8 @@ export const actions = {
                 thanhtiennghi: item.thanhtiennghi,
                 note: item.note,
                 hoadons: item.hoadons,
+                detailPhiMoRong: item.detailPhiMoRong,
+                phimorong: item.phimorong,
                 state: "SAVED"
             }, "SAVED");
             console.log(j, data)
