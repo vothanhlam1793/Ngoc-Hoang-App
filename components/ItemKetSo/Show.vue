@@ -290,6 +290,7 @@ export default {
             if (this.value !== data) {
                 this.state = "EDIT";
                 this.value = data;
+                this.hocphi[this.key] = parseInt(data);
                 this.uploadHocPhi(this.key);
             }
             this.openModalEdit = false;

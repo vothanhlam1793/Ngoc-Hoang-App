@@ -65,26 +65,26 @@
                                 <td class="tb-col-2 p-1 text-right">{{ numberWithCommas(item.data.ngoaigio) }}</td>
                                 <td class="tb-col-3 p-1"></td>
                             </tr>
-                            <tr>
+                            <!-- <tr>
                                 <td class="tb-col-1 p-1">Phí trẻ ăn chiều 16g45</td>
                                 <td class="tb-col-2 p-1 text-right">{{ numberWithCommas(item.data.an545) }}</td>
                                 <td class="tb-col-3 p-1"></td>
-                            </tr>
-                            <tr v-if="item.data.phimorong > 0">
-                                <td class="tb-col-1 p-1"><b>Phí mở rộng</b></td>
+                            </tr> -->
+                            <!-- <tr v-if="item.data.phimorong > 0">
+                                <td class="tb-col-1 p-1"><b>Thu khác</b></td>
                                 <td class="tb-col-2 p-1 text-right"><b>{{ numberWithCommas(item.data.phimorong) }}</b></td>
                                 <td class="tb-col-3"></td>
-                            </tr>
+                            </tr> -->
                             <tr
                                 v-if="(Object.keys(item.data.detailPhiMoRong).length > 0 && item.data.detailPhiMoRong[key].checked)"
                                 v-for="key in Object.keys(item.data.detailPhiMoRong)"
                             >
-                                <td class="tb-col-1 p-1">- {{ item.data.detailPhiMoRong[key].label }}</td>
+                                <td class="tb-col-1 p-1">{{ item.data.detailPhiMoRong[key].label }}</td>
                                 <td class="tb-col-2 p-1 text-right">{{ numberWithCommas(item.data.detailPhiMoRong[key].value) }}</td>
-                                <td class="tb-col-3">CT</td>
+                                <td class="tb-col-3"></td>
                             </tr>
                             <tr>
-                                <td class="tb-col-1">Phát sinh</td>
+                                <td class="tb-col-1">Phát sinh khác</td>
                                 <td class="tb-col-2 p-1 text-right" v-if="parseInt(item.data.khac) > 0">{{ numberWithCommas(item.data.khac) }}</td>
                                 <td class="tb-col-2 p-1 text-right" v-else>0</td>
                                 <td class="tb-col-3" v-if="item.data.khac > 0">{{ item.data.note }}</td>
