@@ -36,24 +36,54 @@
                         <div class="col">
                             <table class="table table-bordered table-striped ">
                                 <tr @dblclick="showModal('hocphi')">
-                                    <td><b>{{ keyToLabel('hocphi') }}</b></td>
-                                    <td class="text-right pr-5">{{ numberWithCommas(hocphi.hocphi) }}</td>
+                                    <td style="width: 30%"><b>{{ keyToLabel('hocphi') }}</b></td>
+                                    <td style="width: 30%" class="text-right pr-5">{{ numberWithCommas(hocphi.hocphi) }}</td>
+                                    <Note 
+                                        code="note_hocphi"
+                                        monitor="monitor"
+                                        :hocphi="hocphi"
+                                        @updateNote="updateNote"
+                                    ></Note>
                                 </tr>
                                 <tr @dblclick="showModal('csvc')">
                                     <td><b>{{ keyToLabel('csvc') }}</b></td>
                                     <td class="text-right pr-5">{{ numberWithCommas(hocphi.csvc) }}</td>
+                                    <Note 
+                                        code="note_csvc"
+                                        monitor="monitor"
+                                        :hocphi="hocphi"
+                                        @updateNote="updateNote"
+                                    ></Note>
                                 </tr>
                                 <tr @dblclick="showModal('camera')">
                                     <td><b>{{ keyToLabel('camera') }}</b></td>
                                     <td class="text-right pr-5">{{ numberWithCommas(hocphi.camera) }}</td>
+                                    <Note 
+                                        code="note_camera"
+                                        monitor="monitor"
+                                        :hocphi="hocphi"
+                                        @updateNote="updateNote"
+                                    ></Note>
                                 </tr>
                                 <tr @dblclick="showModal('ngoaigio')">
                                     <td><b>{{ keyToLabel('ngoaigio') }}</b></td>
                                     <td class="text-right pr-5">{{ numberWithCommas(hocphi.ngoaigio) }}</td>
+                                    <Note 
+                                        code="note_ngoaigio"
+                                        monitor="monitor"
+                                        :hocphi="hocphi"
+                                        @updateNote="updateNote"
+                                    ></Note>
                                 </tr>
                                 <tr @dblclick="showModal('an545')">
                                     <td><b>{{ keyToLabel('an545') }}</b></td>
                                     <td class="text-right pr-5">{{ numberWithCommas(hocphi.an545) }}</td>
+                                    <Note 
+                                        code="note_an545"
+                                        monitor="monitor"
+                                        :hocphi="hocphi"
+                                        @updateNote="updateNote"
+                                    ></Note>
                                 </tr>
                                 <tr>
                                     <td><b>{{ keyToLabel('phimorong') }}</b></td>
@@ -64,18 +94,42 @@
                                             variant="warning"
                                         >Chỉnh</b-button>
                                     </td>
+                                    <Note 
+                                        code="note_phimorong"
+                                        monitor="monitor"
+                                        :hocphi="hocphi"
+                                        @updateNote="updateNote"
+                                    ></Note>
                                 </tr>
                                 <tr @dblclick="showModal('khac')">
                                     <td><b>{{ keyToLabel('khac') }}</b></td>
                                     <td class="text-right pr-5">{{ numberWithCommas(hocphi.khac) }}</td>
+                                    <Note 
+                                        code="note_khac"
+                                        monitor="monitor"
+                                        :hocphi="hocphi"
+                                        @updateNote="updateNote"
+                                    ></Note>
                                 </tr>
                                 <tr @dblclick="showModal('thanhtiennghi')">
                                     <td><b>{{ keyToLabel('thanhtiennghi') }}</b></td>
                                     <td class="text-right pr-5">{{ numberWithCommas(hocphi.thanhtiennghi) }}</td>
+                                    <Note 
+                                        code="note_thanhtiennghi"
+                                        monitor="monitor"
+                                        :hocphi="hocphi"
+                                        @updateNote="updateNote"
+                                    ></Note>
                                 </tr>
                                 <tr>
                                     <td><b>{{ keyToLabel('total') }}</b></td>
                                     <td class="text-right pr-5">{{ numberWithCommas(hocphi.total) }}</td>
+                                    <Note 
+                                        code="note_total"
+                                        monitor="monitor"
+                                        :hocphi="hocphi"
+                                        @updateNote="updateNote"
+                                    ></Note>
                                 </tr>
                             </table>
                             <EModal
@@ -141,6 +195,7 @@
 </template>
 <script>
 import EModal from '~/components/ItemKetSo/EditModal.vue';
+import Note from '~/components/ItemKetSo/EditNote.vue';
 import { updateItemKetSo } from '~/plugins/itemketso.js';
 import {  getVariablesStartWithKey } from '~/plugins/variable.js';
 export default {
@@ -148,6 +203,7 @@ export default {
     components: {
         // Index
         EModal,
+        Note
     },
     data() {
         return {
@@ -168,19 +224,29 @@ export default {
                 total: "Tổng"
             },
             pmr: {},
-            pmrs: []
+            pmrs: [],
+            monitor: 0
         }
     },
     watch: {
         item(n, o) {
             this.updateData();
-            console.log(this.hocphi);
+            console.log("194", this.hocphi);
         },
         state(n, o) {
             this.$emit("update-state", n);
         }
     },
     methods: {
+        updateNote(data){
+            console.log(data);
+            if(data.content.length == 0){
+                delete this.hocphi[data.code];
+            } else {
+                this.hocphi[data.code] = data.content;
+            }
+            this.state = "EDIT";
+        },
         handleCheckboxChange(pmr) {
             pmr.checked = !pmr.checked;
             this.calcPMR();
@@ -316,6 +382,7 @@ export default {
         updateData() {
             switch (this.state) {
                 case "IDLE": {
+                    this.hocphi = {};
                     if (this.item.data.total == undefined) {
                         this.hocphi = {
                             hocphi: this.item.data.hocphi || 0,
@@ -327,8 +394,9 @@ export default {
                             thanhtiennghi: this.item.data.thanhtiennghi || 0,
                             phimorong: this.item.data.phimorong || 0,
                             total: this.item.data.total || 0,
-
                         }
+                        // console.log(this.hocphi);
+                        this.monitor += 1;
                         return;
                     }
                     for (var key in this.item.data) {
@@ -342,6 +410,8 @@ export default {
                     } else {
                         this.pmr = this.item.data.detailPhiMoRong;
                     }
+                    // console.log(this.hocphi);
+                        this.monitor += 1;
                 } break;
             }
         },

@@ -30,6 +30,7 @@ export default {
     },
     methods: {
         updateItem(item){
+            console.log(item);
             switch(this.state){
                 case "IDLE": {
                     this.item = item;

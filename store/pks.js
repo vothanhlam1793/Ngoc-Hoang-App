@@ -218,6 +218,9 @@ export const actions = {
                 data.data.createOrUpdatePhieuKetSo.data.items.forEach(function(item){
                     try {
                         item.data = JSON.parse(item.data);
+                        if(item.data.detailPhiMoRong == undefined) {
+                            item.data.detailPhiMoRong = {};
+                        }
                     } catch (e) {
                         item.data = {};
                     }
@@ -249,7 +252,7 @@ export const actions = {
                 thanhtiennghi: item.thanhtiennghi,
                 note: item.note,
                 hoadons: item.hoadons,
-                detailPhiMoRong: item.detailPhiMoRong,
+                detailPhiMoRong: item.detailPhiMoRong ? item.detailPhiMoRong : {},
                 phimorong: item.phimorong,
                 state: "SAVED"
             }, "SAVED");

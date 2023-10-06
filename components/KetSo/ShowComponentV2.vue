@@ -48,22 +48,22 @@
                             <tr class="p-1">
                                 <td class="tb-col-1 p-1">Cơ sở vật chất ban đầu</td>
                                 <td class="tb-col-2 p-1 text-right">{{ numberWithCommas(item.data.csvc) }}</td>
-                                <td class="tb-col-3 p-1"></td>
+                                <td class="tb-col-3 p-1">{{ item.data.note_csvc ? item.data.note_csvc : `` }}</td>
                             </tr>
                             <tr>
                                 <td class="tb-col-1 p-1">Camera</td>
                                 <td class="tb-col-2 p-1 text-right">{{ numberWithCommas(item.data.camera) }}</td>
-                                <td class="tb-col-3 p-1"></td>
+                                <td class="tb-col-3 p-1">{{ item.data.note_camera ? item.data.note_camera : `` }}</td>
                             </tr>
                             <tr>
                                 <td class="tb-col-1 p-1">Học phí</td>
                                 <td class="tb-col-2 p-1 text-right">{{ numberWithCommas(item.data.hocphi) }}</td>
-                                <td class="tb-col-3 p-1"></td>
+                                <td class="tb-col-3 p-1">{{ item.data.note_hocphi ? item.data.note_hocphi : `` }}</td>
                             </tr>
                             <tr>
                                 <td class="tb-col-1 p-1">Phí giữ trẻ ngoài giờ</td>
                                 <td class="tb-col-2 p-1 text-right">{{ numberWithCommas(item.data.ngoaigio) }}</td>
-                                <td class="tb-col-3 p-1"></td>
+                                <td class="tb-col-3 p-1">{{ item.data.note_ngoaigio ? item.data.note_ngoaigio : `` }}</td>
                             </tr>
                             <!-- <tr>
                                 <td class="tb-col-1 p-1">Phí trẻ ăn chiều 16g45</td>
@@ -81,25 +81,25 @@
                             >
                                 <td class="tb-col-1 p-1">{{ item.data.detailPhiMoRong[key].label }}</td>
                                 <td class="tb-col-2 p-1 text-right">{{ numberWithCommas(item.data.detailPhiMoRong[key].value) }}</td>
-                                <td class="tb-col-3"></td>
+                                <td class="tb-col-3">{{ item.data.note_phimorong ? item.data.note_phimorong : `` }}</td>
                             </tr>
                             <tr>
                                 <td class="tb-col-1">Phát sinh khác</td>
                                 <td class="tb-col-2 p-1 text-right" v-if="parseInt(item.data.khac) > 0">{{ numberWithCommas(item.data.khac) }}</td>
                                 <td class="tb-col-2 p-1 text-right" v-else>0</td>
-                                <td class="tb-col-3" v-if="item.data.khac > 0">{{ item.data.note }}</td>
-                                <td class="tb-col-3" v-else></td>
+                                <td class="tb-col-3" v-if="item.data.khac > 0">{{ item.data.note_khac ? item.data.note_khac : item.data.note }}</td>
+                                <td class="tb-col-3" v-else>{{ item.data.note_khac ? item.data.note_khac : `` }}</td>
                             </tr>
                             <tr class="table-primary">
                                 <td class="tb-col-1 p-1"><strong>TỔNG CỘNG</strong></td>
                                 <td class="tb-col-2 p-1 text-right"><strong>{{ numberWithCommas(getTotal()) }}</strong></td>
-                                <td class="tb-col-3 p-1 "></td>
+                                <td class="tb-col-3 p-1 ">{{ item.data.note_total ? item.data.note_total : `` }}</td>
                             </tr>
                             <tr>
                                 <td class="tb-col-1 p-1">Khoản trừ nghỉ học liên tiếp</td>
                                 <td class="tb-col-2 p-1 text-right">{{ numberWithCommas(item.data.thanhtiennghi) }}</td>
-                                <td class="tb-col-3 p-1 " v-if="item.data.thanhtiennghi > 0">{{ item.data.ngaynghi }} ngày</td>
-                                <td class="tb-col-3 p-1" v-else></td>
+                                <td class="tb-col-3 p-1 " v-if="item.data.thanhtiennghi > 0">{{ item.data.note_thanhtiennghi ? item.data.note_thanhtiennghi : `${item.data.ngaynghi} ngày` }}</td>
+                                <td class="tb-col-3 p-1" v-else>{{ item.data.note_thanhtiennghi ? item.data.note_thanhtiennghi : `` }}</td>
                             </tr>
                             <tr>
                                 <td class="tb-col-1">Khoản trừ khác</td>

@@ -127,6 +127,15 @@
                                     >
                                         <ShowHoaDon :idHoaDon="log.idItemS">
                                         </ShowHoaDon>
+                                        <template #modal-footer>
+                                            <div class="text-center">
+                                            <button @click="deleteHoaDon(log.idItemS)" class="btn btn-danger">Xoá</button> -- 
+                                            <b-button
+                                                variant="primary"
+                                                @click="$bvModal.hide(`modal-hd-${log.id}`)"
+                                            >Đóng</b-button>
+                                            </div>
+                                        </template>
                                     </b-modal>
                                 </td>
                             </tr>
@@ -157,6 +166,27 @@ export default {
         }
     },
     methods: {
+        deleteHoaDon(idHoaDon){
+            console.log("DELETE: ", idHoaDon);
+            if(confirm("Bạn đang tiến hành xoá hoá đơn - lưu ý, đây là thao tác không phục hồi được. Tiếp tục??")){
+                var client = this.$apolloProvider.defaultClient;
+                client.mutate({
+                    mutation: gql`
+                        mutation {
+                        deleteHoaDon(id: "${idHoaDon}"){
+                            id
+                        }
+                    }
+                    `
+                }).then(data => {
+                    location.reload();
+                }).catch(err => {
+
+                })
+            } else {
+
+            }
+        },
         createPhieuThu(state){
             if(state == "CREATED"){
                 $('#myModal' + this.idPhuHuynh).modal('hide');
