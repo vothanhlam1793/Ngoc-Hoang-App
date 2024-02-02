@@ -88,7 +88,7 @@
                                 <td class="tb-col-2 p-1 text-right" v-if="parseInt(item.data.khac) > 0">{{ numberWithCommas(item.data.khac) }}</td>
                                 <td class="tb-col-2 p-1 text-right" v-else>0</td>
                                 <td class="tb-col-3" v-if="item.data.khac > 0">{{ item.data.note_khac ? item.data.note_khac : item.data.note }}</td>
-                                <td class="tb-col-3" v-else>{{ item.data.note_khac ? item.data.note_khac : `` }}</td>
+                                <td class="tb-col-3" v-else></td>
                             </tr>
                             <tr class="table-primary">
                                 <td class="tb-col-1 p-1"><strong>TỔNG CỘNG</strong></td>
@@ -105,7 +105,7 @@
                                 <td class="tb-col-1">Khoản trừ khác</td>
                                 <td class="tb-col-2 p-1 text-right" v-if="parseInt(item.data.khac) < 0">{{ numberWithCommas(parseInt(item.data.khac) * -1) }}</td>
                                 <td class="tb-col-2 p-1 text-right" v-else>0</td>
-                                <td class="tb-col-3" v-if="item.data.khac < 0">{{ item.data.note }}</td>
+                                <td class="tb-col-3" v-if="item.data.khac < 0">{{ item.data.note_khac ? item.data.note_khac : item.data.note }}</td>
                                 <td class="tb-col-3" v-else></td>
                             </tr>
                             <tr class="table-primary">

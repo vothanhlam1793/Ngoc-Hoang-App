@@ -1,10 +1,20 @@
 import gql from 'graphql-tag'
 
 function createDate(year, month){
+  var nextMonth = parseInt(month) + 1;
+  var nextYear = parseInt(year);
+  
+  if (nextMonth === 13) {
+    nextMonth = 1;
+    nextYear++;
+  }
+
   var d = new Date(year+"/"+month+"/1");
-  var n = new Date(year+"/"+(parseInt(month) + 1) + "/1");
+  var n = new Date(nextYear+"/"+(parseInt(nextMonth)) + "/1");
+
   n = n.getTime() - 86400000;
   n = new Date(n);
+  
   var e = new Date();
   var ret = [];
   var i = 0;
@@ -15,7 +25,8 @@ function createDate(year, month){
       f = new Date(f.getTime() + 86400000);
       i += 1;
   }
-  console.log(year, month, ret);
+
+  console.log("HEAR", year, month, ret);
   return ret;
 };
 

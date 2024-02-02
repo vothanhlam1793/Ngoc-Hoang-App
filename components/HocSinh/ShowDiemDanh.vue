@@ -44,8 +44,13 @@
                                                 class="form-control"
                                                 v-model="year"
                                             > 
+                                                <option>2022</option>
                                                 <option>2023</option>
-
+                                                <option>2024</option>
+                                                <option>2025</option>
+                                                <option>2026</option>
+                                                <option>2027</option>
+                                                <option>2028</option>
                                             </select>
                                         </div>
                                     </div>
@@ -85,8 +90,8 @@ export default {
     data(){
         return {
             item: {},
-            month: "06",
-            year: "2023"
+            month: (((new Date()).getMonth() + 1).toString()).padStart(2, "0"),
+            year: (new Date()).getFullYear()
         }
     },
     created(){
