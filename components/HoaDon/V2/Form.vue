@@ -4,14 +4,12 @@
             <div class="col-8 h-100">
                 <div style="height: 10%;" class="row">
                     <div class="h-100 col">
-                        <FindProduct 
-                            @update-data="productSelect"
-                        />
+                        <FindProduct @update-data="productSelect" />
                     </div>
                 </div>
                 <div style="height: 65%;" class="row">
                     <div class="col auto-res-y">
-                        <List/>
+                        <List />
                     </div>
                 </div>
                 <div class="row h-25">
@@ -41,14 +39,16 @@
     </div>
 </template>
 <style>
-    /* CSS để thiết lập chiều cao cố định cho div */
-    .fixed-height {
-      height: 85vh; /* 100% chiều cao của viewport */
-    }
-    .auto-res-y {
-        height: 100%;
-        overflow-y: auto;
-    }
+/* CSS để thiết lập chiều cao cố định cho div */
+.fixed-height {
+    height: 85vh;
+    /* 100% chiều cao của viewport */
+}
+
+.auto-res-y {
+    height: 100%;
+    overflow-y: auto;
+}
 </style>
 <script>
 import FindProduct from '~/components/HoaDon/V2/FindProduct.vue';
@@ -68,30 +68,30 @@ export default {
         Action,
         Info
     },
-    data(){
+    data() {
         return {
             type: "NORMAL"
         }
     },
     watch: {
-        hoadon: function(){
+        hoadon: function () {
             alert("Đã tạo hoá đơn mới thành công");
             location.reload();
         }
     },
     computed: {
-        hoadon(){
+        hoadon() {
             return this.$store.state.hd.hoadon;
         }
     },
     methods: {
         // Sản phẩm được chọn bởi tìm kiếm sản phẩm
-        productSelect(product){
+        productSelect(product) {
             // console.log("FORM", product);
             this.$store.commit('hd/addSanPhamChoose', product)
         }
     },
-    mounted(){
+    mounted() {
         this.$store.commit("hd/updateType", this.type);
         this.$store.dispatch("hocphi/getInfoHocPhi");
     }

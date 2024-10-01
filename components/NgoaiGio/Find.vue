@@ -1,12 +1,7 @@
 <template>
     <div class="row">
         <div class="col">
-            <input
-                class="form-control"
-                placeholder="Nhập tên học sinh - lớp"
-                @keyup="findHocSinh"
-                v-model="inputName"
-            >
+            <input class="form-control" placeholder="Nhập tên học sinh - lớp" @keyup="findHocSinh" v-model="inputName">
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">
                     <thead>
@@ -18,13 +13,12 @@
                     </thead>
                     <tbody>
                         <tr v-for="hocsinh in filterByNameHocSinh">
-                            <td>{{ hocsinh.name }} <span v-if="getSName(hocsinh.id).length > 0">({{ getSName(hocsinh.id) }})</span></td>
+                            <td>{{ hocsinh.name }} <span v-if="getSName(hocsinh.id).length > 0">({{ getSName(hocsinh.id)
+                                    }})</span></td>
                             <td v-if="hocsinh.lophoc">{{ hocsinh.lophoc.name }}</td>
                             <td v-else> </td>
-                            <td class="text-center"><button
-                                    class="btn btn-success"
-                                    @click="chose(hocsinh)"
-                                >Chọn</button>
+                            <td class="text-center"><button class="btn btn-success"
+                                    @click="chose(hocsinh)">Chọn</button>
                             </td>
                         </tr>
                     </tbody>
@@ -81,18 +75,18 @@ export default {
         getVariable() {
             var that = this;
             getVariablesByKey(this.$apolloProvider.defaultClient, "SNAME")
-            .then(data => {
-                that.variables = data;
-                // console.log(data);
-            }).catch(err => {
-                console.log(err);
-            });
+                .then(data => {
+                    that.variables = data;
+                    // console.log(data);
+                }).catch(err => {
+                    console.log(err);
+                });
         },
-        getSName(idItem){
-            let sname = this.variables.filter(function(variable){
+        getSName(idItem) {
+            let sname = this.variables.filter(function (variable) {
                 return variable.idItem == idItem;
             });
-            if(sname.length == 0){
+            if (sname.length == 0) {
                 return "";
             } else {
                 return sname[0].value;

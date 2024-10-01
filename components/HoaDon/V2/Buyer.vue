@@ -71,7 +71,7 @@ export default {
             console.log(hocsinh);
             $("#findHocSinhModal").modal('hide');
             this.hocsinh = hocsinh;
-            this.$store.commit("hd/updateHocSinhSelect", this.hocsinh);    
+            this.$store.commit("hd/updateHocSinhSelect", this.hocsinh);
         }
     },
     data() {

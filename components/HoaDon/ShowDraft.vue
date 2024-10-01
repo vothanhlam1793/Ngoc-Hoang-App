@@ -55,6 +55,18 @@
                 </b-table>
             </div>
         </div>
+        <div class="row">
+                <div class="col-2"></div>
+                <div class="col-10">
+                    <p>Phụ huynh chuyển khoản theo nội dung
+                        <br>"<strong>HỌ VÀ TÊN BÉ - TÊN LỚP</strong>"
+                        <br>Ví dụ "<strong>Nguyen Ha Phuong Choi 1</strong>"
+                    </p>
+                    <p>Tên tài khoản: <strong>TRƯỜNG MẦM NON NGỌC HOÀNG</strong>
+                        <br>Ngân hàng Á Châu: <strong>77229966</strong>
+                    </p>
+                </div>
+            </div>
     </div>
     <!-- </div> -->
 </template>
