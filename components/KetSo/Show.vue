@@ -3,15 +3,8 @@
         <div class="col-7 border border-primary rounded p-2">
             <div class="row">
                 <div class="text-center col-4 pb-4 pl-5">
-                    <b-img
-                        src="/student.png"
-                        width="80"
-                        alt="Center image"
-                    ></b-img>
-                    <p
-                        style="font-size: 12px;"
-                        class="mt-1"
-                    >NGOC HOANG KINDERGARTEN</p>
+                    <b-img src="/student.png" width="80" alt="Center image"></b-img>
+                    <p style="font-size: 12px;" class="mt-1">NGOC HOANG KINDERGARTEN</p>
                 </div>
                 <div class="col-8 text-center">
                     <h5>TRƯỜNG MẦM NON NGỌC HOÀNG</h5>
@@ -79,32 +72,19 @@
                                 <td class="tb-col-2"><b>{{ numberWithCommas(item.data.phimorong) }}</b></td>
                                 <td class="tb-col-3"></td>
                             </tr> -->
-                            <tr
-                                v-if="(Object.keys(item.data.detailPhiMoRong).length > 0 && item.data.detailPhiMoRong[key].checked)"
-                                v-for="key in Object.keys(item.data.detailPhiMoRong)"
-                            >
+                            <tr v-if="(Object.keys(item.data.detailPhiMoRong).length > 0 && item.data.detailPhiMoRong[key].checked)"
+                                v-for="key in Object.keys(item.data.detailPhiMoRong)">
                                 <td class="tb-col-1">{{ item.data.detailPhiMoRong[key].label }}</td>
                                 <td class="tb-col-2">{{ numberWithCommas(item.data.detailPhiMoRong[key].value) }}</td>
                                 <td class="tb-col-3"></td>
                             </tr>
                             <tr>
                                 <td class="tb-col-1">Khoản thu khác</td>
-                                <td
-                                    class="tb-col-2"
-                                    v-if="parseInt(item.data.khac) > 0"
-                                >{{ numberWithCommas(item.data.khac) }}</td>
-                                <td
-                                    class="tb-col-2"
-                                    v-else
-                                >0</td>
-                                <td
-                                    class="tb-col-3"
-                                    v-if="item.data.khac > 0"
-                                >{{ item.data.note }}</td>
-                                <td
-                                    class="tb-col-3"
-                                    v-else
-                                ></td>
+                                <td class="tb-col-2" v-if="parseInt(item.data.khac) > 0">{{
+                                    numberWithCommas(item.data.khac) }}</td>
+                                <td class="tb-col-2" v-else>0</td>
+                                <td class="tb-col-3" v-if="item.data.khac > 0">{{ item.data.note }}</td>
+                                <td class="tb-col-3" v-else></td>
                             </tr>
                             <tr class="table-primary">
                                 <td class="tb-col-1"><strong>TỔNG CỘNG</strong></td>
@@ -114,33 +94,17 @@
                             <tr>
                                 <td class="tb-col-1">Khoản trừ nghỉ học</td>
                                 <td class="tb-col-2">{{ numberWithCommas(item.data.thanhtiennghi) }}</td>
-                                <td
-                                    class="tb-col-3"
-                                    v-if="item.data.thanhtiennghi > 0"
-                                >{{ item.data.ngaynghi }} ngày</td>
-                                <td
-                                    class="tb-col-3"
-                                    v-else
-                                ></td>
+                                <td class="tb-col-3" v-if="item.data.thanhtiennghi > 0">{{ item.data.ngaynghi }} ngày
+                                </td>
+                                <td class="tb-col-3" v-else></td>
                             </tr>
                             <tr>
                                 <td class="tb-col-1">Khoản trừ khác</td>
-                                <td
-                                    class="tb-col-2"
-                                    v-if="parseInt(item.data.khac) < 0"
-                                >{{ numberWithCommas(parseInt(item.data.khac) * -1) }}</td>
-                                <td
-                                    class="tb-col-2"
-                                    v-else
-                                >0</td>
-                                <td
-                                    class="tb-col-3"
-                                    v-if="item.data.khac < 0"
-                                >{{ item.data.note }}</td>
-                                <td
-                                    class="tb-col-3"
-                                    v-else
-                                ></td>
+                                <td class="tb-col-2" v-if="parseInt(item.data.khac) < 0">{{
+                                    numberWithCommas(parseInt(item.data.khac) * -1) }}</td>
+                                <td class="tb-col-2" v-else>0</td>
+                                <td class="tb-col-3" v-if="item.data.khac < 0">{{ item.data.note }}</td>
+                                <td class="tb-col-3" v-else></td>
                             </tr>
                             <tr class="table-primary">
                                 <td class="tb-col-1"><strong>TỔNG TRỪ</strong></td>
@@ -158,8 +122,9 @@
             </div>
             <div class="row">
                 <div class="col-10 text-right">
-                    <p><i>Ngày {{ this.date.getDate() }} tháng {{ this.date.getMonth() + 1 }} năm {{ this.date.getFullYear()
-                    }}</i></p>
+                    <p><i>Ngày {{ this.date.getDate() }} tháng {{ this.date.getMonth() + 1 }} năm {{
+                        this.date.getFullYear()
+                            }}</i></p>
                 </div>
                 <div class="col-2">
 
@@ -201,10 +166,7 @@
                             <h4>Thông tin phụ huynh</h4>
                         </div>
                     </div>
-                    <div
-                        class="row"
-                        v-if="item.hocsinh.parent.hocsinhs.length > 0"
-                    >
+                    <div class="row" v-if="item.hocsinh.parent.hocsinhs.length > 0">
                         <div class="col">
                             <h6>Thông tin ACE</h6>
                             <table class="table table-bordered table-striped">
@@ -223,11 +185,8 @@
                                     <td>{{ phone.name }}</td>
                                     <td>{{ phone.number }}</td>
                                     <td>
-                                        <a
-                                            :href="`https://zalo.me/${phone.number}`"
-                                            class="btn btn-primary"
-                                            target="_blank"
-                                        >Zalo</a>
+                                        <a :href="`https://zalo.me/${phone.number}`" class="btn btn-primary"
+                                            target="_blank">Zalo</a>
                                     </td>
                                 </tr>
                             </table>
@@ -296,7 +255,7 @@ export default {
         }
     },
     created() {
-        if(this.item.data.phimorong == undefined){
+        if (this.item.data.phimorong == undefined) {
             this.item.data.phimorong = 0;
             this.item.data.detailPhiMoRong = [];
         }
