@@ -36,7 +36,8 @@ export default {
                 `
             }).then(data => {
                 
-                that.camera = parseInt(data.data.createOrUpdateCamera.value) * 0;
+                const quantity = parseInt(data.data.createOrUpdateCamera.value) || 0;
+                that.camera = Math.max(0, quantity - 1) * 50000;
                 that.$store.commit("pks/updateCamera", {
                     item: that.item,
                     camera: that.camera
