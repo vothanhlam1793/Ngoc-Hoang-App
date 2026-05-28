@@ -60,6 +60,10 @@
                                         class="btn btn-success"
                                         :href="`/ketso/${$route.params.year}/${$route.params.month}/${lophoc.id}/show`"
                                         >Gởi phụ huynh</a>
+                                        <a
+                                        class="btn btn-warning"
+                                        :href="`/ketso/${$route.params.year}/${$route.params.month}/${lophoc.id}/show?v=2`"
+                                        >Gởi phụ huynh V2</a>
                                         <button
                                             class="btn btn-danger"
                                             @click="deleteKetSo(getKetSo(lophoc))"

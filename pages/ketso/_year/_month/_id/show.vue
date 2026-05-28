@@ -1,13 +1,24 @@
 <template>
     <div class="row">
         <div class="col">
-            <KetSoShow
-                v-for="item in phieuketso.items"
-                :item="item"
-                :key="item.id"
-                :phieuketso="phieuketso"
-            >
-            </KetSoShow>
+            <template v-if="version === '2'">
+                <KetSoShowV2
+                    v-for="item in phieuketso.items"
+                    :item="item"
+                    :key="item.id"
+                    :phieuketso="phieuketso"
+                >
+                </KetSoShowV2>
+            </template>
+            <template v-else>
+                <KetSoShow
+                    v-for="item in phieuketso.items"
+                    :item="item"
+                    :key="item.id"
+                    :phieuketso="phieuketso"
+                >
+                </KetSoShow>
+            </template>
         </div>
     </div>
 </template>
@@ -56,6 +67,9 @@ export default {
         }
     },
     computed: {
+        version(){
+            return this.$route.query.v || '1';
+        },
         phieuketso(){
             return this.$store.state.pks.phieuketso;
         },
