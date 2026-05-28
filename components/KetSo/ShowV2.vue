@@ -12,14 +12,14 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col text-center text-danger">
-                    <h2 class="font-weight-bold mb-0">PHIẾU THU HỌC PHÍ THÁNG {{ month }}/{{ year }}</h2>
+                <div class="col text-center">
+                    <h2 class="invoice-title font-weight-bold mb-0">PHIẾU THU HỌC PHÍ THÁNG {{ month }}/{{ year }}</h2>
                 </div>
             </div>
-            <div class="row mt-0 mb-1">
+            <div class="row mt-0 mb-2 student-info-row">
                 <div class="col-1"></div>
                 <div class="col-11">
-                    <p style="font-size:17px; margin-bottom:2px;">
+                    <p class="mb-0" style="font-size:16px;">
                         Họ và tên học sinh: <strong>{{ localItem.hocsinh.name }}</strong>
                         &nbsp;&nbsp;|&nbsp;&nbsp; Lớp: <strong>{{ localItem.lophoc.name }}</strong>
                     </p>
@@ -30,10 +30,10 @@
                     <table class="fee-table-v2">
                         <thead>
                             <tr>
-                                <th style="width:5%">STT</th>
-                                <th style="width:42%">Các khoản thu</th>
-                                <th style="width:30%">Thành tiền (VNĐ)</th>
-                                <th style="width:23%">Ghi chú</th>
+                                <th style="width:8%">STT</th>
+                                <th style="width:45%">Các khoản thu</th>
+                                <th style="width:32%">THÀNH TIỀN <span style="font-size:12px;font-weight:400;">(VNĐ)</span></th>
+                                <th style="width:15%">Ghi chú</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -43,7 +43,7 @@
                                 <td class="text-right">{{ numberWithCommas(row.value) }}</td>
                                 <td class="text-center">{{ row.note }}</td>
                             </tr>
-                            <tr class="table-primary">
+                            <tr class="row-total">
                                 <td colspan="2" class="text-center"><strong>TỔNG CỘNG</strong></td>
                                 <td class="text-right"><strong>{{ numberWithCommas(getTotal()) }}</strong></td>
                                 <td></td>
@@ -61,12 +61,12 @@
                                 <td v-if="localItem.data.khac < 0">{{ localItem.data.note }}</td>
                                 <td v-else></td>
                             </tr>
-                            <tr class="table-primary">
+                            <tr class="row-total">
                                 <td colspan="2" class="text-center"><strong>TỔNG TRỪ</strong></td>
                                 <td class="text-right"><strong>{{ numberWithCommas(getSub()) }}</strong></td>
                                 <td></td>
                             </tr>
-                            <tr class="text-danger font-weight-bold">
+                            <tr>
                                 <td colspan="2" class="text-center"><strong>THỰC THU</strong></td>
                                 <td class="text-right p-1">
                                     <input type="text" v-model="adjustAmount" class="thucthu-input-inline" @input="onAmountInput" />
@@ -82,13 +82,11 @@
                         <p class="qr-text">Quét mã QR để chuyển khoản</p>
                     </div>
                     <div class="bank-note text-left mt-2">
-                        <p class="mb-1" style="font-size:12px;">
-                            CK theo nội dung<br>
-                            "<strong>{{ localItem.hocsinh.name }} - {{ localItem.lophoc.name }}</strong>"
-                        </p>
-                        <p class="mb-0" style="font-size:12px;">
-                            Chủ TK: <strong>TRƯỜNG MẦM NON NGỌC HOÀNG</strong><br>
-                            Số TK: <strong>77229966</strong> - ACB
+                        <p class="mb-1 transfer-label">CK theo nội dung:</p>
+                        <p class="transfer-content">"<strong>{{ localItem.hocsinh.name }} - {{ localItem.lophoc.name }}</strong>"</p>
+                        <p class="mb-0 transfer-account">
+                            <strong>TRƯỜNG MẦM NON NGỌC HOÀNG</strong><br>
+                            Số TK: <strong class="account-number">77229966</strong> - ACB
                         </p>
                     </div>
                 </div>
@@ -108,8 +106,8 @@
 
         <div class="col-1"></div>
 
-        <div class="col-3 p-2 border border-danger rounded">
-            <h5 class="text-danger font-weight-bold mb-2">Thông tin phụ huynh</h5>
+        <div class="col-3 p-2 border rounded parent-box">
+            <h5 class="font-weight-bold mb-2 parent-title">Thông tin phụ huynh</h5>
             <div v-if="localItem.hocsinh.parent && localItem.hocsinh.parent.hocsinhs && localItem.hocsinh.parent.hocsinhs.length > 0">
                 <h6 class="font-weight-bold mb-1">Thông tin ACE</h6>
                 <table class="table table-bordered table-striped table-sm mb-2">
@@ -308,29 +306,53 @@ export default {
 </script>
 
 <style scoped>
+.invoice-title {
+    color: #FF6600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+}
+
+.student-info-row {
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+    border-bottom: 1.5px solid #FF6600;
+}
+
 .fee-table-v2 {
     width: 100%;
     border-collapse: collapse;
-    font-size: 16px;
-    border: 2px solid #1a73e8;
-}
-
-.fee-table-v2 th,
-.fee-table-v2 td {
-    border: 1px solid #ccc;
-    padding: 5px 8px;
+    font-size: 15.5px;
+    border: 1px solid #E0E0E0;
+    color: #2C3E50;
 }
 
 .fee-table-v2 thead th {
-    background: #1a73e8;
+    background-color: #0066CC;
     color: #fff;
     text-align: center;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 6px 8px;
+    border: none;
+    white-space: nowrap;
 }
 
-.fee-table-v2 tbody tr:nth-child(even) {
-    background: #f8f9fa;
+.fee-table-v2 tbody td {
+    padding: 5px 8px;
+    font-size: 15.5px;
+    color: #1A252F;
+    font-weight: 500;
+    line-height: 1.3;
+    border-bottom: 1px solid #EAEAEA;
+    border-left: none;
+    border-right: none;
+}
+
+.fee-table-v2 tbody tr:nth-child(even) td {
+    background-color: #F9FBFC;
 }
 
 .fee-table-v2 .text-right {
@@ -342,34 +364,37 @@ export default {
     text-align: center;
 }
 
-.fee-table-v2 .table-primary td {
-    background: #e8f0fe !important;
+.row-total td {
+    background-color: #FFF5EE !important;
     font-weight: bold;
+    font-size: 15.5px !important;
+    padding: 6px 8px !important;
+    border-bottom: 2px solid #FF6600 !important;
 }
 
 .thucthu-input-inline {
     width: 160px;
     text-align: right;
-    font-size: 19px;
+    font-size: 20px;
     font-weight: bold;
-    color: #dc3545;
-    border: 2px dashed #dc3545;
+    color: #FF6600;
+    border: 2px dashed #FF6600;
     border-radius: 4px;
-    padding: 4px 10px;
-    background: #fff8f8;
+    padding: 6px 12px;
+    background: #fff;
 }
 
 .thucthu-input-inline:focus {
     outline: none;
-    border: 2px solid #dc3545;
+    border: 2px solid #FF6600;
     background: #fff;
 }
 
 .qr-box {
-    border: 2px solid #eee;
+    border: 1px solid #E0E0E0;
     border-radius: 8px;
-    padding: 8px;
-    background: #fafafa;
+    padding: 15px;
+    background: #fff;
     margin-top: 2px;
 }
 
@@ -384,11 +409,46 @@ export default {
     font-size: 12px;
     margin-top: 6px;
     font-weight: bold;
-    color: #1a73e8;
+    color: #0066CC;
 }
 
 .bank-note {
-    line-height: 1.5;
-    color: #555;
+    line-height: 1.6;
+    color: #2C3E50;
+    font-size: 15px;
+    margin-top: 15px;
+}
+
+.transfer-label {
+    font-size: 13px;
+    color: #666;
+}
+
+.transfer-content {
+    font-size: 16px;
+    color: #FF6600;
+    font-weight: bold;
+    background-color: #FFF5EE;
+    padding: 4px 8px;
+    display: inline-block;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.transfer-account {
+    font-size: 15px;
+}
+
+.account-number {
+    color: #0066CC;
+    font-size: 15px;
+}
+
+.parent-box {
+    border-color: #E0E0E0 !important;
+}
+
+.parent-title {
+    color: #FF6600;
 }
 </style>
