@@ -1,4 +1,5 @@
 <template>
+<div>
     <div class="row my-3">
         <div class="col-8 border rounded p-1" ref="invoiceRef">
             <div class="row align-items-center">
@@ -8,7 +9,7 @@
                 </div>
                 <div class="col-8 text-center">
                     <h4 class="font-weight-bold mb-0">TRƯỜNG MẦM NON NGỌC HOÀNG</h4>
-                    <p style="font-size:16px;" class="mb-0"><strong><i class="fa-solid fa-phone"></i> 0933.064.964 - 0978.087.992</strong></p>
+                    <p style="font-size:16px;" class="mb-0"><strong><i class="fa-solid fa-phone"></i> 0933.064.964</strong></p>
                 </div>
             </div>
             <div class="row">
@@ -110,15 +111,6 @@
 
         <div class="col-3 p-2 border border-danger rounded">
             <h5 class="text-danger font-weight-bold mb-2">Thông tin phụ huynh</h5>
-            <div v-if="localItem.hocsinh.parent && localItem.hocsinh.parent.hocsinhs && localItem.hocsinh.parent.hocsinhs.length > 0">
-                <h6 class="font-weight-bold mb-1">Thông tin ACE</h6>
-                <table class="table table-bordered table-striped table-sm mb-2">
-                    <tr v-for="hocsinh in localItem.hocsinh.parent.hocsinhs" :key="hocsinh.id">
-                        <td>{{ hocsinh.name }}</td>
-                        <td v-if="hocsinh.lophoc">{{ hocsinh.lophoc.name }}</td>
-                    </tr>
-                </table>
-            </div>
             <h6 class="font-weight-bold mb-1">Số điện thoại</h6>
             <table class="table table-bordered table-striped table-sm mb-2">
                 <tr v-for="phone in localItem.hocsinh.parent.phone" :key="phone.number">
@@ -129,11 +121,46 @@
                     </td>
                 </tr>
             </table>
-            <button class="btn btn-success btn-sm btn-block" @click="captureAndCopy" :disabled="isCapturing">
+            <!--
+            <button class="btn btn-success btn-sm btn-block mb-1" @click="captureAndCopy" :disabled="isCapturing">
                 {{ isCapturing ? 'Đang chụp...' : '📋 Copy phiếu thu (ảnh)' }}
             </button>
+            <button v-if="siblings.length > 0" class="btn btn-info btn-sm btn-block" @click="showSiblings = true">
+                👨‍👩‍👧 Anh/Chị/Em ({{ siblings.length + 1 }} bé)
+            </button>
+            -->
         </div>
     </div>
+
+    <!--
+    <b-modal v-model="showSiblings" title="Phiếu thu Anh/Chị/Em" ok-only ok-title="Đóng" size="lg">
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr><th>Tên</th><th>Lớp</th><th></th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>{{ localItem.hocsinh.name }}</strong></td>
+                    <td>{{ localItem.lophoc.name }}</td>
+                    <td class="text-center"><span class="badge badge-warning">Đang xem</span></td>
+                </tr>
+                <tr v-for="s in siblings" :key="s.id">
+                    <td>{{ s.name }}</td>
+                    <td>{{ s.lophoc ? s.lophoc.name : '' }}</td>
+                    <td class="text-center">
+                        <a v-if="s.lophoc && s.lophoc.id"
+                            :href="`/ketso/${year}/${month}/${s.lophoc.id}/show?v=2`"
+                            class="btn btn-primary btn-sm"
+                            target="_blank"
+                        >Xem phiếu thu V2</a>
+                        <span v-else class="text-muted">Chưa kết sổ</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </b-modal>
+    -->
+</div>
 </template>
 
 <script>
@@ -156,6 +183,7 @@ export default {
             localItem: null,
             adjustAmount: "",
             isCapturing: false,
+            showSiblings: false,
         }
     },
     computed: {
@@ -163,9 +191,9 @@ export default {
             if (!this.localItem) return [];
             const d = this.localItem.data;
             const rows = [];
-            rows.push({ stt: 1, label: 'Cơ sở vật chất ban đầu', value: d.csvc, note: '1 năm' });
-            rows.push({ stt: 2, label: 'Camera', value: d.camera, note: '' });
-            rows.push({ stt: 3, label: 'Học phí', value: d.hocphi, note: '' });
+            if (d.csvc > 0) rows.push({ stt: rows.length + 1, label: 'Cơ sở vật chất ban đầu', value: d.csvc, note: '1 năm' });
+            if (d.camera > 0) rows.push({ stt: rows.length + 1, label: 'Camera', value: d.camera, note: '' });
+            if (d.hocphi > 0) rows.push({ stt: rows.length + 1, label: 'Học phí', value: d.hocphi, note: '' });
             if (d.ngoaigio > 0) rows.push({ stt: rows.length + 1, label: 'Phí giữ trẻ ngoài giờ', value: d.ngoaigio, note: '' });
             if (d.an545 > 0) rows.push({ stt: rows.length + 1, label: 'Phí trẻ ăn chiều 16g45', value: d.an545, note: '' });
             if (d.totalHoaDon > 0) rows.push({ stt: rows.length + 1, label: 'Hóa đơn', value: d.totalHoaDon, note: '' });
@@ -179,8 +207,6 @@ export default {
             }
             if (parseInt(d.khac) > 0) {
                 rows.push({ stt: rows.length + 1, label: 'Khoản thu khác', value: d.khac, note: d.note || '' });
-            } else {
-                rows.push({ stt: rows.length + 1, label: 'Khoản thu khác', value: 0, note: '' });
             }
             return rows;
         },
@@ -193,6 +219,12 @@ export default {
                 if (pmr[key].checked) result.push({ _key: key, ...pmr[key] });
             }
             return result;
+        },
+        siblings() {
+            if (!this.localItem || !this.localItem.hocsinh || !this.localItem.hocsinh.parent) return [];
+            const parent = this.localItem.hocsinh.parent;
+            if (!parent.hocsinhs) return [];
+            return parent.hocsinhs.filter(h => h.id !== this.localItem.hocsinh.id);
         },
         vietqrUrl() {
             const bankCode = 'ACB';
