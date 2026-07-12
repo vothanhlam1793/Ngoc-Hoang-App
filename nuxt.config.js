@@ -1,12 +1,12 @@
 function baseURL() {
-  return baseProxy();
+  const backendHost = process.env.BACKEND_HOST || '192.168.110.110';
+  const backendPort = process.env.BACKEND_PORT || '12001';
+  return `http://${backendHost}:${backendPort}/admin/api`;
+  // Production: https://be.camerangochoang.com/admin/api
 }
 
 function baseProxy() {
-  // Proxy cho keystone
-  // return `http://svr1.creta.vn:3001/admin/api`;
-  return `https://be.camerangochoang.com/admin/api`;
-  // return "http://localhost:3001/admin/api"
+  return baseURL();
 }
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
@@ -98,7 +98,7 @@ export default {
     proxy: true,
   },
   proxy: {
-    "/admin/api/": baseURL(),
+    "/admin/api": baseURL(),
   },
   auth: {
     strategies: {
@@ -132,7 +132,7 @@ export default {
   apollo: {
     clientConfigs: {
       default: {
-        httpEndpoint: baseURL(), // Your graphql endpiont
+        httpEndpoint: '/admin/api',
       },
     },
   },
@@ -147,6 +147,6 @@ export default {
 
   server: {
     host: "0.0.0.0", // default: localhost
-    port: 3000, // default: 3000
+    port: process.env.NUXT_PORT || 12002,
   },
 };
