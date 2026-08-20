@@ -1,7 +1,7 @@
 <template>
     <div class="row">
         <div class="col">
-            <input class="form-control" placeholder="Nhập tên học sinh - lớp" @keyup="findHocSinh" v-model="inputName">
+            <input class="form-control" placeholder="Nhập tên học sinh - lớp" @input="findHocSinh" v-model="inputName">
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">
                     <thead>
@@ -29,14 +29,6 @@
     </div>
 </template>
 <script>
-function chuyentiengviet(str) {
-    if (str == undefined) {
-        return "";
-    }
-    return str.normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/đ/g, 'd').replace(/Đ/g, 'D');
-}
 import InputName from '~/components/NgoaiGio/InputName.vue';
 import Index from '~/components/Filter/Table/Index.vue';
 
@@ -54,20 +46,16 @@ export default {
             inputName: "",
             chosen: [],
             variables: [],
+            searchTimer: null,
         }
     },
     methods: {
         findHocSinh() {
-            var changeSearchReg = chuyentiengviet(this.inputName).split(" ").join("[ -w]+");
-            var reg = new RegExp(changeSearchReg, "i");
-            this.filterByNameHocSinh = this.fHocSinhs.filter(function (hocsinh) {
-                if (hocsinh.lophoc) {
-                    var temp = [hocsinh.name, hocsinh.lophoc.name];
-                } else {
-                    var temp = [hocsinh.name];
-                }
-                return reg.test(chuyentiengviet(temp.join(" ")));
-            });
+            clearTimeout(this.searchTimer);
+            this.searchTimer = setTimeout(() => {
+                this.$store.commit("filter/hocsinh/updateSearchName", this.inputName);
+                this.$store.dispatch("filter/hocsinh/applyFilters");
+            }, 300);
         },
         chose(hocsinh) {
             this.$emit("update-data", hocsinh);
@@ -98,7 +86,7 @@ export default {
             this.fHocSinhs = this.hocsinhs.filter(function (hocsinh) {
                 return (hocsinh.status != "NGHI_LUON") && (hocsinh.lophoc != undefined);
             });
-            this.findHocSinh();
+            this.filterByNameHocSinh = this.fHocSinhs;
         }
     },
     computed: {
@@ -112,6 +100,10 @@ export default {
     mounted() {
         this.$store.dispatch("filter/hocsinh/getAllHocsinhs");
         this.getVariable();
+    },
+    beforeDestroy() {
+        clearTimeout(this.searchTimer);
+        this.$store.commit("filter/hocsinh/updateSearchName", "");
     }
 }
 </script>

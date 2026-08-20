@@ -20,6 +20,11 @@
                     </tr>
                 </tbody>
             </table>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <button class="btn btn-outline-primary" :disabled="page === 1 || loading" @click="getAllPhieuDiemDanh(page - 1)">Trang trước</button>
+                <span>Trang {{ page }}/{{ totalPages }} ({{ total }} phiếu)</span>
+                <button class="btn btn-outline-primary" :disabled="page === totalPages || loading" @click="getAllPhieuDiemDanh(page + 1)">Trang sau</button>
+            </div>
         </div>
     </div>
 </template>
@@ -28,32 +33,52 @@ import gql from 'graphql-tag'
 export default {
     data(){
         return {
-            phieuketsos: []
+            phieuketsos: [],
+            page: 1,
+            pageSize: 50,
+            total: 0,
+            loading: false
+        }
+    },
+    computed: {
+        totalPages(){
+            return Math.max(1, Math.ceil(this.total / this.pageSize));
         }
     },
     methods: {
-        getAllPhieuDiemDanh(){
+        getAllPhieuDiemDanh(page = 1){
             var that = this;
+            this.loading = true;
             let client = this.$apolloProvider.defaultClient;
             client.query({
                 query: gql`
-            query {
-                allPhieuKetSos {
+            query getPhieuKetSos($first: Int, $skip: Int) {
+                allPhieuKetSos(first: $first, skip: $skip, sortBy: createdAt_DESC) {
                     id
                     items {
-                    id
-                    data
+                        id
                     }
                     code
                     createdAt
                 }
+                _allPhieuKetSosMeta {
+                    count
+                }
             }
-            `
+            `,
+                variables: {
+                    first: this.pageSize,
+                    skip: (page - 1) * this.pageSize
+                },
+                fetchPolicy: 'network-only'
             }).then(data => {
                 that.phieuketsos = data.data.allPhieuKetSos;
-                console.log(that.phieuketsos)
+                that.total = data.data._allPhieuKetSosMeta.count;
+                that.page = page;
             }).catch(err => {
                 console.log(err);
+            }).finally(() => {
+                that.loading = false;
             })
         }
     },

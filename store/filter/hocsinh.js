@@ -122,7 +122,10 @@ export const actions = {
       .map((lophoc) => lophoc.id);
 
     if (state.searchName.trim()) {
-      where.name_contains_i = state.searchName.trim();
+      where.OR = [
+        { name_contains_i: state.searchName.trim() },
+        { lophoc: { name_contains_i: state.searchName.trim() } },
+      ];
     }
     where.status_in = state.status;
     if (state.lophocs.length) {
