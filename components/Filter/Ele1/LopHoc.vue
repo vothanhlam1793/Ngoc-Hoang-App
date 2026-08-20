@@ -30,6 +30,7 @@ export default {
     methods:{
         changed(){
             this.$store.commit("filter/hocsinh/updateFilterEle1All", this.choseAll);
+            this.$store.dispatch("filter/hocsinh/applyFilters");
         }
     },
     watch: {
@@ -39,6 +40,7 @@ export default {
         lophocs: function(){
             if(this.lophocs.length > 0){
                 this.$store.commit("filter/hocsinh/updateFilterEle1All", true);
+                this.$store.dispatch("filter/hocsinh/applyFilters");
             }
         }
 

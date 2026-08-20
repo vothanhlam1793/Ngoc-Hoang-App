@@ -7,6 +7,11 @@ export const state = () => ({
   choseAll: false,
 
   monitor: 0,
+  total: 0,
+  page: 1,
+  pageSize: 60,
+  searchName: "",
+  loading: false,
 
   status: ["DANG_HOC", "TAM_NGHI", "DANG_KY", "NGHI_LUON"],
   // loadingHocSinh: false
@@ -16,14 +21,18 @@ export const mutations = {
   updateHocsinhs(state, data) {
     state.hocsinhs = data;
     state.filterHocsinhs = data;
-    state.hocsinhs.forEach(function (hocsinh) {
-      if (state.status.indexOf(hocsinh.status) >= 0) {
-      } else {
-        state.status.push(hocsinh.status);
-      }
-    });
-    console.log(state.status);
-    this.commit("filter/hocsinh/updateFilterEle1All", true);
+  },
+  updateTotal(state, total) {
+    state.total = total;
+  },
+  updatePage(state, page) {
+    state.page = page;
+  },
+  updateSearchName(state, searchName) {
+    state.searchName = searchName;
+  },
+  updateLoading(state, loading) {
+    state.loading = loading;
   },
   filterHS(state) {
     // chon ra nhung lop hoc duoc filter
@@ -75,8 +84,8 @@ export const mutations = {
 };
 
 const GET_HOCSINH = gql`
-  query {
-    allStudents {
+  query getStudents($first: Int, $skip: Int, $where: StudentWhereInput) {
+    allStudents(first: $first, skip: $skip, where: $where) {
       id
       name
       status
@@ -88,41 +97,60 @@ const GET_HOCSINH = gql`
         }
         debt
         code
-        hocsinhs {
-          name
-          lophoc {
-            id
-            name
-            chunhiem {
-              name
-            }
-          }
-        }
       }
       lophoc {
         id
         name
-        chunhiem {
-          name
-        }
       }
       hocphi
       hocphigiam
       namhocphi
       luuy
     }
+    _allStudentsMeta(where: $where) {
+      count
+    }
   }
 `;
 
 export const actions = {
-  async getAllHocsinhs({ commit }) {
-    console.log("Hocsinh");
+  async getAllHocsinhs({ commit, state }, page = state.page) {
+    const safePage = Math.max(1, page);
+    const where = {};
+    const selectedClasses = state.lophocs
+      .filter((lophoc) => lophoc.chose)
+      .map((lophoc) => lophoc.id);
+
+    if (state.searchName.trim()) {
+      where.name_contains_i = state.searchName.trim();
+    }
+    where.status_in = state.status;
+    if (state.lophocs.length) {
+      where.lophoc = { id_in: selectedClasses };
+    }
+
+    commit("updateLoading", true);
     var client = this.app.apolloProvider.defaultClient;
-    var data = await client.query({
-      query: GET_HOCSINH,
-    });
-    // console.log(data.data.allStudents);
-    commit("updateHocsinhs", data.data.allStudents);
+    try {
+      var data = await client.query({
+        query: GET_HOCSINH,
+        variables: {
+          first: state.pageSize,
+          skip: (safePage - 1) * state.pageSize,
+          where,
+        },
+        fetchPolicy: "network-only",
+      });
+      commit("updatePage", safePage);
+      commit("updateHocsinhs", data.data.allStudents);
+      commit("updateTotal", data.data._allStudentsMeta.count);
+    } finally {
+      commit("updateLoading", false);
+    }
+  },
+  applyFilters({ commit, dispatch }) {
+    commit("updatePage", 1);
+    return dispatch("getAllHocsinhs", 1);
   },
   async getAllLopHoc({ commit }) {
     var client = this.app.apolloProvider.defaultClient;

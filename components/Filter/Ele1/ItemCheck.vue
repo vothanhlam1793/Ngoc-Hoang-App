@@ -18,7 +18,8 @@
 export default {
     data: () => {
         return {
-            chose: false
+            chose: false,
+            syncing: false
         }
     },
     watch: {
@@ -27,9 +28,16 @@ export default {
                 lophoc: this.lophoc,
                 chose: this.chose
             })
+            if (!this.syncing) {
+                this.$store.dispatch("filter/hocsinh/applyFilters");
+            }
         }, 
         monitor: function(){
+            this.syncing = true;
             this.chose = this.lophoc.chose;
+            this.$nextTick(() => {
+                this.syncing = false;
+            });
             this.$forceUpdate();
         }
     },

@@ -17,9 +17,6 @@ export default {
         hocsinhs(){
             return this.$store.state.filter.hocsinh.filterHocsinhs;
         }
-    },
-    mounted(){
-        this.$store.dispatch("filter/hocsinh/getAllHocsinhs");
     }
 }
 </script>

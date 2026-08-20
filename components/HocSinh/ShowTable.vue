@@ -34,6 +34,19 @@
                 </tbody>
             </table>
         </div>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <button
+                class="btn btn-outline-primary"
+                :disabled="page === 1"
+                @click="changePage(page - 1)"
+            >Trang trước</button>
+            <span>Trang {{ page }}/{{ totalPages }} ({{ total }} học sinh)</span>
+            <button
+                class="btn btn-outline-primary"
+                :disabled="page === totalPages"
+                @click="changePage(page + 1)"
+            >Trang sau</button>
+        </div>
         <div>
             <div class="modal" id="showPhuHuynh">
             <div class="modal-dialog">
@@ -90,11 +103,23 @@
             hocsinhs(){
                 return this.$store.state.hocsinh.hocsinhs;
             },
+            page(){
+                return this.$store.state.hocsinh.page;
+            },
+            total(){
+                return this.$store.state.hocsinh.total;
+            },
+            totalPages(){
+                return Math.max(1, Math.ceil(this.total / this.$store.state.hocsinh.pageSize));
+            },
             roles(){
                 return this.$store.state.user.roles;
             }
         },
         methods: {
+            changePage(page){
+                this.$store.dispatch('hocsinh/get_data', page);
+            },
             checkRole(slugs){
                 var ret = false;
                 this.roles.forEach(function(e1){

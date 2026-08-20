@@ -35,6 +35,11 @@
                 <b-button variant="primary" @click="showModal(row)">Xem</b-button>
             </template>
         </b-table>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <b-button variant="outline-primary" :disabled="page === 1 || busyTable" @click="changePage(page - 1)">Trang trước</b-button>
+            <span>Trang {{ page }}/{{ totalPages }} ({{ total }} phụ huynh)</span>
+            <b-button variant="outline-primary" :disabled="page === totalPages || busyTable" @click="changePage(page + 1)">Trang sau</b-button>
+        </div>
         <b-modal v-model="showModalFlag" size="lg" :title="slPhuHuynh.name">
             <!-- Nội dung của modal -->
             <DebtForm 
@@ -60,6 +65,9 @@ export default {
             showModalFlag: false,
             busyTable: true, 
             phuhuynhs: [],
+            total: 0,
+            page: 1,
+            pageSize: 50,
             fields: [
                 {
                     thClass: "text-center",
@@ -116,12 +124,16 @@ export default {
             this.loadData += 1;
             this.showModalFlag = true;
         },
-        getPhuHuynh(){
+        getPhuHuynh(page = 1){
             var that = this;
             that.busyTable = true;
-            getPhuHuynh(this.$apolloProvider.defaultClient).then(data => {
-                // console.log(data);
-                that.phuhuynhs = data;
+            getPhuHuynh(this.$apolloProvider.defaultClient, {
+                first: this.pageSize,
+                skip: (page - 1) * this.pageSize
+            }).then(data => {
+                that.phuhuynhs = data.items;
+                that.total = data.total;
+                that.page = page;
                 that.busyTable = false;
             }).catch (err => {
                 console.log(err);
@@ -131,6 +143,14 @@ export default {
         // Hàm để mở/đóng cột "Học sinh" tương ứng với chỉ số index
             this.$set(this.collapsedRows, index, !this.collapsedRows[index]);
         },
+        changePage(page) {
+            this.getPhuHuynh(page);
+        }
+    },
+    computed: {
+        totalPages() {
+            return Math.max(1, Math.ceil(this.total / this.pageSize));
+        }
     },
     mounted(){
         this.getPhuHuynh();

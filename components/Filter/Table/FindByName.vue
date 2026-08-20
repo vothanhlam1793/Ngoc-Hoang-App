@@ -5,7 +5,7 @@
                 class="form-control"
                 v-model="findByName"
                 placeholder="Nhập tên học sinh"
-                @keyup="$store.commit('filter/list/updateFindByName', findByName)"
+                @input="search"
             />
         </div>
     </div>
@@ -14,8 +14,21 @@
 export default {
     data(){
         return {
-            findByName: ""
+            findByName: "",
+            searchTimer: null
         }
+    },
+    methods: {
+        search(){
+            clearTimeout(this.searchTimer);
+            this.searchTimer = setTimeout(() => {
+                this.$store.commit('filter/hocsinh/updateSearchName', this.findByName);
+                this.$store.dispatch('filter/hocsinh/applyFilters');
+            }, 300);
+        }
+    },
+    beforeDestroy(){
+        clearTimeout(this.searchTimer);
     }
 }
 </script>

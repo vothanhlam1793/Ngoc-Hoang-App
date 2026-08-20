@@ -1,12 +1,18 @@
 import gql from 'graphql-tag'
 export const state = () => ({
-    hocsinhs: []
+    hocsinhs: [],
+    total: 0,
+    page: 1,
+    pageSize: 50
 })
 
 export const mutations = {
     update_data(state, data){
-        // console.log(data);
         state.hocsinhs = data.data.allStudents;
+        state.total = data.data._allStudentsMeta.count;
+    },
+    updatePage(state, page){
+        state.page = page;
     },
     updateHocSinh(state, data){
       var index = -1;
@@ -24,8 +30,8 @@ export const mutations = {
 }
 
 const GET_HOCSINH = gql`
-query {
-	allStudents {
+query getStudents($first: Int, $skip: Int) {
+	allStudents(first: $first, skip: $skip) {
     id
     name
     status
@@ -35,39 +41,30 @@ query {
       phone {
         number
       }
-      code
-      hocsinhs {
-        name
-        lophoc {
-          name
-          chunhiem {
-            name
-          }
-        }
-      }
     }
     lophoc {
       name
-      chunhiem {
-        name
-      }
     }
-    hocphi
-    hocphigiam
-    namhocphi
-    luuy
   }
-	
+	_allStudentsMeta {
+	  count
+	}
 }
 `
 
 export const actions = {
-    async get_data( {commit}){
+    async get_data({commit, state}, page = 1){
+        const safePage = Math.max(1, page);
         var client = this.app.apolloProvider.defaultClient;
         var data = await client.query({
-            query: GET_HOCSINH
+            query: GET_HOCSINH,
+            variables: {
+                first: state.pageSize,
+                skip: (safePage - 1) * state.pageSize
+            },
+            fetchPolicy: 'network-only'
         });
-        // console.log(data);
+        commit('updatePage', safePage);
         commit('update_data', data);
     }, 
     async getHocSinh({commit, state}, idHocSinh){

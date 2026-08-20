@@ -4,7 +4,7 @@
             <List 
                 :hocsinhs="pageHocsinhs"
             />
-            <!-- <Pagn /> -->
+            <Pagn />
         </div>
     </div>
 </template>
@@ -26,7 +26,7 @@ export default {
     },
     computed: {
         pageHocsinhs(){
-            return this.$store.state.filter.result.pageHocsinhs;
+            return this.hocsinhs;
         }
     },
     mounted(){

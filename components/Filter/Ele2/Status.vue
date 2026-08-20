@@ -35,6 +35,7 @@ export default {
     watch: {
         checkedStatus: function(n,o){
             this.$store.commit("filter/hocsinh/updateFilterEle2", this.checkedStatus);
+            this.$store.dispatch("filter/hocsinh/applyFilters");
         }
     },
     computed: {

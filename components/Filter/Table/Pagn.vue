@@ -1,46 +1,29 @@
 <template>
     <div class="row">
         <div class="col">
-            <ul class="pagination">
-                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item active"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">Next</a></li>
-            </ul> 
-            <!-- <input 
-                class="form-control"
-                v-model="pageLength"
-            >
-            <button
-                class="btn btn-danger"
-                @click="$store.commit('filter/result/prevPage')"
-            > < </button>
-            <button
-                class="btn btn-primary"
-                @click="$store.commit('filter/result/setPageLength', pageLength)"
-            >Cài đặt</button>
-            <button
-                class="btn btn-success"
-                @click="$store.commit('filter/result/nextPage')"
-            > > </button> -->
+            <div class="d-flex align-items-center justify-content-between my-3">
+                <button class="btn btn-outline-primary" :disabled="page === 1 || loading" @click="go(page - 1)">Trang trước</button>
+                <span>Trang {{ page }}/{{ totalPages }} ({{ total }} học sinh)</span>
+                <button class="btn btn-outline-primary" :disabled="page === totalPages || loading" @click="go(page + 1)">Trang sau</button>
+            </div>
         </div>
     </div>
 </template>
 <script>
 
 export default {
-    data: () => {
-        return {
-            pageLength: 10
+    computed: {
+        page(){ return this.$store.state.filter.hocsinh.page; },
+        total(){ return this.$store.state.filter.hocsinh.total; },
+        loading(){ return this.$store.state.filter.hocsinh.loading; },
+        totalPages(){
+            return Math.max(1, Math.ceil(this.total / this.$store.state.filter.hocsinh.pageSize));
         }
     },
-    created(){
-        this.$store.commit("filter/result/setPageLength", this.pageLength);
+    methods: {
+        go(page){
+            this.$store.dispatch("filter/hocsinh/getAllHocsinhs", page);
+        }
     },
-    components: {
-
-    },
-    props: []
 }
 </script>
