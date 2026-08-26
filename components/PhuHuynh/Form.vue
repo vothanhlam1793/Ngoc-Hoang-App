@@ -1,5 +1,21 @@
 <template>
     <div>
+        <b-form inline class="mb-3" @submit.prevent="applySort">
+            <label class="mr-2" for="parent-sort-field">Sắp xếp</label>
+            <b-form-select
+                id="parent-sort-field"
+                v-model="selectedSortField"
+                :options="sortFieldOptions"
+                class="mr-2 mb-2 mb-sm-0"
+            />
+            <b-form-select
+                v-model="selectedSortDirection"
+                :options="sortDirectionOptions"
+                class="mr-2 mb-2 mb-sm-0"
+                aria-label="Chiều sắp xếp"
+            />
+            <b-button type="submit" variant="primary" :disabled="busyTable">Xác nhận</b-button>
+        </b-form>
         <b-spinner v-if="busyTable" label="Loading..."></b-spinner>
         <b-table
             v-else
@@ -68,12 +84,22 @@ export default {
             total: 0,
             page: 1,
             pageSize: 50,
+            selectedSortField: "code",
+            selectedSortDirection: "DESC",
+            sortBy: "code_DESC",
+            sortFieldOptions: [
+                { value: "code", text: "Mã phụ huynh" },
+                { value: "debt", text: "Công nợ" }
+            ],
+            sortDirectionOptions: [
+                { value: "ASC", text: "Tăng dần" },
+                { value: "DESC", text: "Giảm dần" }
+            ],
             fields: [
                 {
                     thClass: "text-center",
                     label: "Mã",
                     key: "code",
-                    sortable: true, // Cho phép sắp xếp theo cột này
                     thStyle: {
                         width: '10%', // Thiết lập chiều rộng của tiêu đề cột là 50%
                     },
@@ -99,7 +125,6 @@ export default {
                     label: "Nợ",
                     key: "debt",
                     formatter: this.$formatTotal,
-                    sortable: true, // Cho phép sắp xếp theo cột này
                     // tdClass: "text-right"
                     thStyle: {
                         width: '20%', // Thiết lập chiều rộng của tiêu đề cột là 50%
@@ -129,7 +154,8 @@ export default {
             that.busyTable = true;
             getPhuHuynh(this.$apolloProvider.defaultClient, {
                 first: this.pageSize,
-                skip: (page - 1) * this.pageSize
+                skip: (page - 1) * this.pageSize,
+                sortBy: this.sortBy
             }).then(data => {
                 that.phuhuynhs = data.items;
                 that.total = data.total;
@@ -145,6 +171,10 @@ export default {
         },
         changePage(page) {
             this.getPhuHuynh(page);
+        },
+        applySort() {
+            this.sortBy = `${this.selectedSortField}_${this.selectedSortDirection}`;
+            this.getPhuHuynh(1);
         }
     },
     computed: {
