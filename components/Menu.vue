@@ -45,6 +45,9 @@
       <li class="nav-item ml-5">
         <LoginButton></LoginButton>
       </li>
+      <li class="nav-item">
+        <span class="nav-link text-muted" style="font-size: 0.85rem;">v2.0.1</span>
+      </li>
     </ul>
   </nav>
 </template>

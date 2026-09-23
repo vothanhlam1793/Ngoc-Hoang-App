@@ -18,6 +18,9 @@
             {{ alert }}
         </div>
       </div>
+      <div class="text-center text-muted mt-3" style="font-size: 0.8rem;">
+        Phiên bản 2.0.1
+      </div>
     </div>
   </template>
   
