@@ -160,13 +160,14 @@
       </div>
     </div>
 
-    <!-- Modal Thu tiền Phụ huynh chuẩn Bootstrap-Vue -->
+    <!-- Modal Thu tiền Phụ huynh chuẩn Bootstrap-Vue tích hợp VietQR -->
     <b-modal
       v-model="showCreatePaymentModal"
-      title="Lập Phiếu Thu Tiền Phụ Huynh"
+      size="lg"
+      title="Thu Tiền Học Phí & VietQR Phụ Huynh"
       hide-footer
     >
-      <div class="p-2">
+      <div class="p-1">
         <PhieuThuCreate
           :phuhuynh="phuhuynh"
           @update-state="createPhieuThu"
