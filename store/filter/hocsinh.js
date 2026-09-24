@@ -89,7 +89,6 @@ const GET_HOCSINH = gql`
       hocphigiam
       namhocphi
       luuy
-      createdAt
     }
     _allStudentsMeta(where: $where) {
       count

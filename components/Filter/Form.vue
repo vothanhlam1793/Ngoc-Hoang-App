@@ -4,7 +4,6 @@
       <FilterElement />
     </div>
     <div class="col-lg-9">
-      <HocSinhCreateModal />
       <div class="card shadow-sm border-0">
         <div class="card-body p-3">
           <FilterResult :hocsinhs="hocsinhs" />
@@ -23,4 +22,5 @@ export default {
   },
 };
 </script>
+
 
