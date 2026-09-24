@@ -52,51 +52,36 @@
 
           <template #cell(name)="row">
             <div class="font-weight-bold text-dark">{{ row.item.name }}</div>
-            <small class="text-muted" v-if="row.item.phone"><i class="fas fa-phone mr-1"></i>{{ row.item.phone }}</small>
+            <div v-if="getPhoneDisplay(row.item.phone)" class="small text-muted mt-1 d-flex align-items-center">
+              <i class="fas fa-phone-alt text-primary mr-1"></i>
+              <span>{{ getPhoneDisplay(row.item.phone) }}</span>
+              <a
+                v-if="getFirstPhoneNumber(row.item.phone)"
+                :href="`https://zalo.me/${getFirstPhoneNumber(row.item.phone)}`"
+                target="_blank"
+                class="badge badge-primary ml-2 px-2 py-1"
+                title="Nhắn Zalo"
+              >
+                Zalo
+              </a>
+            </div>
           </template>
 
           <template #cell(student)="row">
-            <div class="d-flex align-items-center">
-              <b-button
-                v-b-toggle="`collapse-${row.index}`"
-                variant="outline-info"
-                size="sm"
-                class="rounded-pill mr-2 px-2 py-0"
+            <div class="d-flex flex-wrap align-items-center">
+              <span
+                v-for="hs in row.item.hocsinhs"
+                :key="hs.id"
+                class="badge badge-light border text-dark mr-1 mb-1 px-2 py-1"
               >
-                <i class="fas fa-child mr-1"></i>{{ (row.item.hocsinhs || []).length }} bé
-              </b-button>
-              <span class="small text-muted" v-if="row.item.hocsinhs && row.item.hocsinhs.length">
-                {{ row.item.hocsinhs.map(h => h.name).join(', ') }}
+                <i class="fas fa-child text-info mr-1"></i>{{ hs.name }}
+                <small class="text-muted" v-if="hs.lophoc && hs.lophoc.name">({{ hs.lophoc.name }})</small>
+                <span v-if="hs.status === 'THOI_HOC'" class="badge badge-danger ml-1">Thôi học</span>
+              </span>
+              <span v-if="!row.item.hocsinhs || !row.item.hocsinhs.length" class="text-muted small">
+                Chưa có hồ sơ bé
               </span>
             </div>
-
-            <b-collapse :id="`collapse-${row.index}`" class="mt-2">
-              <div class="p-2 bg-light rounded border">
-                <b-table
-                  small
-                  bordered
-                  head-variant="light"
-                  class="bg-white mb-0"
-                  :items="row.item.hocsinhs"
-                  :fields="[{
-                    label: 'Tên bé',
-                    key: 'name'
-                  }, {
-                    label: 'Lớp',
-                    key: 'lophoc.name'
-                  }, {
-                    label: 'Trạng thái',
-                    key: 'status'
-                  }]"
-                >
-                  <template #cell(status)="stRow">
-                    <span v-if="stRow.item.status === 'DANG_HOC'" class="badge badge-success">Đang học</span>
-                    <span v-else-if="stRow.item.status === 'THOI_HOC'" class="badge badge-danger">Thôi học</span>
-                    <span v-else class="badge badge-secondary">{{ stRow.item.status || 'Chưa rõ' }}</span>
-                  </template>
-                </b-table>
-              </div>
-            </b-collapse>
           </template>
 
           <template #cell(balance)="row">
@@ -248,6 +233,26 @@ export default {
         }
     },
     methods: {
+        getPhoneDisplay(phoneData) {
+            if (!phoneData) return "";
+            if (Array.isArray(phoneData)) {
+                return phoneData.map(p => p.number || p).filter(Boolean).join(", ");
+            }
+            if (typeof phoneData === "object" && phoneData.number) {
+                return phoneData.number;
+            }
+            return String(phoneData);
+        },
+        getFirstPhoneNumber(phoneData) {
+            if (!phoneData) return "";
+            if (Array.isArray(phoneData) && phoneData.length > 0) {
+                return phoneData[0].number || phoneData[0] || "";
+            }
+            if (typeof phoneData === "object" && phoneData.number) {
+                return phoneData.number;
+            }
+            return String(phoneData);
+        },
         showModal(row){
             console.log(row);
             this.slPhuHuynh = row.item;
