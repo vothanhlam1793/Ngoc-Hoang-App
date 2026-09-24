@@ -276,8 +276,15 @@ export default {
         } catch (e) {}
 
         try {
-          this.dateAccessVar = await getVariableByKey(client, { item: 'Student', idItem: this.hocsinh.id, key: 'DATE_ACCESS' });
-          if (this.dateAccessVar && this.dateAccessVar.value) this.form.dateAccess = this.dateAccessVar.value;
+          // Thử lấy key DATE-ACCESS trước, fallback DATE_ACCESS
+          let dVar = await getVariableByKey(client, { item: 'Student', idItem: this.hocsinh.id, key: 'DATE-ACCESS' });
+          if (!dVar || !dVar.id) {
+            dVar = await getVariableByKey(client, { item: 'Student', idItem: this.hocsinh.id, key: 'DATE_ACCESS' });
+          }
+          this.dateAccessVar = dVar;
+          if (this.dateAccessVar && this.dateAccessVar.value) {
+            this.form.dateAccess = this.dateAccessVar.value.substring(0, 10);
+          }
         } catch (e) {}
       } catch (err) {
         console.error('Lỗi khi tải hồ sơ:', err);
@@ -325,11 +332,11 @@ export default {
           },
         });
 
-        // 2. Cập nhật các biến mở rộng (SNAME, AN545, CAMERA, DATE_ACCESS)
+        // 2. Cập nhật các biến mở rộng (SNAME, AN545, CAMERA, DATE-ACCESS)
         await this.syncVariable('SNAME', this.form.sName, this.sNameVar);
         await this.syncVariable('AN545', this.form.an545, this.an545Var);
         await this.syncVariable('CAMERA', this.form.camera, this.cameraVar);
-        await this.syncVariable('DATE_ACCESS', this.form.dateAccess, this.dateAccessVar);
+        await this.syncVariable('DATE-ACCESS', this.form.dateAccess, this.dateAccessVar);
 
         this.$bvToast.toast(`Đã lưu toàn bộ thông tin học sinh: ${this.form.name}`, {
           title: 'Cập nhật thành công',
