@@ -1,11 +1,14 @@
 <template>
   <div class="student-item-row mb-2">
+    <!-- Dòng hiển thị học sinh -->
     <div
       class="row align-items-center bg-white p-2 mx-0 rounded border shadow-sm item-header"
-      @click="run()"
+      @click="openModal()"
     >
       <div class="col-md-3 font-weight-bold text-dark d-flex align-items-center">
-        <i class="fas fa-chevron-right mr-2 text-muted chevron-icon" :class="{ 'rotate-90': isOpen }"></i>
+        <div class="avatar-mini mr-2 bg-primary-light text-primary">
+          <i class="fas fa-child"></i>
+        </div>
         <span>{{ hocsinh.name }}</span>
       </div>
       <div class="col-md-3 text-secondary">
@@ -20,29 +23,87 @@
         </span>
         <span v-else class="text-muted small">Chưa gán PH</span>
       </div>
-      <div class="col-md-3 text-right">
-        <span :class="['badge px-2 py-1', statusBadgeClass(hocsinh.status)]">
+      <div class="col-md-3 text-right d-flex align-items-center justify-content-end">
+        <span :class="['badge px-2 py-1 mr-2', statusBadgeClass(hocsinh.status)]">
           {{ statusLabel(hocsinh.status) }}
         </span>
+        <button
+          class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
+          title="Xem chi tiết"
+          @click.stop="openModal()"
+        >
+          <i class="fas fa-eye mr-1"></i> Chi tiết
+        </button>
       </div>
     </div>
 
-    <!-- Collapse Chi tiết -->
-    <div :id="'demo' + hocsinh.id" class="collapse mt-2">
-      <div class="p-3 bg-white border rounded shadow-sm" v-if="loadItem">
-        <b-tabs content-class="mt-3" pills>
-          <b-tab title="Hồ sơ học sinh" active>
-            <Info :hocsinh="hocsinh" />
+    <!-- Modal Chi tiết Học sinh -->
+    <b-modal
+      v-model="showModal"
+      size="xl"
+      hide-footer
+      header-class="bg-light border-bottom-0 pb-0"
+      body-class="pt-2"
+    >
+      <template #modal-title>
+        <div class="d-flex align-items-center">
+          <div class="avatar-modal-title mr-3 bg-primary text-white">
+            <i class="fas fa-user-graduate"></i>
+          </div>
+          <div>
+            <h5 class="font-weight-bold text-dark mb-0">
+              {{ hocsinh.name }}
+              <span :class="['badge ml-2', statusBadgeClass(hocsinh.status)]">
+                {{ statusLabel(hocsinh.status) }}
+              </span>
+            </h5>
+            <small class="text-muted">
+              Lớp: <strong>{{ (hocsinh.lophoc && hocsinh.lophoc.name) || 'Chưa phân lớp' }}</strong> |
+              Phụ huynh: <strong>{{ (hocsinh.parent && hocsinh.parent.name) || 'Chưa có' }}</strong>
+              <span v-if="hocsinh.parent && hocsinh.parent.code">({{ hocsinh.parent.code }})</span>
+            </small>
+          </div>
+        </div>
+      </template>
+
+      <!-- Nội dung Tabs -->
+      <div v-if="loadItem" class="pt-2">
+        <b-tabs content-class="mt-3" pills fill nav-wrapper-class="mb-3">
+          <b-tab active>
+            <template #title>
+              <i class="fas fa-id-card mr-1"></i> Hồ sơ học sinh
+            </template>
+            <div class="card border-0 bg-light p-3 rounded">
+              <Info :hocsinh="hocsinh" />
+            </div>
           </b-tab>
-          <b-tab title="Sổ nợ & Học phí" @click="loadData()">
-            <Debt :hocsinh="hocsinh" :loadData="loadDataDebt" />
+
+          <b-tab @click="loadData()">
+            <template #title>
+              <i class="fas fa-file-invoice-dollar mr-1"></i> Sổ nợ & Biến động học phí
+            </template>
+            <div class="card border-0 bg-light p-3 rounded">
+              <Debt :hocsinh="hocsinh" :loadData="loadDataDebt" />
+            </div>
           </b-tab>
-          <b-tab title="Liên hệ Phụ huynh">
-            <Parent :hocsinh="hocsinh" />
+
+          <b-tab>
+            <template #title>
+              <i class="fas fa-phone-alt mr-1"></i> Liên hệ Phụ huynh
+            </template>
+            <div class="card border-0 bg-light p-3 rounded">
+              <Parent :hocsinh="hocsinh" />
+            </div>
           </b-tab>
         </b-tabs>
       </div>
-    </div>
+
+      <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+        <button class="btn btn-secondary rounded-pill px-4" @click="showModal = false">
+          Đóng
+        </button>
+      </div>
+    </b-modal>
   </div>
 </template>
 
@@ -62,10 +123,14 @@ export default {
     return {
       loadDataDebt: false,
       loadItem: false,
-      isOpen: false,
+      showModal: false,
     };
   },
   methods: {
+    openModal() {
+      this.loadItem = true;
+      this.showModal = true;
+    },
     loadData() {
       this.loadDataDebt = true;
     },
@@ -87,11 +152,6 @@ export default {
       if (st === 'NGHI_LUON') return 'badge-secondary';
       return 'badge-light border';
     },
-    run() {
-      this.loadItem = true;
-      this.isOpen = !this.isOpen;
-      $('#demo' + this.hocsinh.id).collapse('toggle');
-    },
   },
 };
 </script>
@@ -102,14 +162,30 @@ export default {
   transition: all 0.15s ease-in-out;
 }
 .item-header:hover {
-  background-color: #f8f9fa !important;
-  border-color: #b8daff !important;
+  background-color: #f0f7ff !important;
+  border-color: #70b5ff !important;
+  transform: translateY(-1px);
 }
-.chevron-icon {
-  font-size: 0.75rem;
-  transition: transform 0.2s ease-in-out;
+.avatar-mini {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
 }
-.rotate-90 {
-  transform: rotate(90deg);
+.avatar-modal-title {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+.bg-primary-light {
+  background-color: rgba(13, 110, 253, 0.12);
 }
 </style>
+
