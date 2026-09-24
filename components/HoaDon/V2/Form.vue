@@ -1,7 +1,22 @@
 <template>
-    <div class="fixed-height alert alert-light border border-danger">
+  <div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h4 class="font-weight-bold mb-1">
+          <i class="fas fa-cash-register text-primary mr-2"></i> Bán Hàng & Hoá Đơn Học Phí
+        </h4>
+        <p class="text-muted small mb-0">Lập hoá đơn thu phí, bán đồng phục, đồ dùng học tập cho học sinh</p>
+      </div>
+      <div>
+        <nuxt-link to="/phieuthu" class="btn btn-outline-info rounded-pill px-3">
+          <i class="fas fa-receipt mr-1"></i> Sổ thu chi
+        </nuxt-link>
+      </div>
+    </div>
+
+    <div class="fixed-height card shadow-sm border-0 bg-light p-3">
         <div class="row h-100">
-            <div class="col-8 h-100">
+            <div class="col-8 h-100 pr-2">
                 <div style="height: 10%;" class="row">
                     <div class="h-100 col">
                         <FindProduct @update-data="productSelect" />
@@ -18,18 +33,18 @@
                     </div>
                 </div>
             </div>
-            <div class="col-4 h-100 border border-secondary p-4 rounded">
-                <div style="height: 35%;" class="row p-3">
+            <div class="col-4 h-100 bg-white border rounded-lg p-3 shadow-sm d-flex flex-column justify-content-between">
+                <div style="height: 40%;" class="row">
                     <div class="col auto-res-y">
                         <Buyer />
                     </div>
                 </div>
-                <div style="height: 40%;" class="row">
+                <div style="height: 30%;" class="row">
                     <div class="col">
                         <!-- <Info /> -->
                     </div>
                 </div>
-                <div style="height: 25%;" class="row">
+                <div style="height: 30%;" class="row">
                     <div class="col auto-res-y">
                         <Action />
                     </div>
@@ -37,7 +52,9 @@
             </div>
         </div>
     </div>
+  </div>
 </template>
+
 <style>
 /* CSS để thiết lập chiều cao cố định cho div */
 .fixed-height {

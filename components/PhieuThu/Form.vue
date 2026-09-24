@@ -1,22 +1,72 @@
 <template>
-    <div>
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <FromToDate @update-data="updateDate"></FromToDate>
-            <button class="btn btn-outline-success" @click="exportPhieuThuToExcel">
-                <i class="fas fa-file-excel mr-1"></i>Xuất Excel Báo cáo Thu
-            </button>
+  <div>
+    <!-- Bộ lọc ngày và Thống kê tổng quan -->
+    <div class="card shadow-sm border-0 mb-3 bg-light">
+      <div class="card-body py-3">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+          <FromToDate @update-data="updateDate" class="mb-2 mb-md-0" />
+          <button class="btn btn-success rounded-pill px-3 shadow-sm" @click="exportPhieuThuToExcel">
+            <i class="fas fa-file-excel mr-1"></i> Xuất File Excel
+          </button>
         </div>
-        <div>
-            <p class="font-weight-bold">Tổng: {{ $formatTotal(total) }} - THU: <span class="text-success">{{ $formatTotal(thu) }}</span> | CHI: <span class="text-danger">{{ $formatTotal(chi) }}</span></p>
-        </div>
-        <b-table
-            striped hover
-            :items="items"
-            :fields="fields"
-        >
-        </b-table>
+      </div>
     </div>
+
+    <!-- 3 KPI Cards -->
+    <div class="row mb-3">
+      <div class="col-md-4 mb-2 mb-md-0">
+        <div class="card border-0 shadow-sm p-3 bg-white border-left-success">
+          <small class="text-muted font-weight-bold">TỔNG THU HỌC PHÍ</small>
+          <h4 class="text-success font-weight-bold mb-0 mt-1">{{ $formatTotal(thu) }}</h4>
+        </div>
+      </div>
+      <div class="col-md-4 mb-2 mb-md-0">
+        <div class="card border-0 shadow-sm p-3 bg-white border-left-danger">
+          <small class="text-muted font-weight-bold">TỔNG CHI / HOÀN TIỀN</small>
+          <h4 class="text-danger font-weight-bold mb-0 mt-1">{{ $formatTotal(chi) }}</h4>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-3 bg-white border-left-primary">
+          <small class="text-muted font-weight-bold">THỰC THU TỒN QUỸ</small>
+          <h4 class="text-primary font-weight-bold mb-0 mt-1">{{ $formatTotal(total) }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bảng danh sách phiếu thu -->
+    <div class="card shadow-sm border-0 mb-3">
+      <div class="card-body p-0">
+        <b-table
+          hover
+          responsive
+          class="mb-0"
+          :items="items"
+          :fields="fields"
+        >
+          <template #cell(code)="row">
+            <span class="badge badge-secondary font-weight-normal">{{ row.item.code }}</span>
+          </template>
+
+          <template #cell(parent.name)="row">
+            <span class="font-weight-bold text-dark">{{ row.item.parent ? row.item.parent.name : 'Khách vãng lai' }}</span>
+          </template>
+
+          <template #cell(total)="row">
+            <span :class="['font-weight-bold', row.item.total >= 0 ? 'text-success' : 'text-danger']">
+              {{ $formatTotal(row.item.total) }}
+            </span>
+          </template>
+
+          <template #cell(createdBy.name)="row">
+            <span class="small text-muted">{{ row.item.createdBy ? row.item.createdBy.name : 'Hệ thống' }}</span>
+          </template>
+        </b-table>
+      </div>
+    </div>
+  </div>
 </template>
+
 <script>
 import {getPhieuThu} from '~/plugins/phieuthu.js'
 import FromToDate from '~/components/PhieuThu/FromToDate.vue';
