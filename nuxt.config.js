@@ -99,7 +99,7 @@ export default {
     proxy: true,
   },
   proxy: {
-    "/admin/api/": baseURL(),
+    "/admin/api": baseURL(),
   },
   auth: {
     strategies: {
@@ -133,7 +133,7 @@ export default {
   apollo: {
     clientConfigs: {
       default: {
-        httpEndpoint: baseURL(), // Your graphql endpiont
+        httpEndpoint: process.env.APOLLO_HTTP_ENDPOINT || '/admin/api',
       },
     },
   },
@@ -147,7 +147,7 @@ export default {
   },
 
   server: {
-    host: "0.0.0.0", // default: localhost
-    port: 3000, // default: 3000
+    host: process.env.HOST || "0.0.0.0", // default: localhost
+    port: parseInt(process.env.PORT, 10) || 3012, // default: 3012
   },
 };
