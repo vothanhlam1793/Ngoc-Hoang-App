@@ -16,7 +16,7 @@
       <FilterEle1ItemCheck
         v-for="lophoc in validLopHocs"
         :lophoc="lophoc"
-        :key="lophoc.id"
+        :key="'class-' + lophoc.id"
       />
     </div>
   </div>

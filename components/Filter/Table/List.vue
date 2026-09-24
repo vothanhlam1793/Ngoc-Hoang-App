@@ -25,7 +25,7 @@
     <div v-else class="animated-fade-in">
       <ItemTable
         v-for="hocsinh in hocsinhs"
-        :key="hocsinh.id"
+        :key="'st-' + hocsinh.id"
         :hocsinh="hocsinh"
       />
     </div>

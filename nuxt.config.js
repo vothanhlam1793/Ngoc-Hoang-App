@@ -51,7 +51,6 @@ export default {
       {
         src: "https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-vi_VN.min.js",
       },
-      { src: "https://use.fontawesome.com/releases/v5.15.4/js/all.js" },
       // { src: "/i18n.js"},
       // { src: "/extend.js"},
     ],
