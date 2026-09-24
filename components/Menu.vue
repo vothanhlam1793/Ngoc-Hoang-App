@@ -18,11 +18,17 @@
       <li v-if="checkRole(['giao-vien'])" class="nav-item">
         <a class="nav-link" href="/vetre">Về trễ 17 giờ</a>
       </li>
+      <li v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan'])" class="nav-item">
+        <a class="nav-link" href="/thongbao">Thông báo</a>
+      </li>
       <li v-if="checkRole(['quan-tri-vien'])" class="nav-item" >
         <a class="nav-link" href="/no">Phụ huynh</a>
       </li>
       <li v-if="checkRole(['quan-tri-vien'])" class="nav-item">
         <a class="nav-link" href="/hoadon">Hoá đơn</a>
+      </li>
+      <li v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])" class="nav-item">
+        <a class="nav-link" href="/dongtien">Dòng tiền & Gạch nợ</a>
       </li>
       <li v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])" class="nav-item"
       >

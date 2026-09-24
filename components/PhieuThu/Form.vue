@@ -1,8 +1,13 @@
 <template>
     <div>
-        <FromToDate @update-data="updateDate"></FromToDate>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <FromToDate @update-data="updateDate"></FromToDate>
+            <button class="btn btn-outline-success" @click="exportPhieuThuToExcel">
+                <i class="fas fa-file-excel mr-1"></i>Xuất Excel Báo cáo Thu
+            </button>
+        </div>
         <div>
-            <p>Tổng: {{ $formatTotal(total) }} - THU: {{ $formatTotal(thu) }} | CHI: {{ $formatTotal(chi) }}</p>
+            <p class="font-weight-bold">Tổng: {{ $formatTotal(total) }} - THU: <span class="text-success">{{ $formatTotal(thu) }}</span> | CHI: <span class="text-danger">{{ $formatTotal(chi) }}</span></p>
         </div>
         <b-table
             striped hover
@@ -94,6 +99,30 @@ export default {
                 that.total += phieuthu.total;
             });
 
+        },
+        exportPhieuThuToExcel() {
+            let csvContent = 'data:text/csv;charset=utf-8,\uFEFF';
+            csvContent += 'Mã Phiếu,Tên Phụ huynh,Số tiền,Người thu\n';
+
+            this.items.forEach(item => {
+                const row = [
+                    item.code || '',
+                    `"${item.parent?.name || ''}"`,
+                    item.total || 0,
+                    `"${item.createdBy?.name || ''}"`
+                ].join(',');
+                csvContent += row + '\n';
+            });
+
+            const fromStr = this.$moment(this.date.from).format('YYYYMMDD');
+            const toStr = this.$moment(this.date.to).format('YYYYMMDD');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `bao-cao-thu-tien-${fromStr}-${toStr}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     },
     components: {
