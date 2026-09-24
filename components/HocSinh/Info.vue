@@ -1,44 +1,61 @@
 <template>
     <div class="row m-2 p-2">
         <div class="col">
-            <div class="row">
+            <div class="row" v-if="sName && sName.value">
                 <div class="col">
-                    <p v-if="sName.value != ''">Tên ở nhà: {{ sName.value }}</p>
+                    <p class="font-weight-bold">Tên ở nhà: {{ sName.value }}</p>
                 </div>
             </div>
-            <table class="table table-bordered text-center">
-                <thead>
-                    <tr>
-                        <!-- <td></td> -->
-                        <td>SĐT</td>
-                        <td></td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="phone, index in hocsinh.parent.phone">
-                    <!-- <td style="width: 10%;">{{ index + 1}}</td> -->
-                    <td style="width: 50%;"><p><span>{{phone.name}}</span><br>{{ phone.number }}</p></td>
-                    <td style="width: 50%;">
-                        <a :href="`tel:${phone.number}`" class="btn btn-info my-2" target="_blank"><i class="fa-sharp fa-solid fa-phone"></i></a> |
-                        <a :href="`https://zalo.me/${phone.number}`" class="btn btn-primary" target="_blank">Zalo</a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            <div v-if="parentPhones.length">
+                <table class="table table-bordered text-center mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Người liên hệ & SĐT</th>
+                            <th>Liên lạc</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(phone, index) in parentPhones" :key="index">
+                            <td style="width: 60%;">
+                                <strong>{{ phone.name || 'Phụ huynh' }}</strong>
+                                <div class="text-primary">{{ phone.number }}</div>
+                            </td>
+                            <td style="width: 40%;">
+                                <a v-if="phone.number" :href="`tel:${phone.number}`" class="btn btn-sm btn-info mr-1" target="_blank" title="Gọi điện">
+                                    <i class="fas fa-phone"></i>
+                                </a>
+                                <a v-if="phone.number" :href="`https://zalo.me/${phone.number}`" class="btn btn-sm btn-primary" target="_blank">
+                                    Zalo
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-else class="text-muted text-center py-2">
+                Chưa có thông tin số điện thoại phụ huynh
+            </div>
         </div>
     </div>
 </template>
 <script>
-import {getVariableByKey, createVariable, updateVariable} from '~/plugins/variable.js'
+import {getVariableByKey} from '~/plugins/variable.js'
 export default {
+    props: ['hocsinh'],
     data() {
         return {
             sName: {},
-            // camera: {}
+        }
+    },
+    computed: {
+        parentPhones() {
+            if (!this.hocsinh || !this.hocsinh.parent || !this.hocsinh.parent.phone) return [];
+            return Array.isArray(this.hocsinh.parent.phone) ? this.hocsinh.parent.phone : [this.hocsinh.parent.phone];
         }
     },
     methods: {
         querySName(){
+            if (!this.hocsinh || !this.hocsinh.id) return;
             var that = this;
             getVariableByKey(this.$apolloProvider.defaultClient, {
                 item: "Student",
@@ -53,7 +70,6 @@ export default {
     },
     mounted(){
         this.querySName();
-    },
-    props: ['hocsinh']
+    }
 }
 </script>

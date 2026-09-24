@@ -1,91 +1,73 @@
 import gql from "graphql-tag";
+
 export const state = () => ({
   hocsinhs: [],
   filterHocsinhs: [],
 
   lophocs: [],
-  choseAll: false,
+  choseAll: true,
 
   monitor: 0,
   total: 0,
   page: 1,
-  pageSize: 60,
+  pageSize: 50,
   searchName: "",
   loading: false,
 
   status: ["DANG_HOC", "TAM_NGHI", "DANG_KY", "NGHI_LUON"],
-  // loadingHocSinh: false
 });
 
 export const mutations = {
   updateHocsinhs(state, data) {
-    state.hocsinhs = data;
-    state.filterHocsinhs = data;
+    state.hocsinhs = data || [];
+    state.filterHocsinhs = data || [];
   },
   updateTotal(state, total) {
-    state.total = total;
+    state.total = total || 0;
   },
   updatePage(state, page) {
-    state.page = page;
+    state.page = page || 1;
   },
   updateSearchName(state, searchName) {
-    state.searchName = searchName;
+    state.searchName = searchName || "";
   },
   updateLoading(state, loading) {
-    state.loading = loading;
-  },
-  filterHS(state) {
-    // chon ra nhung lop hoc duoc filter
-    var lophocs = state.lophocs.filter(function (lophoc) {
-      return lophoc.chose == true;
-    });
-    state.filterHocsinhs = state.hocsinhs.filter(function (hocsinh) {
-      var hasChose;
-      if (hocsinh.lophoc) {
-        hasChose = lophocs.some((lophoc) => lophoc.id == hocsinh.lophoc.id);
-      } else {
-        hasChose = false;
-      }
-      return hasChose;
-    });
-    state.filterHocsinhs = state.filterHocsinhs.filter(function (hocsinh) {
-      return state.status.indexOf(hocsinh.status) >= 0;
-    });
+    state.loading = !!loading;
   },
   updateLopHocs(state, data) {
-    state.lophocs = data;
+    const list = (data || []).map((lh) => ({
+      ...lh,
+      chose: true,
+    }));
+    state.lophocs = list;
+    state.choseAll = true;
+    state.monitor += 1;
   },
   updateFilterEle2(state, data) {
-    state.status = data;
-    this.commit("filter/hocsinh/filterHS");
+    state.status = data || [];
   },
   updateFilterEle1(state, data) {
-    if (state.choseAll == true && state.choseAll != data.chose) {
-      // state.lophocs.forEach(function(lophoc){
-      //     lophoc.chose = false;
-      // });
-      state.choseAll = false;
-    }
-    state.lophocs.forEach(function (lophoc) {
-      if (lophoc.id == data.lophoc.id) {
+    state.lophocs.forEach((lophoc) => {
+      if (lophoc.id === data.lophoc.id) {
         lophoc.chose = data.chose;
       }
     });
-    this.commit("filter/hocsinh/filterHS");
+    const allChosen = state.lophocs.every((lh) => lh.chose);
+    state.choseAll = allChosen;
+    state.monitor += 1;
   },
   updateFilterEle1All(state, data) {
-    state.lophocs.forEach(function (lophoc) {
-      lophoc.chose = data;
+    state.lophocs.forEach((lophoc) => {
+      lophoc.chose = !!data;
     });
-    state.choseAll = data;
+    state.choseAll = !!data;
     state.monitor += 1;
-    this.commit("filter/hocsinh/filterHS");
   },
 };
 
 const GET_HOCSINH = gql`
   query getStudents($first: Int, $skip: Int, $where: StudentWhereInput) {
-    allStudents(first: $first, skip: $skip, where: $where) {
+    allStudents(first: $first, skip: $skip, where: $where, sortBy: id_DESC) {
       id
       name
       status
@@ -96,6 +78,7 @@ const GET_HOCSINH = gql`
           number
         }
         debt
+        balance
         code
       }
       lophoc {
@@ -106,6 +89,7 @@ const GET_HOCSINH = gql`
       hocphigiam
       namhocphi
       luuy
+      createdAt
     }
     _allStudentsMeta(where: $where) {
       count
@@ -117,25 +101,41 @@ export const actions = {
   async getAllHocsinhs({ commit, state }, page = state.page) {
     const safePage = Math.max(1, page);
     const where = {};
-    const selectedClasses = state.lophocs
-      .filter((lophoc) => lophoc.chose)
-      .map((lophoc) => lophoc.id);
 
-    if (state.searchName.trim()) {
+    // 1. Lọc theo từ khóa tìm kiếm
+    const keyword = (state.searchName || "").trim();
+    if (keyword) {
       where.OR = [
-        { name_contains_i: state.searchName.trim() },
-        { lophoc: { name_contains_i: state.searchName.trim() } },
+        { name_contains_i: keyword },
+        { lophoc: { name_contains_i: keyword } },
+        { parent: { name_contains_i: keyword } },
       ];
     }
-    where.status_in = state.status;
-    if (state.lophocs.length) {
-      where.lophoc = { id_in: selectedClasses };
+
+    // 2. Lọc theo trạng thái học sinh
+    if (state.status && state.status.length > 0) {
+      where.status_in = state.status;
+    } else {
+      where.status_in = ["__NONE__"];
+    }
+
+    // 3. Lọc theo lớp học
+    if (state.lophocs && state.lophocs.length > 0) {
+      const selectedClasses = state.lophocs
+        .filter((lophoc) => lophoc.chose)
+        .map((lophoc) => lophoc.id);
+
+      if (selectedClasses.length > 0 && selectedClasses.length < state.lophocs.length) {
+        where.lophoc = { id_in: selectedClasses };
+      } else if (selectedClasses.length === 0) {
+        where.id_in = [];
+      }
     }
 
     commit("updateLoading", true);
-    var client = this.app.apolloProvider.defaultClient;
+    const client = this.app.apolloProvider.defaultClient;
     try {
-      var data = await client.query({
+      const data = await client.query({
         query: GET_HOCSINH,
         variables: {
           first: state.pageSize,
@@ -147,6 +147,8 @@ export const actions = {
       commit("updatePage", safePage);
       commit("updateHocsinhs", data.data.allStudents);
       commit("updateTotal", data.data._allStudentsMeta.count);
+    } catch (err) {
+      console.error("Lỗi khi tải danh sách học sinh:", err);
     } finally {
       commit("updateLoading", false);
     }
@@ -155,13 +157,13 @@ export const actions = {
     commit("updatePage", 1);
     return dispatch("getAllHocsinhs", 1);
   },
-  async getAllLopHoc({ commit }) {
-    var client = this.app.apolloProvider.defaultClient;
-    client
-      .query({
+  async getAllLopHoc({ commit, dispatch }) {
+    const client = this.app.apolloProvider.defaultClient;
+    try {
+      const data = await client.query({
         query: gql`
           query {
-            allLopHocs {
+            allLopHocs(sortBy: name_ASC) {
               id
               name
               chunhiem {
@@ -174,12 +176,13 @@ export const actions = {
             }
           }
         `,
-      })
-      .then((data) => {
-        commit("updateLopHocs", data.data.allLopHocs);
-      })
-      .catch((err) => {
-        console.log(err);
+        fetchPolicy: "network-only",
       });
+      commit("updateLopHocs", data.data.allLopHocs);
+      dispatch("applyFilters");
+    } catch (err) {
+      console.error("Lỗi khi tải danh sách lớp học:", err);
+    }
   },
 };
+

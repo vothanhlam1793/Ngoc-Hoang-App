@@ -1,68 +1,48 @@
 <template>
-    <div class="row mt-3">
-        <div class="col">
-            <div class="row header px-3 text-center">
-                <div class="col border p-2">Tên</div>
-                <div class="col border p-2">Điện thoại</div>
-                <div
-                    class="col border p-2"
-                    @click="change()"
-                >Công nợ</div>
-                <div class="col border p-2">Trạng thái</div>
-            </div>
-            <ItemTable
-                v-for="hocsinh in first20Hocsinhs"
-                :key="hocsinh.id"
-                :hocsinh="hocsinh"
-            />
-        </div>
+  <div class="student-list mt-3">
+    <!-- Header của bảng -->
+    <div class="row px-3 py-2 text-muted font-weight-bold small border-bottom mb-2">
+      <div class="col-md-3">HỌ VÀ TÊN BÉ</div>
+      <div class="col-md-3">LỚP HỌC</div>
+      <div class="col-md-3">PHỤ HUYNH & CÔNG NỢ</div>
+      <div class="col-md-3 text-right">TRẠNG THÁI</div>
     </div>
+
+    <!-- Trạng thái Loading -->
+    <div v-if="loading" class="text-center py-5">
+      <b-spinner variant="primary" label="Loading..."></b-spinner>
+      <div class="text-muted mt-2 small">Đang tải danh sách học sinh...</div>
+    </div>
+
+    <!-- Danh sách không có dữ liệu -->
+    <div v-else-if="!hocsinhs || !hocsinhs.length" class="text-center py-5 text-muted">
+      <i class="fas fa-search fa-2x mb-2 d-block text-secondary"></i>
+      Không tìm thấy học sinh nào phù hợp với bộ lọc.
+    </div>
+
+    <!-- Danh sách các hàng -->
+    <div v-else>
+      <ItemTable
+        v-for="hocsinh in hocsinhs"
+        :key="hocsinh.id"
+        :hocsinh="hocsinh"
+      />
+    </div>
+  </div>
 </template>
+
 <script>
-import Item from '~/components/Filter/Table/Item.vue';
 import ItemTable from '~/components/Filter/Table/ItemTable.vue';
+
 export default {
-    components: {
-        Item,
-        ItemTable
+  components: {
+    ItemTable,
+  },
+  props: ['hocsinhs'],
+  computed: {
+    loading() {
+      return this.$store.state.filter.hocsinh.loading;
     },
-    data: () => {
-        return {
-            sortHocsinhs: [],
-            sortType: 0
-        }
-    },
-    watch: {
-        hocsinhs: {
-            handler: function () {
-                this.sortHocsinhs = this.hocsinhs.filter(function () {
-                    return true;
-                });;
-            },
-            immediate: true
-        }
-    },
-    computed: {
-        first20Hocsinhs() {
-            return this.sortHocsinhs.slice(0, 60);
-        }
-    },
-    methods: {
-        change() {
-            this.sortType += 1;
-            if (this.sortType % 2 == 0) {
-                // Tang dan theo no
-                this.sortHocsinhs.sort((a, b) => {
-                    return parseInt(a.parent.debt) - parseInt(b.parent.debt);
-                })
-            } else {
-                // Giam dan theo no
-                this.sortHocsinhs.sort((a, b) => {
-                    return parseInt(b.parent.debt) - parseInt(a.parent.debt);
-                })
-            }
-        }
-    },
-    props: ['hocsinhs']
-}
+  },
+};
 </script>

@@ -1,58 +1,53 @@
 <template>
-    <div class="form-check">
-        <label class="form-check-label">
-            <input 
-                type="checkbox" 
-                class="form-check-input" 
-                v-model="chose"
-            >{{ lophoc.name }} - ( {{ lophoc.hocsinhs.length }} )
-        </label>
-    </div>
+  <div class="custom-control custom-checkbox mb-1">
+    <input
+      type="checkbox"
+      class="custom-control-input"
+      :id="'lh-' + lophoc.id"
+      v-model="chose"
+    />
+    <label class="custom-control-label small d-flex justify-content-between align-items-center" :for="'lh-' + lophoc.id">
+      <span>{{ lophoc.name }}</span>
+      <span class="badge badge-light border text-muted ml-1">{{ (lophoc.hocsinhs || []).length }}</span>
+    </label>
+  </div>
 </template>
-<script>
-/*
-    PROPS   : lophoc
-    COMMIT  :   
 
-*/
+<script>
 export default {
-    data: () => {
-        return {
-            chose: false,
-            syncing: false
-        }
+  props: ["lophoc"],
+  data: () => {
+    return {
+      chose: true,
+      syncing: false,
+    };
+  },
+  watch: {
+    chose: function () {
+      this.$store.commit("filter/hocsinh/updateFilterEle1", {
+        lophoc: this.lophoc,
+        chose: this.chose,
+      });
+      if (!this.syncing) {
+        this.$store.dispatch("filter/hocsinh/applyFilters");
+      }
     },
-    watch: {
-        chose: function(nV, oV){
-            this.$store.commit("filter/hocsinh/updateFilterEle1", {
-                lophoc: this.lophoc,
-                chose: this.chose
-            })
-            if (!this.syncing) {
-                this.$store.dispatch("filter/hocsinh/applyFilters");
-            }
-        }, 
-        monitor: function(){
-            this.syncing = true;
-            this.chose = this.lophoc.chose;
-            this.$nextTick(() => {
-                this.syncing = false;
-            });
-            this.$forceUpdate();
-        }
+    monitor: function () {
+      this.syncing = true;
+      this.chose = this.lophoc.chose;
+      this.$nextTick(() => {
+        this.syncing = false;
+      });
     },
-    computed: {
-        monitor(){
-            return this.$store.state.filter.hocsinh.monitor;
-        }
+  },
+  computed: {
+    monitor() {
+      return this.$store.state.filter.hocsinh.monitor;
     },
-    mounted(){
-        if(this.lophoc.chose){
-            this.chose = this.lophoc.chose;
-        } else { 
-            this.chose = false;
-        }
-    },
-    props: ['lophoc']
-}
+  },
+  mounted() {
+    this.chose = this.lophoc.chose !== undefined ? this.lophoc.chose : true;
+  },
+};
 </script>
+
