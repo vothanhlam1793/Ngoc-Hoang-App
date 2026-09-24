@@ -8,7 +8,7 @@
     />
     <label class="custom-control-label small d-flex justify-content-between align-items-center" :for="'lh-' + lophoc.id">
       <span>{{ lophoc.name }}</span>
-      <span class="badge badge-light border text-muted ml-1">{{ (lophoc.hocsinhs || []).length }}</span>
+      <span class="badge badge-light border text-muted ml-1">{{ countFiltered }}</span>
     </label>
   </div>
 </template>
@@ -44,10 +44,18 @@ export default {
     monitor() {
       return this.$store.state.filter.hocsinh.monitor;
     },
+    currentStatuses() {
+      return this.$store.state.filter.hocsinh.status || [];
+    },
+    countFiltered() {
+      if (!this.lophoc || !this.lophoc.hocsinhs) return 0;
+      return this.lophoc.hocsinhs.filter((h) => this.currentStatuses.includes(h.status)).length;
+    },
   },
   mounted() {
     this.chose = this.lophoc.chose !== undefined ? this.lophoc.chose : true;
   },
 };
 </script>
+
 

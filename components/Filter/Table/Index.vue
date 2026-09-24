@@ -1,37 +1,39 @@
 <template>
-    <div class="row">
-        <div class="col">
-            <List 
-                :hocsinhs="pageHocsinhs"
-            />
-            <Pagn />
-        </div>
-    </div>
+  <div>
+    <!-- Phân trang & Thống kê tổng số học sinh ở PHÍA TRÊN -->
+    <Pagn />
+
+    <!-- Danh sách học sinh -->
+    <List :hocsinhs="pageHocsinhs" />
+
+    <!-- Phân trang ở PHÍA DƯỚI -->
+    <Pagn class="mt-3" />
+  </div>
 </template>
+
 <script>
 import List from '~/components/Filter/Table/List.vue';
 import Pagn from '~/components/Filter/Table/Pagn.vue';
+
 export default {
-    components: {
-        List,
-        Pagn
+  components: {
+    List,
+    Pagn,
+  },
+  watch: {
+    hocsinhs: function () {
+      this.$store.commit("filter/result/updateHocsinhs", this.hocsinhs);
     },
-    methods: {
-        
+  },
+  computed: {
+    pageHocsinhs() {
+      return this.hocsinhs;
     },
-    watch: {
-        hocsinhs: function(nV, oV){
-            this.$store.commit("filter/result/updateHocsinhs", this.hocsinhs);      
-        }
-    },
-    computed: {
-        pageHocsinhs(){
-            return this.hocsinhs;
-        }
-    },
-    mounted(){
-        this.$store.commit("filter/result/updateHocsinhs", this.hocsinhs);
-    },
-    props: ['hocsinhs']
-}
+  },
+  mounted() {
+    this.$store.commit("filter/result/updateHocsinhs", this.hocsinhs);
+  },
+  props: ["hocsinhs"],
+};
 </script>
+

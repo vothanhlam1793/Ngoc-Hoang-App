@@ -171,6 +171,7 @@ export const actions = {
               }
               hocsinhs {
                 id
+                status
               }
             }
           }
