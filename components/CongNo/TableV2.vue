@@ -4,19 +4,22 @@
             class="col"
             v-if="phuhuynh"
         >
-            <div class="d-flex justify-content-between mt-3">
+            <div class="d-flex justify-content-between align-items-center mt-3 mb-3 p-3 bg-light rounded">
                 <div>
-                    <h1>{{ phuhuynh.name }}</h1>
-                    <p>Nợ: {{ numberWithCommas(phuhuynh.debt) }}</p>
+                    <h4 class="font-weight-bold mb-1 text-primary">{{ phuhuynh.name }}</h4>
+                    <div class="d-flex align-items-center">
+                        <span class="mr-3">Công nợ: <strong :class="phuhuynh.debt > 0 ? 'text-danger' : 'text-success'">{{ numberWithCommas(phuhuynh.debt) }} đ</strong></span>
+                        <span v-if="phuhuynh.balance">Số dư ví khả dụng: <strong class="text-success">+{{ numberWithCommas(phuhuynh.balance) }} đ</strong></span>
+                    </div>
                 </div>
                 <div>
                     <button
                         type="button"
-                        class="btn btn-primary"
+                        class="btn btn-primary rounded-pill px-3 shadow-sm"
                         data-toggle="modal"
                         :data-target="'#myModal' + phuhuynh.id"
                     >
-                        Thu/chi phụ huynh
+                        <i class="fas fa-plus mr-1"></i> Thu/chi phụ huynh
                     </button>
 
                     <!-- The Modal -->

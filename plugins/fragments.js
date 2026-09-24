@@ -102,6 +102,6 @@ ${fragmentItemKetSo}
 
 export const fragmentPhuHuynh = `
 fragment fPhuHuynh on Parent {
-    id code debt hocsinhs {id name lophoc {id name} status} name
+    id code debt balance hocsinhs {id name lophoc {id name} status} name phone { number }
 }
 `

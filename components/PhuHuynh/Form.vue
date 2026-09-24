@@ -99,6 +99,16 @@
             </b-collapse>
           </template>
 
+          <template #cell(balance)="row">
+            <span
+              v-if="row.item.balance > 0"
+              class="badge badge-success font-weight-bold px-2 py-1"
+            >
+              +{{ $formatTotal(row.item.balance) }}
+            </span>
+            <span v-else class="text-muted small">0 đ</span>
+          </template>
+
           <template #cell(debt)="row">
             <span
               :class="[
@@ -188,15 +198,15 @@ export default {
                     label: "Mã",
                     key: "code",
                     thStyle: {
-                        width: '10%', // Thiết lập chiều rộng của tiêu đề cột là 50%
+                        width: '10%',
                     },
                 },                
                 {
                     thClass: "text-center",
-                    label: "Tên",
+                    label: "Tên phụ huynh",
                     key: "name",
                     thStyle: {
-                        width: '20%', // Thiết lập chiều rộng của tiêu đề cột là 50%
+                        width: '20%',
                     },
                 },
                 {
@@ -204,25 +214,33 @@ export default {
                     label: "Học sinh",
                     key: "student",
                     thStyle: {
-                        width: '40%', // Thiết lập chiều rộng của tiêu đề cột là 50%
+                        width: '30%',
                     },
                 },
                 {
                     thClass: "text-center",
-                    label: "Nợ",
-                    key: "debt",
-                    formatter: this.$formatTotal,
-                    // tdClass: "text-right"
+                    label: "Số dư ví",
+                    key: "balance",
                     thStyle: {
-                        width: '20%', // Thiết lập chiều rộng của tiêu đề cột là 50%
+                        width: '15%',
                     },
+                    tdClass: "text-right"
                 },
                 {
                     thClass: "text-center",
-                    label: "Xem chi tiết",
+                    label: "Còn nợ",
+                    key: "debt",
+                    thStyle: {
+                        width: '15%',
+                    },
+                    tdClass: "text-right"
+                },
+                {
+                    thClass: "text-center",
+                    label: "Thao tác",
                     key: "button",
                     thStyle: {
-                        width: '10%', // Thiết lập chiều rộng của tiêu đề cột là 50%
+                        width: '10%',
                     },
                     tdClass: "text-center"
                 }

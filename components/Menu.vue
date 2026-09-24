@@ -33,11 +33,24 @@
             </nuxt-link>
           </li>
 
-          <!-- 2. Nhóm Học sinh & Điểm danh -->
+          <!-- 2. DÒNG TIỀN & GẠCH NỢ (NỔI BẬT NGOÀI MENU) -->
+          <li
+            v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])"
+            class="nav-item"
+          >
+            <nuxt-link to="/dongtien" class="nav-link nav-btn nav-btn-highlight" active-class="active">
+              <i class="fas fa-money-bill-wave text-success mr-1"></i> Dòng tiền
+              <span class="badge badge-success font-weight-normal ml-1">Mới</span>
+            </nuxt-link>
+          </li>
+
+          <!-- 3. Nhóm Học sinh & Điểm danh -->
           <li
             v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan', 'giao-vien'])"
             class="nav-item dropdown"
             :class="{ show: activeDropdown === 'student' }"
+            @mouseenter="onHover('student')"
+            @mouseleave="onLeave('student')"
           >
             <a
               class="nav-link nav-btn dropdown-toggle"
@@ -92,11 +105,13 @@
             </div>
           </li>
 
-          <!-- 3. Nhóm Tài chính & Thu phí -->
+          <!-- 4. Nhóm Tài chính & Thu phí -->
           <li
             v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])"
             class="nav-item dropdown"
             :class="{ show: activeDropdown === 'finance' }"
+            @mouseenter="onHover('finance')"
+            @mouseleave="onLeave('finance')"
           >
             <a
               class="nav-link nav-btn dropdown-toggle"
@@ -104,7 +119,7 @@
               role="button"
               @click.prevent="toggleDropdown('finance')"
             >
-              <i class="fas fa-wallet mr-1"></i> Tài chính & Thu phí
+              <i class="fas fa-wallet mr-1"></i> Học phí & Hoá đơn
             </a>
             <div class="dropdown-menu border-0 shadow-lg animated--fade-in" :class="{ show: activeDropdown === 'finance' }">
               <nuxt-link
@@ -112,7 +127,7 @@
                 to="/dongtien"
                 @click.native="closeMenus"
               >
-                <i class="fas fa-exchange-alt mr-2"></i> Dòng tiền & Gạch nợ
+                <i class="fas fa-exchange-alt mr-2"></i> Sổ cái dòng tiền & Gạch nợ
               </nuxt-link>
               <nuxt-link
                 class="dropdown-item py-2"
@@ -128,6 +143,13 @@
               >
                 <i class="fas fa-user-friends text-info mr-2"></i> Phụ huynh & Công nợ
               </nuxt-link>
+              <nuxt-link
+                class="dropdown-item py-2"
+                to="/phieuthu"
+                @click.native="closeMenus"
+              >
+                <i class="fas fa-receipt text-secondary mr-2"></i> Phiếu thu/chi ngày
+              </nuxt-link>
               <div class="dropdown-divider"></div>
               <a
                 class="dropdown-item py-2"
@@ -139,7 +161,7 @@
             </div>
           </li>
 
-          <!-- 4. Thông báo phụ huynh -->
+          <!-- 5. Thông báo phụ huynh -->
           <li
             v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan'])"
             class="nav-item"
@@ -149,7 +171,7 @@
             </nuxt-link>
           </li>
 
-          <!-- 5. Báo cáo & Thống kê -->
+          <!-- 6. Báo cáo & Thống kê -->
           <li
             v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan'])"
             class="nav-item"
@@ -159,7 +181,7 @@
             </nuxt-link>
           </li>
 
-          <!-- 6. Cài đặt hệ thống -->
+          <!-- 7. Cài đặt hệ thống -->
           <li
             v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])"
             class="nav-item"
@@ -224,10 +246,23 @@ export default {
     toggleDropdown(name) {
       this.activeDropdown = this.activeDropdown === name ? null : name;
     },
+    onHover(name) {
+      if (window.innerWidth >= 992) {
+        this.activeDropdown = name;
+      }
+    },
+    onLeave(name) {
+      if (window.innerWidth >= 992) {
+        if (this.activeDropdown === name) {
+          this.activeDropdown = null;
+        }
+      }
+    },
     closeMenus() {
       this.activeDropdown = null;
       this.mobileMenuOpen = false;
     },
+
     logout() {
       this.closeMenus();
       if (this.$auth) {
@@ -327,7 +362,20 @@ export default {
   background-color: rgba(13, 110, 253, 0.1);
 }
 
+.nav-btn-highlight {
+  color: #198754 !important;
+  font-weight: 600;
+  background-color: rgba(25, 135, 84, 0.08);
+  border: 1px solid rgba(25, 135, 84, 0.2);
+}
+
+.nav-btn-highlight:hover {
+  background-color: rgba(25, 135, 84, 0.15) !important;
+  color: #0f5132 !important;
+}
+
 .dropdown-menu {
+
   border-radius: 10px;
   min-width: 220px;
   padding: 0.5rem;
