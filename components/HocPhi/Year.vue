@@ -48,9 +48,10 @@
                             <div class="col">
                                 <div class="form-group">
                                     <label for="usr">Học phí:</label>
-                                    <input type="text" class="form-control" id="usr"
+                                    <InputCurrency
                                         v-model="hocphi"
-                                    >
+                                        placeholder="Nhập mức học phí..."
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -71,7 +72,11 @@
     </div>
 </template>
 <script>
+    import InputCurrency from '~/components/Common/InputCurrency.vue';
     export default {
+        components: {
+            InputCurrency
+        },
         data(){
             return {
                 year: (new Date()).getFullYear(),

@@ -147,13 +147,9 @@
 
         <div class="form-group mb-3">
           <label class="font-weight-bold">Số tiền (VNĐ) *</label>
-          <input
+          <InputCurrency
             v-model="cashForm.amount"
-            type="number"
-            class="form-control"
-            placeholder="Ví dụ: 3000000"
-            required
-            min="1000"
+            placeholder="Ví dụ: 3.000.000"
           />
         </div>
 
@@ -191,6 +187,7 @@
 
 <script>
 import gql from 'graphql-tag';
+import InputCurrency from '~/components/Common/InputCurrency.vue';
 
 const GET_FINANCIAL_DATA = gql`
   query GetFinancialData {
@@ -239,6 +236,9 @@ const GET_FINANCIAL_DATA = gql`
 `;
 
 export default {
+  components: {
+    InputCurrency,
+  },
   layout: 'app',
   data() {
     return {

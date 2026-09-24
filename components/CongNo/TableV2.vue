@@ -198,12 +198,10 @@
 
         <div class="form-group mb-3">
           <label class="font-weight-bold small">Số tiền cấn trừ (VNĐ)</label>
-          <input
-            type="number"
-            class="form-control"
-            v-model.number="settleForm.amount"
+          <InputCurrency
+            v-model="settleForm.amount"
             :max="maxSettleAmount"
-            min="1000"
+            placeholder="Nhập số tiền cần cấn trừ..."
           />
           <small class="text-muted">Tối đa có thể cấn trừ: <strong>{{ numberWithCommas(maxSettleAmount) }} đ</strong></small>
         </div>
@@ -250,12 +248,10 @@
 
         <div class="form-group mb-3">
           <label class="font-weight-bold small">Số tiền hoàn trả (VNĐ)</label>
-          <input
-            type="number"
-            class="form-control"
-            v-model.number="refundForm.amount"
+          <InputCurrency
+            v-model="refundForm.amount"
             :max="phuhuynh.balance || 0"
-            min="1000"
+            placeholder="Nhập số tiền hoàn..."
           />
           <small class="text-muted">Số dư ví khả dụng: <strong>{{ numberWithCommas(phuhuynh.balance || 0) }} đ</strong></small>
         </div>
@@ -294,10 +290,12 @@
 <script>
 import gql from 'graphql-tag';
 import PhieuThuCreate from '~/components/PhieuThu/Create.vue';
+import InputCurrency from '~/components/Common/InputCurrency.vue';
 
 export default {
   components: {
     PhieuThuCreate,
+    InputCurrency,
   },
   props: ['idPhuHuynh', 'loadData'],
   data() {

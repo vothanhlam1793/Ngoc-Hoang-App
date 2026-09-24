@@ -11,14 +11,18 @@
             </div>
             <div class="form-group">
                 <label for="usr">Phí:</label>
-                <input type="text" class="form-control" id="usr" v-model="price" @change="changed()">
+                <InputCurrency v-model="price" @input="changed" />
             </div>
         </div>
     </div>
 </template>
 <script>
 import gql from 'graphql-tag'
+import InputCurrency from '~/components/Common/InputCurrency.vue';
 export default {
+    components: {
+        InputCurrency
+    },
     data() {
         return {
             price: 0,

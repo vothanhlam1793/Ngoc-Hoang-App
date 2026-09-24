@@ -79,30 +79,21 @@
             </div>
           </div>
 
-          <!-- Nhập số tiền thu -->
-          <div class="form-group mb-3">
-            <label class="font-weight-bold small text-dark d-flex justify-content-between">
-              <span>Số tiền thu / nạp vào ví (VND) *</span>
-              <span v-if="purcharNum > 0" class="text-primary font-weight-normal">
-                Còn lại: <strong>{{ numberWithCommas(Math.max(0, (phuhuynh.debt || 0) - purcharNum)) }} đ</strong>
-              </span>
-            </label>
-            <div class="input-group">
-              <input
-                type="number"
-                class="form-control font-weight-bold text-success text-right"
-                style="font-size: 1.15rem;"
-                placeholder="Nhập số tiền..."
+            <!-- Nhập số tiền thu -->
+            <div class="form-group mb-3">
+              <label class="font-weight-bold small text-dark d-flex justify-content-between">
+                <span>Số tiền thu / nạp vào ví (VND) *</span>
+                <span v-if="purcharNum > 0" class="text-primary font-weight-normal">
+                  Còn lại: <strong>{{ numberWithCommas(Math.max(0, (phuhuynh.debt || 0) - purcharNum)) }} đ</strong>
+                </span>
+              </label>
+              <InputCurrency
                 v-model="purchar"
-                min="0"
-                step="1000"
+                placeholder="Nhập số tiền..."
+                inputClass="font-weight-bold text-success text-right text-large"
               />
-              <div class="input-group-append">
-                <span class="input-group-text font-weight-bold">VNĐ</span>
-              </div>
-            </div>
 
-            <!-- Gợi ý số tiền nhanh -->
+              <!-- Gợi ý số tiền nhanh -->
             <div class="d-flex flex-wrap gap-1 mt-2">
               <button
                 v-if="phuhuynh.debt > 0"
@@ -184,8 +175,12 @@
 
 <script>
 import gql from 'graphql-tag';
+import InputCurrency from '~/components/Common/InputCurrency.vue';
 
 export default {
+  components: {
+    InputCurrency,
+  },
   props: ['phuhuynh'],
   data() {
     return {
@@ -308,6 +303,9 @@ export default {
 .btn-xs {
   font-size: 0.72rem;
   line-height: 1.2;
+}
+::v-deep .text-large {
+  font-size: 1.15rem !important;
 }
 @media (min-width: 768px) {
   .border-md-right {

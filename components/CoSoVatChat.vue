@@ -15,24 +15,28 @@
             </div>
             <div class="form-group">
                 <label for="usr">Cả năm:</label>
-                <input type="text" class="form-control" id="usr"
+                <InputCurrency
                     v-model="full"
-                    @change="changed()"
-                >
+                    @input="changed"
+                />
             </div>
             <div class="form-group">
                 <label for="usr">Học kì:</label>
-                <input type="text" class="form-control" id="usr"
+                <InputCurrency
                     v-model="half"
-                    @change="changed()"
-                >
+                    @input="changed"
+                />
             </div>
         </div>
     </div>
 </template>
 <script>
 import gql from 'graphql-tag'
+import InputCurrency from '~/components/Common/InputCurrency.vue';
 export default {
+    components: {
+        InputCurrency
+    },
     data(){
         return {
             full: 200000,
