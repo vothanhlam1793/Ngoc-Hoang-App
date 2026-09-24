@@ -10,6 +10,7 @@ function baseProxy() {
   return process.env.API_BASE_URL.replace(/\/+$/, "");
 }
 export default {
+  ssr: false,
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: "MN Ngọc Hoàng",
