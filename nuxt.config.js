@@ -11,6 +11,9 @@ function baseProxy() {
 }
 export default {
   ssr: false,
+  render: {
+    resourceHints: false,
+  },
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: "MN Ngọc Hoàng",

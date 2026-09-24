@@ -138,7 +138,7 @@
     </div>
 
     <!-- Modal Chi tiết công nợ -->
-    <b-modal v-model="showModalFlag" size="lg" :title="'Chi tiết công nợ: ' + slPhuHuynh.name" hide-footer>
+    <b-modal v-model="showModalFlag" size="xl" :title="'Sổ Nợ & Lịch Sử Biến Động Tài Chính: ' + slPhuHuynh.name" hide-footer>
       <DebtForm 
         :idPhuHuynh="slPhuHuynh.id" 
         :loadData="loadData"

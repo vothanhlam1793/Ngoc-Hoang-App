@@ -21,7 +21,7 @@
           <div class="brand-logo-icon mr-2 shadow-sm d-flex align-items-center justify-content-center">
             <i class="fas fa-graduation-cap text-white"></i>
           </div>
-          <div v-show="!collapsed" class="brand-text d-flex flex-column">
+          <div v-if="!collapsed" class="brand-text">
             <span class="brand-name font-weight-bold text-dark">MN NGỌC HOÀNG</span>
             <span class="brand-desc text-muted">Quản trị nội bộ v2.0.2</span>
           </div>
@@ -48,7 +48,7 @@
       <!-- 2. Navigation Menu (Custom Slim Scroll) -->
       <div class="sidebar-nav custom-scroll py-2">
         <!-- GROUP 1: TỔNG QUAN -->
-        <div class="nav-section-title px-3 pt-2 pb-1 text-muted" v-show="!collapsed">
+        <div class="nav-section-title px-3 pt-2 pb-1 text-muted" v-if="!collapsed">
           TỔNG QUAN
         </div>
         <ul class="nav flex-column mb-2">
@@ -61,16 +61,15 @@
               :title="collapsed ? 'Trang chủ' : ''"
             >
               <i class="fas fa-home nav-icon text-primary"></i>
-              <span v-show="!collapsed" class="nav-text">Trang chủ</span>
+              <span v-if="!collapsed" class="nav-text">Trang chủ</span>
             </nuxt-link>
           </li>
         </ul>
 
         <!-- GROUP 2: TÀI CHÍNH & KẾ TOÁN -->
         <div
-          v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])"
+          v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho']) && !collapsed"
           class="nav-section-title px-3 pt-2 pb-1 text-muted"
-          v-show="!collapsed"
         >
           TÀI CHÍNH & KẾ TOÁN
         </div>
@@ -87,8 +86,8 @@
               :title="collapsed ? 'Sổ cái Dòng tiền & Gạch nợ' : ''"
             >
               <i class="fas fa-money-bill-wave nav-icon text-success"></i>
-              <span v-show="!collapsed" class="nav-text font-weight-bold">Dòng tiền & Gạch nợ</span>
-              <span v-show="!collapsed" class="badge badge-success badge-pill ml-auto font-weight-normal">Mới</span>
+              <span v-if="!collapsed" class="nav-text font-weight-bold">Dòng tiền & Gạch nợ</span>
+              <span v-if="!collapsed" class="badge badge-success badge-pill ml-auto font-weight-normal">Mới</span>
             </nuxt-link>
           </li>
 
@@ -101,7 +100,7 @@
               :title="collapsed ? 'Phụ huynh & Sổ nợ' : ''"
             >
               <i class="fas fa-user-friends nav-icon text-info"></i>
-              <span v-show="!collapsed" class="nav-text">Phụ huynh & Sổ nợ</span>
+              <span v-if="!collapsed" class="nav-text">Phụ huynh & Sổ nợ</span>
             </nuxt-link>
           </li>
 
@@ -114,7 +113,7 @@
               :title="collapsed ? 'Phiếu thu/chi ngày' : ''"
             >
               <i class="fas fa-receipt nav-icon text-secondary"></i>
-              <span v-show="!collapsed" class="nav-text">Phiếu thu/chi ngày</span>
+              <span v-if="!collapsed" class="nav-text">Phiếu thu/chi ngày</span>
             </nuxt-link>
           </li>
 
@@ -127,7 +126,7 @@
               :title="collapsed ? 'Hoá đơn & Học phí' : ''"
             >
               <i class="fas fa-file-invoice-dollar nav-icon text-primary"></i>
-              <span v-show="!collapsed" class="nav-text">Hoá đơn & Học phí</span>
+              <span v-if="!collapsed" class="nav-text">Hoá đơn & Học phí</span>
             </nuxt-link>
           </li>
 
@@ -139,16 +138,15 @@
               :title="collapsed ? 'Kết sổ tháng' : ''"
             >
               <i class="fas fa-calendar-alt nav-icon text-warning"></i>
-              <span v-show="!collapsed" class="nav-text">Kết sổ tháng</span>
+              <span v-if="!collapsed" class="nav-text">Kết sổ tháng</span>
             </a>
           </li>
         </ul>
 
         <!-- GROUP 3: HỌC SINH & ĐIỂM DANH -->
         <div
-          v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan', 'giao-vien'])"
+          v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan', 'giao-vien']) && !collapsed"
           class="nav-section-title px-3 pt-2 pb-1 text-muted"
-          v-show="!collapsed"
         >
           HỌC SINH & LỚP HỌC
         </div>
@@ -165,7 +163,7 @@
               :title="collapsed ? 'Danh sách học sinh' : ''"
             >
               <i class="fas fa-user-graduate nav-icon text-primary"></i>
-              <span v-show="!collapsed" class="nav-text">Danh sách học sinh</span>
+              <span v-if="!collapsed" class="nav-text">Danh sách học sinh</span>
             </nuxt-link>
           </li>
 
@@ -178,7 +176,7 @@
               :title="collapsed ? 'Học sinh lớp tôi' : ''"
             >
               <i class="fas fa-user-graduate nav-icon text-primary"></i>
-              <span v-show="!collapsed" class="nav-text">Học sinh lớp tôi</span>
+              <span v-if="!collapsed" class="nav-text">Học sinh lớp tôi</span>
             </nuxt-link>
           </li>
 
@@ -191,7 +189,7 @@
               :title="collapsed ? 'Điểm danh hàng ngày' : ''"
             >
               <i class="fas fa-calendar-check nav-icon text-success"></i>
-              <span v-show="!collapsed" class="nav-text">Điểm danh hàng ngày</span>
+              <span v-if="!collapsed" class="nav-text">Điểm danh hàng ngày</span>
             </nuxt-link>
           </li>
 
@@ -204,7 +202,7 @@
               :title="collapsed ? 'Về trễ sau 17h' : ''"
             >
               <i class="fas fa-business-time nav-icon text-warning"></i>
-              <span v-show="!collapsed" class="nav-text">Về trễ sau 17h</span>
+              <span v-if="!collapsed" class="nav-text">Về trễ sau 17h</span>
             </nuxt-link>
           </li>
 
@@ -217,16 +215,15 @@
               :title="collapsed ? 'Suất ăn chiều' : ''"
             >
               <i class="fas fa-utensils nav-icon text-info"></i>
-              <span v-show="!collapsed" class="nav-text">Suất ăn chiều</span>
+              <span v-if="!collapsed" class="nav-text">Suất ăn chiều</span>
             </nuxt-link>
           </li>
         </ul>
 
         <!-- GROUP 4: VẬN HÀNH & HỆ THỐNG -->
         <div
-          v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan'])"
+          v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan']) && !collapsed"
           class="nav-section-title px-3 pt-2 pb-1 text-muted"
-          v-show="!collapsed"
         >
           HỆ THỐNG & BÁO CÁO
         </div>
@@ -243,7 +240,7 @@
               :title="collapsed ? 'Thông báo phụ huynh' : ''"
             >
               <i class="fas fa-bullhorn nav-icon text-danger"></i>
-              <span v-show="!collapsed" class="nav-text">Thông báo phụ huynh</span>
+              <span v-if="!collapsed" class="nav-text">Thông báo phụ huynh</span>
             </nuxt-link>
           </li>
 
@@ -256,7 +253,7 @@
               :title="collapsed ? 'Báo cáo & Thống kê' : ''"
             >
               <i class="fas fa-chart-line nav-icon text-primary"></i>
-              <span v-show="!collapsed" class="nav-text">Báo cáo & Thống kê</span>
+              <span v-if="!collapsed" class="nav-text">Báo cáo & Thống kê</span>
             </nuxt-link>
           </li>
 
@@ -269,7 +266,7 @@
               :title="collapsed ? 'Cài đặt hệ thống' : ''"
             >
               <i class="fas fa-sliders-h nav-icon text-secondary"></i>
-              <span v-show="!collapsed" class="nav-text">Cài đặt hệ thống</span>
+              <span v-if="!collapsed" class="nav-text">Cài đặt hệ thống</span>
             </nuxt-link>
           </li>
         </ul>
@@ -282,7 +279,7 @@
             <div class="avatar-user bg-primary text-white font-weight-bold flex-shrink-0 mr-2">
               {{ (currentUser.name || currentUser.username || 'U').charAt(0).toUpperCase() }}
             </div>
-            <div v-show="!collapsed" class="user-meta overflow-hidden">
+            <div v-if="!collapsed" class="user-meta overflow-hidden">
               <div class="user-name font-weight-bold text-dark text-truncate">
                 {{ currentUser.name || currentUser.username }}
               </div>
@@ -305,7 +302,7 @@
         <div v-else class="text-center">
           <a href="/login" class="btn btn-primary btn-block btn-sm">
             <i class="fas fa-sign-in-alt mr-1"></i>
-            <span v-show="!collapsed">Đăng nhập</span>
+            <span v-if="!collapsed">Đăng nhập</span>
           </a>
         </div>
       </div>
@@ -401,6 +398,14 @@ export default {
   width: 72px;
 }
 
+.sidebar-wrapper.collapsed .brand-text,
+.sidebar-wrapper.collapsed .nav-text,
+.sidebar-wrapper.collapsed .nav-section-title,
+.sidebar-wrapper.collapsed .badge,
+.sidebar-wrapper.collapsed .user-meta {
+  display: none !important;
+}
+
 .brand-logo-icon {
   width: 36px;
   height: 36px;
@@ -408,6 +413,11 @@ export default {
   background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
   font-size: 1.1rem;
   flex-shrink: 0;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
 }
 
 .brand-name {
