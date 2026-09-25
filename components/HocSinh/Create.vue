@@ -137,93 +137,94 @@ export default {
             console.log(this.birthday);
         },
         createHocSinh() {
-            if (this.nameHocSinh.length == 0 || this.nameDad.length == 0 || this.nameMom.length == 0) {
-                alert("Không được để trống tên");
+            const cleanNameStudent = (this.nameHocSinh || '').trim();
+            const cleanNameDad = (this.nameDad || '').trim();
+            const cleanNameMom = (this.nameMom || '').trim();
+            const cleanPhoneDad = (this.phoneDad || '').replace(/\D/g, '');
+            const cleanPhoneMom = (this.phoneMom || '').replace(/\D/g, '');
+
+            if (cleanNameStudent.length === 0) {
+                alert("Vui lòng nhập họ và tên học sinh");
                 return;
             }
-            if (this.phoneDad.length == 0 && this.phoneMom.length == 0) {
-                alert("Nhập ít nhất một số điện thoại phụ huynh");
+            if (cleanNameDad.length === 0 && cleanNameMom.length === 0) {
+                alert("Vui lòng nhập ít nhất tên của Bố hoặc Mẹ");
+                return;
+            }
+            if (cleanPhoneDad.length < 9 && cleanPhoneMom.length < 9) {
+                alert("Vui lòng nhập ít nhất một số điện thoại phụ huynh hợp lệ (tối thiểu 9 số)");
                 return;
             }
             var client = this.$apolloProvider.defaultClient;
             var that = this;
-            console.log(`
-                mutation {
-                    createStudentFromFull(
-                        nameDad: "${this.nameDad}", 
-                        phoneDad: "${this.phoneDad}", 
-                        nameMom: "${this.nameMom}", 
-                        phoneMom: "${this.phoneMom}", 
-                        nameStudent: "${this.nameHocSinh}",
-                        birthday: "${this.birthday}"
-                    ) {
-                        message
-                        content
-                        data {
-                        student {
-                            id
-                            name
-                        }
-                        parent {
-                            id
-                            name
-                            phone {
-                            number
-                            }
-                        }
-                        }
-                    }
-                }
-                `);
+
             client.mutate({
                 mutation: gql`
-                mutation {
+                mutation CreateStudentFull(
+                    $nameDad: String,
+                    $phoneDad: String,
+                    $nameMom: String,
+                    $phoneMom: String,
+                    $nameStudent: String,
+                    $birthday: String
+                ) {
                     createStudentFromFull(
-                        nameDad: "${this.nameDad}", 
-                        phoneDad: "${this.phoneDad}", 
-                        nameMom: "${this.nameMom}", 
-                        phoneMom: "${this.phoneMom}", 
-                        nameStudent: "${this.nameHocSinh}",
-                        birthday: "${this.birthday}"
+                        nameDad: $nameDad, 
+                        phoneDad: $phoneDad, 
+                        nameMom: $nameMom, 
+                        phoneMom: $phoneMom, 
+                        nameStudent: $nameStudent,
+                        birthday: $birthday
                     ) {
                         message
                         content
                         data {
-                        student {
-                            id
-                            name
-                        }
-                        parent {
-                            id
-                            name
-                            phone {
-                            number
+                            student {
+                                id
+                                name
+                            }
+                            parent {
+                                id
+                                name
+                                phone {
+                                    id
+                                    number
+                                    name
+                                }
                             }
                         }
-                        }
                     }
                 }
-                `
+                `,
+                variables: {
+                    nameDad: cleanNameDad,
+                    phoneDad: cleanPhoneDad,
+                    nameMom: cleanNameMom,
+                    phoneMom: cleanPhoneMom,
+                    nameStudent: cleanNameStudent,
+                    birthday: this.birthday
+                }
             }).then(data => {
                 if (data.data.createStudentFromFull.message == "SUCCESS") {
-                    if (that.sName != "") {
+                    const studentId = data.data.createStudentFromFull.data.student.id;
+                    if (that.sName && that.sName.trim() !== "") {
                         createVariable(client, {
                             item: "Student",
-                            idItem: data.data.createStudentFromFull.data.student.id,
+                            idItem: studentId,
                             key: "SNAME",
-                            value: that.sName
-                        }).then(variable => {
-                            location.href = "/hocsinh/" + data.data.createStudentFromFull.data.student.id;
-                        }).catch(err => {
-                            alert("Tạo tên riêng thât bại");
-                            location.href = "/hocsinh/" + data.data.createStudentFromFull.data.student.id;
+                            value: that.sName.trim()
+                        }).finally(() => {
+                            location.href = "/hocsinh/" + studentId;
                         });
                     } else {
-                        location.href = "/hocsinh/" + data.data.createStudentFromFull.data.student.id;
+                        location.href = "/hocsinh/" + studentId;
                     }
+                } else {
+                    alert("Có lỗi xảy ra: " + (data.data.createStudentFromFull.content || data.data.createStudentFromFull.message));
                 }
             }).catch(err => {
-                console.log(err);
+                console.error(err);
+                alert("Lỗi kết nối khi tạo học sinh!");
             });
         },
         findParent() {

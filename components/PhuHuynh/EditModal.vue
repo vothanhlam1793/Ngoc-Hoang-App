@@ -37,20 +37,34 @@
     <!-- Form Chỉnh sửa thông tin -->
     <form @submit.prevent="saveParentInfo">
       <div class="row">
-        <!-- Tên phụ huynh -->
+        <!-- Tên người đại diện -->
         <div class="col-md-6 mb-3">
-          <label class="font-weight-bold small text-dark">Họ và Tên Phụ Huynh *</label>
+          <label class="font-weight-bold small text-dark">Họ và Tên Phụ Huynh Đại Diện *</label>
           <div class="input-group">
             <div class="input-group-prepend">
-              <span class="input-group-text bg-white"><i class="fas fa-user text-muted"></i></span>
+              <span class="input-group-text bg-white"><i class="fas fa-user-tie text-primary"></i></span>
             </div>
             <input
               type="text"
               class="form-control"
               v-model.trim="form.name"
-              placeholder="Nhập họ tên phụ huynh"
+              placeholder="Nhập họ tên phụ huynh đại diện"
               required
             />
+          </div>
+          <!-- Quick suggestions if parent name equals student name -->
+          <div v-if="suggestedNames.length > 0" class="mt-1 d-flex flex-wrap align-items-center">
+            <small class="text-muted mr-1">Gợi ý nhanh:</small>
+            <button
+              v-for="(sug, idx) in suggestedNames"
+              :key="idx"
+              type="button"
+              class="btn btn-xs btn-outline-primary py-0 px-2 mr-1 mb-1 rounded-pill"
+              style="font-size: 0.75rem;"
+              @click="form.name = sug"
+            >
+              {{ sug }}
+            </button>
           </div>
         </div>
 
@@ -62,16 +76,91 @@
             <option value="DEACTIVE">Đã vô hiệu hóa / Tạm ngưng (DEACTIVE)</option>
           </select>
         </div>
+      </div>
 
-        <!-- Ghi chú / Tên bố mẹ -->
-        <div class="col-md-12 mb-3">
-          <label class="font-weight-bold small text-dark">Ghi chú người giám hộ / Quan hệ gia đình</label>
-          <input
-            type="text"
-            class="form-control"
-            v-model.trim="form.parents"
-            placeholder="Ví dụ: Bố Tuấn (0912...), Mẹ Lan, địa chỉ nhà..."
-          />
+      <!-- Card Thông tin Bố & Mẹ (Tự động bóc tách từ JSON parents) -->
+      <div class="card border-0 bg-light p-3 rounded-lg mb-3">
+        <label class="font-weight-bold small text-dark mb-2 d-flex align-items-center justify-content-between">
+          <span><i class="fas fa-users-cog text-info mr-1"></i> Thông tin Bố / Mẹ & Người Giám Hộ</span>
+          <span class="badge badge-pill badge-info" v-if="isParentsJson">Đã chuẩn hóa JSON</span>
+        </label>
+        
+        <div class="row">
+          <!-- Bố -->
+          <div class="col-md-6 mb-2">
+            <div class="p-2 bg-white rounded border">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <strong class="small text-primary"><i class="fas fa-male mr-1"></i> Thông tin Bố</strong>
+                <a
+                  v-if="parentsObj.dadPhone"
+                  :href="`https://zalo.me/${parentsObj.dadPhone}`"
+                  target="_blank"
+                  class="badge badge-primary px-2"
+                >
+                  Zalo
+                </a>
+              </div>
+              <div class="form-group mb-2">
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  v-model.trim="parentsObj.dadName"
+                  placeholder="Họ tên Bố"
+                />
+              </div>
+              <div class="form-group mb-0">
+                <input
+                  type="tel"
+                  class="form-control form-control-sm"
+                  v-model.trim="parentsObj.dadPhone"
+                  placeholder="Số điện thoại Bố"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Mẹ -->
+          <div class="col-md-6 mb-2">
+            <div class="p-2 bg-white rounded border">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <strong class="small text-danger"><i class="fas fa-female mr-1"></i> Thông tin Mẹ</strong>
+                <a
+                  v-if="parentsObj.momPhone"
+                  :href="`https://zalo.me/${parentsObj.momPhone}`"
+                  target="_blank"
+                  class="badge badge-primary px-2"
+                >
+                  Zalo
+                </a>
+              </div>
+              <div class="form-group mb-2">
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  v-model.trim="parentsObj.momName"
+                  placeholder="Họ tên Mẹ"
+                />
+              </div>
+              <div class="form-group mb-0">
+                <input
+                  type="tel"
+                  class="form-control form-control-sm"
+                  v-model.trim="parentsObj.momPhone"
+                  placeholder="Số điện thoại Mẹ"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Ghi chú phụ khác -->
+          <div class="col-12 mt-2">
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              v-model.trim="parentsObj.otherNote"
+              placeholder="Ghi chú thêm (Người đón hộ, địa chỉ nhà, thói quen...)"
+            />
+          </div>
         </div>
       </div>
 
@@ -91,6 +180,9 @@
             <div class="d-flex align-items-center">
               <i class="fas fa-phone text-success mr-2"></i>
               <strong class="text-dark">{{ p.number || p }}</strong>
+              <span class="badge badge-secondary ml-2 font-weight-normal" v-if="p.name">
+                {{ p.name }}
+              </span>
               <a
                 :href="`https://zalo.me/${p.number || p}`"
                 target="_blank"
@@ -122,6 +214,14 @@
             class="form-control"
             v-model.trim="newPhoneNumber"
             placeholder="Nhập số điện thoại mới cần thêm (Ví dụ: 0912345678)..."
+            @keyup.enter.prevent="addNewPhone"
+          />
+          <input
+            type="text"
+            class="form-control ml-1"
+            style="max-width: 160px;"
+            v-model.trim="newPhoneName"
+            placeholder="Tên chủ số (Bố/Mẹ/Bà)"
             @keyup.enter.prevent="addNewPhone"
           />
           <div class="input-group-append">
@@ -208,10 +308,18 @@ export default {
       form: {
         name: '',
         status: 'ACTIVE',
-        parents: '',
       },
+      parentsObj: {
+        dadName: '',
+        dadPhone: '',
+        momName: '',
+        momPhone: '',
+        otherNote: '',
+      },
+      isParentsJson: false,
       phoneList: [],
       newPhoneNumber: '',
+      newPhoneName: '',
       saving: false,
       addingPhone: false,
       deletingPhoneId: null,
@@ -223,6 +331,18 @@ export default {
     isDeactive() {
       return this.localParent?.status === 'DEACTIVE';
     },
+    suggestedNames() {
+      const suggestions = [];
+      const dad = this.parentsObj.dadName?.trim();
+      const mom = this.parentsObj.momName?.trim();
+      const firstStudent = this.localParent?.hocsinhs?.[0]?.name?.trim();
+
+      if (dad) suggestions.push(`${dad} (Bố ${firstStudent || ''})`.trim());
+      if (mom) suggestions.push(`${mom} (Mẹ ${firstStudent || ''})`.trim());
+      if (firstStudent && (!dad && !mom)) suggestions.push(`PH ${firstStudent}`);
+
+      return suggestions.filter(s => s && s !== this.form.name);
+    }
   },
   watch: {
     parentData: {
@@ -232,17 +352,63 @@ export default {
           this.localParent = { ...val };
           this.form.name = val.name || '';
           this.form.status = val.status || 'ACTIVE';
-          this.form.parents = val.parents || '';
           this.phoneList = Array.isArray(val.phone) ? [...val.phone] : [];
+
+          // Parse parents field
+          this.parseParents(val.parents);
         }
       },
     },
   },
   methods: {
+    parseParents(raw) {
+      this.parentsObj = {
+        dadName: '',
+        dadPhone: '',
+        momName: '',
+        momPhone: '',
+        otherNote: '',
+      };
+      this.isParentsJson = false;
+
+      if (!raw) return;
+
+      try {
+        if (raw.trim().startsWith('{')) {
+          const parsed = JSON.parse(raw);
+          this.parentsObj.dadName = parsed.dadName || '';
+          this.parentsObj.dadPhone = parsed.dadPhone || '';
+          this.parentsObj.momName = parsed.momName || '';
+          this.parentsObj.momPhone = parsed.momPhone || '';
+          this.parentsObj.otherNote = parsed.otherNote || '';
+          this.isParentsJson = true;
+          return;
+        }
+      } catch (e) {
+        // Not JSON
+      }
+
+      this.parentsObj.otherNote = raw;
+    },
+
+    composeParentsString() {
+      if (this.parentsObj.dadName || this.parentsObj.dadPhone || this.parentsObj.momName || this.parentsObj.momPhone) {
+        return JSON.stringify({
+          dadName: this.parentsObj.dadName || '',
+          dadPhone: this.parentsObj.dadPhone || '',
+          momName: this.parentsObj.momName || '',
+          momPhone: this.parentsObj.momPhone || '',
+          otherNote: this.parentsObj.otherNote || '',
+        });
+      }
+      return this.parentsObj.otherNote || '';
+    },
+
     async saveParentInfo() {
       if (!this.form.name) return;
       this.saving = true;
       const client = this.$apolloProvider.defaultClient;
+      const parentsStr = this.composeParentsString();
 
       try {
         await client.mutate({
@@ -261,14 +427,15 @@ export default {
             data: {
               name: this.form.name,
               status: this.form.status,
-              parents: this.form.parents,
+              parents: parentsStr,
             },
           },
         });
 
         this.localParent.name = this.form.name;
         this.localParent.status = this.form.status;
-        this.localParent.parents = this.form.parents;
+        this.localParent.parents = parentsStr;
+        this.isParentsJson = parentsStr.startsWith('{');
 
         this.$bvToast.toast('Đã cập nhật thông tin phụ huynh thành công!', {
           title: 'Thành công',
@@ -339,7 +506,11 @@ export default {
     },
 
     async addNewPhone() {
-      if (!this.newPhoneNumber) return;
+      const cleanPhone = (this.newPhoneNumber || '').replace(/\D/g, '');
+      if (!cleanPhone || cleanPhone.length < 9) {
+        alert('Vui lòng nhập số điện thoại hợp lệ (tối thiểu 9 số).');
+        return;
+      }
       this.addingPhone = true;
       const client = this.$apolloProvider.defaultClient;
 
@@ -350,12 +521,14 @@ export default {
               createPhone(data: $data) {
                 id
                 number
+                name
               }
             }
           `,
           variables: {
             data: {
-              number: this.newPhoneNumber,
+              number: cleanPhone,
+              name: this.newPhoneName ? this.newPhoneName.trim() : 'Người thân',
               parent: { connect: { id: this.localParent.id } },
             },
           },
@@ -364,6 +537,7 @@ export default {
         if (res.data?.createPhone) {
           this.phoneList.push(res.data.createPhone);
           this.newPhoneNumber = '';
+          this.newPhoneName = '';
           this.$bvToast.toast('Đã thêm số điện thoại thành công!', {
             variant: 'success',
             solid: true,
