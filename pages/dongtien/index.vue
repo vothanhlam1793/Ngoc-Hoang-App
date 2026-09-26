@@ -725,6 +725,33 @@ export default {
         });
 
         if (res.data?.success) {
+          const newTx = res.data.data?.cashTransaction;
+          const parentObj = this.parents.find(p => p.id === this.cashForm.parentId);
+
+          // Cập nhật số dư local của phụ huynh
+          if (parentObj && res.data.data) {
+            if (typeof res.data.data.remainingBalance === 'number') parentObj.balance = res.data.data.remainingBalance;
+            if (typeof res.data.data.remainingDebt === 'number') parentObj.debt = res.data.data.remainingDebt;
+          }
+
+          // Chèn trực tiếp dòng tiền mới vào đầu danh sách (Optimistic / In-place update)
+          if (newTx) {
+            this.cashTransactions.unshift({
+              ...newTx,
+              parent: parentObj ? { id: parentObj.id, code: parentObj.code, name: parentObj.name } : null
+            });
+          }
+
+          // Chèn các chứng từ gạch nợ mới (nếu có)
+          if (Array.isArray(res.data.data?.settlements) && res.data.data.settlements.length > 0) {
+            res.data.data.settlements.forEach(st => {
+              this.settlements.unshift({
+                ...st,
+                parent: parentObj ? { id: parentObj.id, code: parentObj.code, name: parentObj.name } : null
+              });
+            });
+          }
+
           this.$bvToast.toast(
             this.cashForm.autoSettle
               ? 'Đã thu tiền và tự động gạch nợ học phí thành công!'
@@ -732,7 +759,6 @@ export default {
             { title: 'Thành công', variant: 'success', solid: true }
           );
           this.$bvModal.hide('modal-add-cash');
-          await this.fetchData();
         } else {
           this.$bvToast.toast('Lỗi: ' + (res.data?.message || 'Không thể ghi nhận dòng tiền'), {
             title: 'Lỗi',
@@ -775,13 +801,41 @@ export default {
         });
 
         if (res.data?.success) {
+          const parentObj = this.parents.find(p => p.id === this.assignForm.parentId);
+
+          // Cập nhật số dư local của phụ huynh
+          if (parentObj && res.data) {
+            if (typeof res.data.remainingBalance === 'number') parentObj.balance = res.data.remainingBalance;
+            if (typeof res.data.remainingDebt === 'number') parentObj.debt = res.data.remainingDebt;
+          }
+
+          // Cập nhật trực tiếp dòng giao dịch trong bảng ngay lập tức (Không reload toàn bộ dữ liệu)
+          const targetTx = this.cashTransactions.find(t => t.id === this.selectedTx.id);
+          if (targetTx) {
+            targetTx.status = 'ALLOCATED';
+            targetTx.parent = parentObj ? {
+              id: parentObj.id,
+              code: parentObj.code,
+              name: parentObj.name
+            } : res.data.cashTransaction?.parent || { id: this.assignForm.parentId };
+          }
+
+          // Thêm các chứng từ gạch nợ mới (nếu có)
+          if (Array.isArray(res.data.settlements) && res.data.settlements.length > 0) {
+            res.data.settlements.forEach(st => {
+              this.settlements.unshift({
+                ...st,
+                parent: parentObj ? { id: parentObj.id, code: parentObj.code, name: parentObj.name } : null
+              });
+            });
+          }
+
           this.$bvToast.toast('Đã gán dòng tiền và cập nhật số dư/nợ cho bé thành công!', {
             title: 'Thành công',
             variant: 'success',
             solid: true
           });
           this.$bvModal.hide('modal-assign-parent');
-          await this.fetchData();
         } else {
           this.$bvToast.toast('Lỗi: ' + (res.data?.message || 'Không thể gán dòng tiền'), {
             title: 'Thất bại',
@@ -851,14 +905,34 @@ export default {
       }
     },
 
-    handleParentUpdated() {
+    handleParentUpdated(updatedParent) {
+      if (updatedParent && this.activeParent) {
+        this.activeParent = { ...this.activeParent, ...updatedParent };
+        const pInList = this.parents.find(p => p.id === updatedParent.id);
+        if (pInList) Object.assign(pInList, updatedParent);
+
+        this.cashTransactions.forEach(t => {
+          if (t.parent?.id === updatedParent.id) {
+            t.parent.name = updatedParent.name;
+            t.parent.code = updatedParent.code;
+          }
+        });
+      }
       this.loadDataCounter++;
-      this.fetchData();
     },
 
-    handleParentDeleted() {
+    handleParentDeleted(deletedId) {
       this.showParentModalFlag = false;
-      this.fetchData();
+      const targetId = deletedId || this.activeParent?.id;
+      if (targetId) {
+        this.parents = this.parents.filter(p => p.id !== targetId);
+        this.cashTransactions.forEach(t => {
+          if (t.parent?.id === targetId) {
+            t.parent = null;
+            t.status = 'UNALLOCATED';
+          }
+        });
+      }
     }
   }
 };
