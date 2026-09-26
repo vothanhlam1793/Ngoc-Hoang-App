@@ -619,9 +619,15 @@ export default {
           fetchPolicy: 'network-only',
         });
 
-        // --- 1. SỔ CÔNG NỢ HỌC PHÍ (DEBT LEDGER DỰA TRÊN LOGS GỐC) ---
+        // 1. SỔ CÔNG NỢ HỌC PHÍ (DEBT LEDGER)
+        // Kế thừa toàn bộ log nợ cũ + Hợp nhất trực tiếp các phiếu đối soát thực tế mới (PaymentSettlement STL)
         const rawLogs = logRes.data?.allLogs || [];
-        const debtEvents = rawLogs.map((log) => {
+        const settlements = stRes.data?.allPaymentSettlements || [];
+
+        const debtEvents = [];
+
+        // 1.1 Đưa các log biến động nợ vào danh sách
+        rawLogs.forEach((log) => {
           const isUp = log.type === 'UP';
           let title = 'Biến động công nợ';
           let note = '';
@@ -650,7 +656,9 @@ export default {
           const changeNum = parseInt(log.valueChange || 0, 10);
           const runningDebtNum = parseInt(log.value || 0, 10);
 
-          return {
+          debtEvents.push({
+            id: log.id,
+            rawIdItemS: log.idItemS || '',
             date: log.createdAt,
             createdTime: log.createdTime || (new Date(log.createdAt).getTime() / 1000),
             code: log.idItemS ? `${log.itemS?.substring(0, 3).toUpperCase()}_${log.idItemS.substring(log.idItemS.length - 6)}` : (log.itemS || 'LOG'),
@@ -661,10 +669,55 @@ export default {
             amountClass: isUp ? 'text-danger font-weight-bold' : 'text-success font-weight-bold',
             typeLabel: isUp ? 'TĂNG NỢ (+)' : 'GIẢM NỢ (-)',
             runningBalance: runningDebtNum,
-          };
+            isVoucher: false,
+          });
         });
 
-        // Sắp xếp mới nhất lên đầu bảng
+        // 1.2 Bổ sung các Phiếu Đối Soát Cấn Trừ Mới (PaymentSettlement STL) nếu chưa có trong Log
+        settlements.forEach((st) => {
+          if (st.status === 'SUCCESS' && (st.amount || 0) > 0) {
+            // Kiểm tra xem settlement này đã có bản ghi log tương ứng chưa
+            const alreadyInLog = debtEvents.some((ev) => ev.rawIdItemS === st.id || (ev.code && ev.code.includes(st.code)));
+            if (!alreadyInLog) {
+              const settleDate = st.settledAt || new Date().toISOString();
+              debtEvents.push({
+                id: st.id,
+                rawIdItemS: st.id,
+                date: settleDate,
+                createdTime: new Date(settleDate).getTime() / 1000,
+                code: st.code || 'STL',
+                title: 'Phiếu Cấn Trừ Nợ Từ Ví (STL)',
+                note: st.note || (st.settleType === 'SCHOOL_TRANSFER' ? 'Trường chuyển cấn trừ nợ từ số dư ví' : 'Cấn trừ nợ từ số dư ví'),
+                amount: st.amount || 0,
+                amountSign: '-',
+                amountClass: 'text-success font-weight-bold',
+                typeLabel: 'CẤN TRỪ (-)',
+                runningBalance: null, // Sẽ tính lũy tiến chuẩn xác
+                isVoucher: true,
+              });
+            }
+          }
+        });
+
+        // Sắp xếp theo dòng thời gian tăng dần để tính runningBalance chuẩn xác
+        debtEvents.sort((a, b) => (a.createdTime || new Date(a.date).getTime()) - (b.createdTime || new Date(b.date).getTime()));
+        
+        let currentRunningDebt = 0;
+        debtEvents.forEach((ev) => {
+          if (ev.isVoucher) {
+            currentRunningDebt = Math.max(0, currentRunningDebt - ev.amount);
+            ev.runningBalance = currentRunningDebt;
+          } else {
+            if (ev.runningBalance !== null && !isNaN(ev.runningBalance)) {
+              currentRunningDebt = ev.runningBalance;
+            } else {
+              currentRunningDebt = ev.amountSign === '+' ? (currentRunningDebt + ev.amount) : Math.max(0, currentRunningDebt - ev.amount);
+              ev.runningBalance = currentRunningDebt;
+            }
+          }
+        });
+
+        // Đảo lại thời gian giảm dần để đưa giao dịch mới nhất lên đầu bảng
         debtEvents.sort((a, b) => (b.createdTime || new Date(b.date).getTime()) - (a.createdTime || new Date(a.date).getTime()));
         this.debtHistoryItems = debtEvents;
 
