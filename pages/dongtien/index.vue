@@ -3,6 +3,10 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4><i class="fas fa-money-bill-wave text-success mr-2"></i>Sổ cái Dòng tiền & Gạch nợ</h4>
       <div>
+        <button class="btn btn-outline-primary mr-2" :disabled="syncing" @click="syncBankTransactions">
+          <i class="fas" :class="syncing ? 'fa-spinner fa-spin' : 'fa-sync-alt'" class="mr-1"></i>
+          {{ syncing ? 'Đang kiểm tra giao dịch...' : 'Đồng bộ Ngân hàng / MONA' }}
+        </button>
         <button class="btn btn-outline-success mr-2" @click="exportToExcel">
           <i class="fas fa-file-excel mr-1"></i>Xuất Excel
         </button>
@@ -558,6 +562,7 @@ export default {
     return {
       loading: false,
       submitting: false,
+      syncing: false,
       cashTransactions: [],
       settlements: [],
       parents: [],
@@ -696,6 +701,35 @@ export default {
         console.error(err);
       } finally {
         this.loading = false;
+      }
+    },
+    async syncBankTransactions() {
+      this.syncing = true;
+      try {
+        const res = await this.$axios.post('/api/payment-hub/sync');
+        if (res.data?.success) {
+          this.$bvToast.toast(res.data.message || 'Đã đồng bộ ngân hàng thành công!', {
+            title: 'Thành công',
+            variant: 'success',
+            solid: true
+          });
+          await this.fetchData();
+        } else {
+          this.$bvToast.toast(res.data?.message || res.data?.error || 'Không thể đồng bộ từ cổng ngân hàng', {
+            title: 'Thông báo',
+            variant: 'warning',
+            solid: true
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        this.$bvToast.toast(err.response?.data?.error || err.message || 'Lỗi kết nối đồng bộ', {
+          title: 'Lỗi',
+          variant: 'danger',
+          solid: true
+        });
+      } finally {
+        this.syncing = false;
       }
     },
     openModalAddCash() {
