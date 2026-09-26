@@ -4,7 +4,7 @@
       <h4><i class="fas fa-money-bill-wave text-success mr-2"></i>Sổ cái Dòng tiền & Gạch nợ</h4>
       <div>
         <button class="btn btn-outline-primary mr-2" :disabled="syncing" @click="syncBankTransactions">
-          <i class="fas" :class="syncing ? 'fa-spinner fa-spin' : 'fa-sync-alt'" class="mr-1"></i>
+          <i class="fas mr-1" :class="syncing ? 'fa-spinner fa-spin' : 'fa-sync-alt'"></i>
           {{ syncing ? 'Đang kiểm tra giao dịch...' : 'Đồng bộ Ngân hàng / MONA' }}
         </button>
         <button class="btn btn-outline-success mr-2" @click="exportToExcel">
