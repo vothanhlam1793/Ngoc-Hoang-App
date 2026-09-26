@@ -430,26 +430,6 @@ export default {
           },
         });
 
-        const newBalance = Math.max(0, (this.phuhuynh.balance || 0) - this.settleForm.amount);
-        const newDebt = Math.max(0, (this.phuhuynh.debt || 0) - this.settleForm.amount);
-
-        await client.mutate({
-          mutation: gql`
-            mutation UpdateParent($id: ID!, $balance: Int!, $debt: Int!) {
-              updateParent(id: $id, data: { balance: $balance, debt: $debt }) {
-                id
-                balance
-                debt
-              }
-            }
-          `,
-          variables: {
-            id: this.idPhuHuynh,
-            balance: newBalance,
-            debt: newDebt,
-          },
-        });
-
         this.$bvToast.toast(`Đã cấn trừ ${this.numberWithCommas(this.settleForm.amount)} đ thành công!`, {
           title: 'Thành công',
           variant: 'success',
