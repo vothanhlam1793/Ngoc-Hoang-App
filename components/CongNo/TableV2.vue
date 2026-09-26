@@ -571,26 +571,6 @@ export default {
           fetchPolicy: 'network-only',
         });
 
-        // Query thêm Học phí kết sổ tháng (PKS...)
-        const iksRes = await client.query({
-          query: gql`
-            query GetParentItemKetSos($parentId: ID!) {
-              allItemKetSos(where: { parent: { id: $parentId } }, sortBy: createdAt_DESC) {
-                id
-                code
-                total
-                createdAt
-                student {
-                  id
-                  name
-                }
-              }
-            }
-          `,
-          variables: { parentId: this.idPhuHuynh },
-          fetchPolicy: 'network-only',
-        });
-
         const items = [];
 
         (ctRes.data?.allCashTransactions || []).forEach((ct) => {
@@ -619,20 +599,6 @@ export default {
             amountClass: 'text-success',
             typeLabel: 'ĐÃ THU TIỀN',
             badgeClass: 'badge-success',
-          });
-        });
-
-        (iksRes.data?.allItemKetSos || []).forEach((iks) => {
-          items.push({
-            date: iks.createdAt,
-            code: iks.code,
-            title: `Học Phí Kết Sổ Tháng ${iks.student ? `(${iks.student.name})` : ''}`,
-            note: 'Phát sinh học phí định kỳ',
-            amount: iks.total,
-            amountSign: '+',
-            amountClass: 'text-dark',
-            typeLabel: 'HỌC PHÍ THÁNG',
-            badgeClass: 'badge-warning text-dark',
           });
         });
 

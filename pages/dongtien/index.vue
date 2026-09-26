@@ -424,21 +424,21 @@
       </div>
       <div v-else-if="activeParent">
         <b-tabs pills card v-model="parentTabIndex">
-          <!-- Tab 1: Sổ nợ & Dòng tiền -->
-          <b-tab title="💳 1. Sổ Nợ & Biến Động Tài Chính" active>
-            <DebtForm
-              :idPhuHuynh="activeParent.id"
-              :loadData="loadDataCounter"
-            />
-          </b-tab>
-
-          <!-- Tab 2: Hồ sơ & Trạng thái -->
-          <b-tab title="👤 2. Hồ Sơ & Liên Lạc">
+          <!-- Tab 1: Hồ sơ & Trạng thái -->
+          <b-tab title="👤 1. Hồ Sơ & Liên Lạc" active>
             <ParentEditModal
               :parentData="activeParent"
               @updated="handleParentUpdated"
               @deleted="handleParentDeleted"
               @close="showParentModalFlag = false"
+            />
+          </b-tab>
+
+          <!-- Tab 2: Sổ nợ & Dòng tiền -->
+          <b-tab title="💳 2. Sổ Nợ & Biến Động Tài Chính">
+            <DebtForm
+              :idPhuHuynh="activeParent.id"
+              :loadData="loadDataCounter"
             />
           </b-tab>
         </b-tabs>
@@ -477,7 +477,7 @@ const GET_PARENT_DETAIL = gql`
       balance
       phone {
         id
-        phone
+        number
         name
       }
       hocsinhs {
