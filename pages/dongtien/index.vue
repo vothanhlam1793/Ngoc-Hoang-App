@@ -84,7 +84,7 @@
                   title="Gán phụ huynh / bé"
                   @click="openModalAssign(data.item)"
                 >
-                  <i class="fas fa-link mr-1"></i>Gán
+                  <i class="fas fa-link"></i>
                 </button>
               </template>
             </b-table>
