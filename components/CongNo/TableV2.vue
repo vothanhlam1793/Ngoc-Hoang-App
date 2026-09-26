@@ -599,99 +599,73 @@ export default {
           fetchPolicy: 'network-only',
         });
 
-        const hdRes = await client.query({
+        // Query vết Log công nợ chuẩn (Nguồn sự thật duy nhất cho Sổ Công Nợ Lũy Tiến)
+        const logRes = await client.query({
           query: gql`
-            query GetParentHoaDons($parentId: ID!) {
-              allHoaDons(where: { parent: { id: $parentId } }, sortBy: createdAt_DESC) {
+            query GetParentDebtLogs($parentId: String!) {
+              allLogs(where: { item: "Parent", idItem: $parentId, key: "debt" }) {
                 id
-                code
-                total
+                itemS
+                idItemS
                 type
+                value
+                valueChange
                 createdAt
+                createdTime
               }
             }
           `,
-          variables: { parentId: this.idPhuHuynh },
+          variables: { parentId: String(this.idPhuHuynh) },
           fetchPolicy: 'network-only',
         });
 
-        // Query thêm Phiếu Thu gốc từ kế toán (PTT...)
-        const ptRes = await client.query({
-          query: gql`
-            query GetParentPhieuThus($parentId: ID!) {
-              allPhieuThus(where: { parent: { id: $parentId } }, sortBy: createdAt_DESC) {
-                id
-                code
-                total
-                createdAt
-                ghichu
-                itemThu
-              }
-            }
-          `,
-          variables: { parentId: this.idPhuHuynh },
-          fetchPolicy: 'network-only',
+        // --- 1. SỔ CÔNG NỢ HỌC PHÍ (DEBT LEDGER DỰA TRÊN LOGS GỐC) ---
+        const rawLogs = logRes.data?.allLogs || [];
+        const debtEvents = rawLogs.map((log) => {
+          const isUp = log.type === 'UP';
+          let title = 'Biến động công nợ';
+          let note = '';
+
+          switch (log.itemS) {
+            case 'ItemKetSo':
+              title = 'Học phí kết sổ tháng';
+              note = 'Phát sinh công nợ học phí định kỳ';
+              break;
+            case 'HoaDon':
+              title = 'Hóa đơn dịch vụ / Bán lẻ';
+              note = 'Phát sinh nợ hóa đơn';
+              break;
+            case 'PhieuThu':
+              title = 'Phiếu thu tiền (Kế toán)';
+              note = 'Thu tiền mặt / Chuyển khoản gạch nợ';
+              break;
+            case 'PaymentSettlement':
+              title = 'Nghiệp vụ Cấn trừ nợ từ Ví';
+              note = 'Trích số dư ví để cấn trừ nợ';
+              break;
+            default:
+              title = log.itemS || 'Giao dịch hạch toán';
+          }
+
+          const changeNum = parseInt(log.valueChange || 0, 10);
+          const runningDebtNum = parseInt(log.value || 0, 10);
+
+          return {
+            date: log.createdAt,
+            createdTime: log.createdTime || (new Date(log.createdAt).getTime() / 1000),
+            code: log.idItemS ? `${log.itemS?.substring(0, 3).toUpperCase()}_${log.idItemS.substring(log.idItemS.length - 6)}` : (log.itemS || 'LOG'),
+            title,
+            note,
+            amount: changeNum,
+            amountSign: isUp ? '+' : '-',
+            amountClass: isUp ? 'text-danger font-weight-bold' : 'text-success font-weight-bold',
+            typeLabel: isUp ? 'TĂNG NỢ (+)' : 'GIẢM NỢ (-)',
+            runningBalance: runningDebtNum,
+          };
         });
 
-        // --- 1. TÍNH TOÁN SỔ CÔNG NỢ HỌC PHÍ (DEBT LEDGER) ---
-        const debtEvents = [];
-
-        (hdRes.data?.allHoaDons || []).forEach((hd) => {
-          debtEvents.push({
-            date: hd.createdAt,
-            code: hd.code,
-            title: 'Hóa đơn phát sinh học phí / dịch vụ',
-            note: hd.type === 'THANHTOAN' ? 'Thanh toán tại quầy' : 'Ghi nợ học phí',
-            amount: hd.total || 0,
-            amountSign: '+',
-            amountClass: 'text-danger font-weight-bold',
-            typeLabel: 'PHÁT SINH NỢ (+)',
-            change: hd.total || 0,
-          });
-        });
-
-        (ptRes.data?.allPhieuThus || []).forEach((pt) => {
-          debtEvents.push({
-            date: pt.createdAt,
-            code: pt.code,
-            title: 'Phiếu Thu Tiền (Kế toán)',
-            note: pt.ghichu || pt.itemThu || 'Thu tiền học phí / dịch vụ',
-            amount: pt.total || 0,
-            amountSign: '-',
-            amountClass: 'text-success font-weight-bold',
-            typeLabel: 'ĐÃ THU TIỀN (-)',
-            change: -(pt.total || 0),
-          });
-        });
-
-        (stRes.data?.allPaymentSettlements || []).forEach((st) => {
-          let typeLabel = 'CẤN TRỪ NỢ (-)';
-          if (st.settleType === 'AUTO_ACB') typeLabel = 'TỰ ĐỘNG ACB (-)';
-          if (st.settleType === 'SCHOOL_TRANSFER') typeLabel = 'TRƯỜNG CHUYỂN (-)';
-          if (st.settleType === 'PARENT_TRANSFER') typeLabel = 'PHỤ HUYNH CHUYỂN (-)';
-
-          debtEvents.push({
-            date: st.settledAt,
-            code: st.code,
-            title: 'Nghiệp vụ Cấn trừ nợ từ Ví',
-            note: st.note || 'Trích số dư ví gạch nợ học phí',
-            amount: st.amount || 0,
-            amountSign: '-',
-            amountClass: 'text-success font-weight-bold',
-            typeLabel,
-            change: -(st.amount || 0),
-          });
-        });
-
-        // Sắp xếp thời gian tăng dần để cộng dồn lũy tiến nợ
-        debtEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
-        let runningDebt = 0;
-        debtEvents.forEach((ev) => {
-          runningDebt = Math.max(0, runningDebt + ev.change);
-          ev.runningBalance = runningDebt;
-        });
-        // Đảo lại thời gian giảm dần để giao dịch mới nhất lên đầu bảng
-        debtEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // Sắp xếp mới nhất lên đầu bảng
+        debtEvents.sort((a, b) => (b.createdTime || new Date(b.date).getTime()) - (a.createdTime || new Date(a.date).getTime()));
         this.debtHistoryItems = debtEvents;
 
         // --- 2. TÍNH TOÁN SỔ VÍ KHẢ DỤNG (BALANCE LEDGER) ---
