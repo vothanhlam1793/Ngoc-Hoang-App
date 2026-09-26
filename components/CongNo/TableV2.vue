@@ -104,67 +104,126 @@
       </div>
     </div>
 
-    <!-- 3. Bảng Lịch sử biến động & Chứng từ -->
+    <!-- 3. Bảng 2 Sổ Lũy Tiến Độc Lập: Sổ Công Nợ & Sổ Ví Khả Dụng -->
     <div class="card border-0 shadow-sm bg-white rounded-12">
-      <div class="card-header bg-white font-weight-bold d-flex justify-content-between align-items-center py-3 border-bottom">
-        <div class="d-flex align-items-center">
-          <i class="fas fa-history text-primary mr-2 fs-5"></i>
-          <div>
-            <span class="text-dark font-weight-bold">Lịch Sử Biến Động & Chứng Từ Hạch Toán</span>
-            <small class="text-muted d-block font-weight-normal">Theo dõi chi tiết dòng tiền thu/chi và các đợt cấn trừ nợ</small>
-          </div>
-        </div>
+      <div class="card-header bg-white font-weight-bold d-flex flex-column flex-md-row justify-content-between align-items-md-center py-2 px-3 border-bottom">
+        <b-nav pills class="mb-2 mb-md-0">
+          <b-nav-item :active="ledgerTabIndex === 0" @click="ledgerTabIndex = 0">
+            <i class="fas fa-file-invoice-dollar mr-1 text-danger"></i>
+            <strong>1. Sổ Công Nợ Học Phí</strong>
+            <span class="badge badge-light border text-danger ml-1">{{ debtHistoryItems.length }}</span>
+          </b-nav-item>
+          <b-nav-item :active="ledgerTabIndex === 1" @click="ledgerTabIndex = 1">
+            <i class="fas fa-wallet mr-1 text-success"></i>
+            <strong>2. Sổ Ví Khả Dụng</strong>
+            <span class="badge badge-light border text-success ml-1">{{ balanceHistoryItems.length }}</span>
+          </b-nav-item>
+        </b-nav>
+
         <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" @click="fetchFullHistory">
-          <i class="fas fa-sync-alt mr-1"></i> Làm mới
+          <i class="fas fa-sync-alt mr-1"></i> Làm mới sổ
         </button>
       </div>
 
       <div class="card-body p-0">
-        <div v-if="!historyItems || !historyItems.length" class="text-center py-5 text-muted">
-          <i class="fas fa-file-invoice fa-3x mb-3 d-block text-secondary opacity-25"></i>
-          <h6 class="text-secondary font-weight-bold">Chưa có giao dịch biến động</h6>
-          <p class="small text-muted mb-0">Hồ sơ phụ huynh này chưa có phiếu thu, chi hoặc hóa đơn nào được ghi nhận.</p>
+        <!-- NỘI DUNG TAB 1: SỔ CÔNG NỢ HỌC PHÍ -->
+        <div v-if="ledgerTabIndex === 0">
+          <div v-if="!debtHistoryItems || !debtHistoryItems.length" class="text-center py-5 text-muted">
+            <i class="fas fa-file-invoice fa-3x mb-3 d-block text-secondary opacity-25"></i>
+            <h6 class="text-secondary font-weight-bold">Chưa có phát sinh công nợ</h6>
+            <p class="small text-muted mb-0">Hồ sơ phụ huynh này chưa có hóa đơn hoặc phiếu thu gạch nợ nào.</p>
+          </div>
+
+          <div v-else class="table-responsive">
+            <table class="table table-hover align-middle mb-0 custom-datatable">
+              <thead class="bg-light text-secondary small text-uppercase">
+                <tr>
+                  <th style="width: 14%;" class="pl-3">NGÀY GIAO DỊCH</th>
+                  <th style="width: 13%;">MÃ CHỨNG TỪ</th>
+                  <th style="width: 35%;">LOẠI PHIẾU / DIỄN GIẢI KHOẢN THU</th>
+                  <th style="width: 18%;" class="text-right">BIẾN ĐỘNG NỢ</th>
+                  <th style="width: 20%;" class="text-right pr-3">DƯ NỢ LŨY TIẾN</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, idx) in debtHistoryItems" :key="'debt-' + idx">
+                  <td class="small text-muted pl-3">
+                    <i class="far fa-calendar-alt mr-1 text-secondary"></i>
+                    {{ showDate(item.date) }}
+                  </td>
+                  <td>
+                    <span class="badge badge-light border text-dark font-weight-normal px-2 py-1">
+                      {{ item.code || 'N/A' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="font-weight-bold text-dark">{{ item.title }}</div>
+                    <small class="text-muted" v-if="item.note">{{ item.note }}</small>
+                  </td>
+                  <td class="text-right font-weight-bold">
+                    <span :class="item.amountClass" class="amount-badge">
+                      {{ item.amountSign }}{{ numberWithCommas(item.amount) }} đ
+                    </span>
+                    <div class="small text-muted" style="font-size: 11px;">{{ item.typeLabel }}</div>
+                  </td>
+                  <td class="text-right pr-3 font-weight-bold">
+                    <span :class="item.runningBalance > 0 ? 'text-danger' : 'text-success'">
+                      {{ numberWithCommas(item.runningBalance) }} đ
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div v-else class="table-responsive">
-          <table class="table table-hover align-middle mb-0 custom-datatable">
-            <thead class="bg-light text-secondary small text-uppercase">
-              <tr>
-                <th style="width: 14%;" class="pl-3">NGÀY GIAO DỊCH</th>
-                <th style="width: 13%;">MÃ CHỨNG TỪ</th>
-                <th style="width: 38%;">LOẠI PHIẾU / NỘI DUNG CHI TIẾT</th>
-                <th style="width: 18%;" class="text-right">SỐ TIỀN BIẾN ĐỘNG</th>
-                <th style="width: 17%;" class="text-center pr-3">PHÂN LOẠI THAO TÁC</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, idx) in historyItems" :key="idx">
-                <td class="small text-muted pl-3">
-                  <i class="far fa-calendar-alt mr-1 text-secondary"></i>
-                  {{ showDate(item.date) }}
-                </td>
-                <td>
-                  <span class="badge badge-light border text-dark font-weight-normal px-2 py-1">
-                    {{ item.code || 'N/A' }}
-                  </span>
-                </td>
-                <td>
-                  <div class="font-weight-bold text-dark">{{ item.title }}</div>
-                  <small class="text-muted" v-if="item.note">{{ item.note }}</small>
-                </td>
-                <td class="text-right font-weight-bold">
-                  <span :class="item.amountClass" class="amount-badge">
-                    {{ item.amountSign }}{{ numberWithCommas(item.amount) }} đ
-                  </span>
-                </td>
-                <td class="text-center pr-3">
-                  <span :class="['badge badge-pill font-weight-normal px-3 py-1', item.badgeClass]">
-                    {{ item.typeLabel }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- NỘI DUNG TAB 2: SỔ VÍ KHẢ DỤNG -->
+        <div v-else-if="ledgerTabIndex === 1">
+          <div v-if="!balanceHistoryItems || !balanceHistoryItems.length" class="text-center py-5 text-muted">
+            <i class="fas fa-wallet fa-3x mb-3 d-block text-secondary opacity-25"></i>
+            <h6 class="text-secondary font-weight-bold">Chưa có biến động số dư ví</h6>
+            <p class="small text-muted mb-0">Hồ sơ phụ huynh này chưa có dòng tiền nạp ví hoặc trích cấn trừ nào.</p>
+          </div>
+
+          <div v-else class="table-responsive">
+            <table class="table table-hover align-middle mb-0 custom-datatable">
+              <thead class="bg-light text-secondary small text-uppercase">
+                <tr>
+                  <th style="width: 14%;" class="pl-3">NGÀY GIAO DỊCH</th>
+                  <th style="width: 13%;">MÃ GIAO DỊCH</th>
+                  <th style="width: 35%;">NỘI DUNG NẠP / TRÍCH VÍ</th>
+                  <th style="width: 18%;" class="text-right">BIẾN ĐỘNG VÍ</th>
+                  <th style="width: 20%;" class="text-right pr-3">SỐ DƯ VÍ LŨY TIẾN</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, idx) in balanceHistoryItems" :key="'bal-' + idx">
+                  <td class="small text-muted pl-3">
+                    <i class="far fa-calendar-alt mr-1 text-secondary"></i>
+                    {{ showDate(item.date) }}
+                  </td>
+                  <td>
+                    <span class="badge badge-light border text-dark font-weight-normal px-2 py-1">
+                      {{ item.code || 'N/A' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="font-weight-bold text-dark">{{ item.title }}</div>
+                    <small class="text-muted" v-if="item.note">{{ item.note }}</small>
+                  </td>
+                  <td class="text-right font-weight-bold">
+                    <span :class="item.amountClass" class="amount-badge">
+                      {{ item.amountSign }}{{ numberWithCommas(item.amount) }} đ
+                    </span>
+                    <div class="small text-muted" style="font-size: 11px;">{{ item.typeLabel }}</div>
+                  </td>
+                  <td class="text-right pr-3 font-weight-bold text-success">
+                    +{{ numberWithCommas(item.runningBalance) }} đ
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -304,6 +363,9 @@ export default {
   data() {
     return {
       phuhuynh: null,
+      ledgerTabIndex: 0,
+      debtHistoryItems: [],
+      balanceHistoryItems: [],
       historyItems: [],
       showCreatePaymentModal: false,
       showSettleModal: false,
@@ -571,72 +633,109 @@ export default {
           fetchPolicy: 'network-only',
         });
 
-        const items = [];
+        // --- 1. TÍNH TOÁN SỔ CÔNG NỢ HỌC PHÍ (DEBT LEDGER) ---
+        const debtEvents = [];
 
-        (ctRes.data?.allCashTransactions || []).forEach((ct) => {
-          const isOut = ct.type === 'OUTFLOW';
-          items.push({
-            date: ct.createdAt,
-            code: ct.code,
-            title: isOut ? 'Phiếu Chi Hoàn Tiền' : 'Phiếu Thu Tiền Mặt / ACB',
-            note: ct.bankDescription,
-            amount: ct.amount,
-            amountSign: isOut ? '-' : '+',
-            amountClass: isOut ? 'text-danger' : 'text-success',
-            typeLabel: isOut ? 'CHI TIỀN MẶT' : (ct.paymentMethod === 'ACB_BANK' ? 'ACB BANK' : 'TIỀN MẶT'),
-            badgeClass: isOut ? 'badge-danger' : 'badge-success',
+        (hdRes.data?.allHoaDons || []).forEach((hd) => {
+          debtEvents.push({
+            date: hd.createdAt,
+            code: hd.code,
+            title: 'Hóa đơn phát sinh học phí / dịch vụ',
+            note: hd.type === 'THANHTOAN' ? 'Thanh toán tại quầy' : 'Ghi nợ học phí',
+            amount: hd.total || 0,
+            amountSign: '+',
+            amountClass: 'text-danger font-weight-bold',
+            typeLabel: 'PHÁT SINH NỢ (+)',
+            change: hd.total || 0,
           });
         });
 
         (ptRes.data?.allPhieuThus || []).forEach((pt) => {
-          items.push({
+          debtEvents.push({
             date: pt.createdAt,
             code: pt.code,
             title: 'Phiếu Thu Tiền (Kế toán)',
             note: pt.ghichu || pt.itemThu || 'Thu tiền học phí / dịch vụ',
-            amount: pt.total,
+            amount: pt.total || 0,
             amountSign: '-',
-            amountClass: 'text-success',
-            typeLabel: 'ĐÃ THU TIỀN',
-            badgeClass: 'badge-success',
+            amountClass: 'text-success font-weight-bold',
+            typeLabel: 'ĐÃ THU TIỀN (-)',
+            change: -(pt.total || 0),
           });
         });
 
         (stRes.data?.allPaymentSettlements || []).forEach((st) => {
-          let typeLabel = 'CẤN TRỪ NỢ';
-          if (st.settleType === 'AUTO_ACB') typeLabel = 'TỰ ĐỘNG ACB';
-          if (st.settleType === 'SCHOOL_TRANSFER') typeLabel = 'TRƯỜNG CHUYỂN';
-          if (st.settleType === 'PARENT_TRANSFER') typeLabel = 'PHỤ HUYNH CHUYỂN';
+          let typeLabel = 'CẤN TRỪ NỢ (-)';
+          if (st.settleType === 'AUTO_ACB') typeLabel = 'TỰ ĐỘNG ACB (-)';
+          if (st.settleType === 'SCHOOL_TRANSFER') typeLabel = 'TRƯỜNG CHUYỂN (-)';
+          if (st.settleType === 'PARENT_TRANSFER') typeLabel = 'PHỤ HUYNH CHUYỂN (-)';
 
-          items.push({
+          debtEvents.push({
             date: st.settledAt,
             code: st.code,
-            title: 'Nghiệp vụ Cấn trừ nợ (Ví -> Nợ)',
-            note: st.note,
-            amount: st.amount,
-            amountSign: '⇄ ',
-            amountClass: 'text-info',
+            title: 'Nghiệp vụ Cấn trừ nợ từ Ví',
+            note: st.note || 'Trích số dư ví gạch nợ học phí',
+            amount: st.amount || 0,
+            amountSign: '-',
+            amountClass: 'text-success font-weight-bold',
             typeLabel,
-            badgeClass: 'badge-info',
+            change: -(st.amount || 0),
           });
         });
 
-        (hdRes.data?.allHoaDons || []).forEach((hd) => {
-          items.push({
-            date: hd.createdAt,
-            code: hd.code,
-            title: 'Hóa đơn dịch vụ / Bán lẻ',
-            note: hd.type === 'THANHTOAN' ? 'Thanh toán ngay tại quầy' : 'Ghi nợ',
-            amount: hd.total,
-            amountSign: '+',
-            amountClass: 'text-dark',
-            typeLabel: 'PHÁT SINH NỢ',
-            badgeClass: 'badge-warning text-dark',
+        // Sắp xếp thời gian tăng dần để cộng dồn lũy tiến nợ
+        debtEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+        let runningDebt = 0;
+        debtEvents.forEach((ev) => {
+          runningDebt = Math.max(0, runningDebt + ev.change);
+          ev.runningBalance = runningDebt;
+        });
+        // Đảo lại thời gian giảm dần để giao dịch mới nhất lên đầu bảng
+        debtEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+        this.debtHistoryItems = debtEvents;
+
+        // --- 2. TÍNH TOÁN SỔ VÍ KHẢ DỤNG (BALANCE LEDGER) ---
+        const balanceEvents = [];
+
+        (ctRes.data?.allCashTransactions || []).forEach((ct) => {
+          const isOut = ct.type === 'OUTFLOW';
+          balanceEvents.push({
+            date: ct.createdAt,
+            code: ct.code,
+            title: isOut ? 'Phiếu Chi Hoàn Tiền' : 'Nạp Ví Tiền Mặt / ACB Bank',
+            note: ct.bankDescription || (isOut ? 'Hoàn tiền ví' : 'Nạp tiền vào ví'),
+            amount: ct.amount || 0,
+            amountSign: isOut ? '-' : '+',
+            amountClass: isOut ? 'text-danger font-weight-bold' : 'text-success font-weight-bold',
+            typeLabel: isOut ? 'CHI TIỀN (-)' : (ct.paymentMethod === 'ACB_BANK' ? 'NẠP ACB BANK (+)' : 'NẠP TIỀN MẶT (+)'),
+            change: isOut ? -(ct.amount || 0) : (ct.amount || 0),
           });
         });
 
-        items.sort((a, b) => new Date(b.date) - new Date(a.date));
-        this.historyItems = items;
+        (stRes.data?.allPaymentSettlements || []).forEach((st) => {
+          balanceEvents.push({
+            date: st.settledAt,
+            code: st.code,
+            title: 'Trích Ví Cấn Trừ Học Phí',
+            note: st.note || 'Trích từ ví để gạch nợ học phí',
+            amount: st.amount || 0,
+            amountSign: '-',
+            amountClass: 'text-warning text-dark font-weight-bold',
+            typeLabel: 'TRÍCH VÍ (-)',
+            change: -(st.amount || 0),
+          });
+        });
+
+        // Sắp xếp thời gian tăng dần để cộng dồn lũy tiến số dư ví
+        balanceEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+        let runningBal = 0;
+        balanceEvents.forEach((ev) => {
+          runningBal = Math.max(0, runningBal + ev.change);
+          ev.runningBalance = runningBal;
+        });
+        // Đảo lại thời gian giảm dần để giao dịch mới nhất lên đầu bảng
+        balanceEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+        this.balanceHistoryItems = balanceEvents;
       } catch (err) {
         console.error('Lỗi khi tải lịch sử:', err);
       }
