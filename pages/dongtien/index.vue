@@ -60,8 +60,15 @@
 
               <template #cell(parent)="data">
                 <div v-if="data.item.parent">
-                  <strong>{{ data.item.parent.name }}</strong>
-                  <div class="small text-muted">{{ data.item.parent.code }}</div>
+                  <a
+                    href="#"
+                    class="font-weight-bold text-primary parent-link"
+                    @click.prevent="openParentModal(data.item.parent)"
+                    title="Bấm để xem hồ sơ và sổ nợ phụ huynh"
+                  >
+                    <i class="fas fa-user-circle mr-1 text-info"></i>{{ data.item.parent.name }}
+                  </a>
+                  <div class="small text-muted font-monospace">{{ data.item.parent.code }}</div>
                 </div>
                 <span v-else class="badge bg-warning text-dark">Chưa gán</span>
               </template>
@@ -118,8 +125,18 @@
               </template>
 
               <template #cell(parent)="data">
-                <strong>{{ data.item.parent?.name }}</strong>
-                <div class="small text-muted">{{ data.item.parent?.code }}</div>
+                <div v-if="data.item.parent">
+                  <a
+                    href="#"
+                    class="font-weight-bold text-primary parent-link"
+                    @click.prevent="openParentModal(data.item.parent)"
+                    title="Bấm để xem hồ sơ và sổ nợ phụ huynh"
+                  >
+                    <i class="fas fa-user-circle mr-1 text-info"></i>{{ data.item.parent.name }}
+                  </a>
+                  <div class="small text-muted font-monospace">{{ data.item.parent.code }}</div>
+                </div>
+                <span v-else class="text-muted">-</span>
               </template>
 
               <template #cell(settleType)="data">
@@ -392,12 +409,49 @@
         </div>
       </form>
     </b-modal>
+
+    <!-- Master Modal: Xem Hồ Sơ & Sổ Nợ Phụ Huynh Trực Tiếp -->
+    <b-modal
+      v-model="showParentModalFlag"
+      size="xl"
+      :title="'Thông Tin & Sổ Nợ Phụ Huynh: ' + (activeParent ? (activeParent.name + ' (' + (activeParent.code || 'N/A') + ')') : '')"
+      hide-footer
+      no-close-on-backdrop
+    >
+      <div v-if="loadingParent" class="text-center py-5">
+        <b-spinner variant="primary"></b-spinner>
+        <div class="text-muted mt-2">Đang tải chi tiết hồ sơ & sổ nợ phụ huynh...</div>
+      </div>
+      <div v-else-if="activeParent">
+        <b-tabs pills card v-model="parentTabIndex">
+          <!-- Tab 1: Sổ nợ & Dòng tiền -->
+          <b-tab title="💳 1. Sổ Nợ & Biến Động Tài Chính" active>
+            <DebtForm
+              :idPhuHuynh="activeParent.id"
+              :loadData="loadDataCounter"
+            />
+          </b-tab>
+
+          <!-- Tab 2: Hồ sơ & Trạng thái -->
+          <b-tab title="👤 2. Hồ Sơ & Liên Lạc">
+            <ParentEditModal
+              :parentData="activeParent"
+              @updated="handleParentUpdated"
+              @deleted="handleParentDeleted"
+              @close="showParentModalFlag = false"
+            />
+          </b-tab>
+        </b-tabs>
+      </div>
+    </b-modal>
   </div>
 </template>
 
 <script>
 import gql from 'graphql-tag';
 import InputCurrency from '~/components/Common/InputCurrency.vue';
+import DebtForm from '~/components/PhuHuynh/Debt.vue';
+import ParentEditModal from '~/components/PhuHuynh/EditModal.vue';
 
 function chuyentiengviet(str) {
   if (!str) return '';
@@ -410,6 +464,34 @@ function chuyentiengviet(str) {
     .toLowerCase()
     .trim();
 }
+
+const GET_PARENT_DETAIL = gql`
+  query GetParentDetail($id: ID!) {
+    Parent(where: { id: $id }) {
+      id
+      code
+      name
+      status
+      parents
+      debt
+      balance
+      phone {
+        id
+        phone
+        name
+      }
+      hocsinhs {
+        id
+        name
+        status
+        lophoc {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
 
 const GET_FINANCIAL_DATA = gql`
   query GetFinancialData {
@@ -468,6 +550,8 @@ const GET_FINANCIAL_DATA = gql`
 export default {
   components: {
     InputCurrency,
+    DebtForm,
+    ParentEditModal,
   },
   layout: 'app',
   data() {
@@ -477,6 +561,11 @@ export default {
       cashTransactions: [],
       settlements: [],
       parents: [],
+      showParentModalFlag: false,
+      activeParent: null,
+      loadingParent: false,
+      parentTabIndex: 0,
+      loadDataCounter: 0,
       cashFields: [
         { key: 'code', label: 'Mã Dòng tiền', sortable: true },
         { key: 'amount', label: 'Số tiền', sortable: true },
@@ -736,7 +825,53 @@ export default {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    },
+
+    async openParentModal(parentSummary) {
+      if (!parentSummary || !parentSummary.id) return;
+      this.showParentModalFlag = true;
+      this.loadingParent = true;
+      this.parentTabIndex = 0; // Mặc định mở Sổ nợ & Biến động tài chính
+      this.activeParent = { ...parentSummary };
+
+      try {
+        const client = this.$apolloProvider.defaultClient;
+        const res = await client.query({
+          query: GET_PARENT_DETAIL,
+          variables: { id: parentSummary.id },
+          fetchPolicy: 'network-only'
+        });
+        if (res.data?.Parent) {
+          this.activeParent = res.data.Parent;
+        }
+      } catch (err) {
+        console.error('Lỗi khi tải thông tin phụ huynh:', err);
+      } finally {
+        this.loadingParent = false;
+      }
+    },
+
+    handleParentUpdated() {
+      this.loadDataCounter++;
+      this.fetchData();
+    },
+
+    handleParentDeleted() {
+      this.showParentModalFlag = false;
+      this.fetchData();
     }
   }
 };
 </script>
+
+<style scoped>
+.parent-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+.parent-link:hover {
+  color: #0056b3 !important;
+  text-decoration: underline;
+}
+</style>
