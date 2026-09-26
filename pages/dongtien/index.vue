@@ -12,24 +12,24 @@
       </div>
     </div>
 
-    <!-- Bộ lọc & Thống kê nhanh -->
+    <!-- Bộ lọc & Thống kê nhanh chuẩn đối soát -->
     <div class="row mb-3">
       <div class="col-md-4">
         <div class="card bg-light border-0 shadow-sm p-3">
-          <small class="text-muted">Tổng dòng tiền thu</small>
+          <small class="text-muted">Tổng dòng tiền thu (Ngân hàng / Tiền mặt)</small>
           <h4 class="text-success mb-0">{{ formatCurrency(totalInflow) }}</h4>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card bg-light border-0 shadow-sm p-3">
-          <small class="text-muted">Đã gạch nợ thành công</small>
-          <h4 class="text-primary mb-0">{{ formatCurrency(totalSettled) }}</h4>
+          <small class="text-muted">Đã ghi nhận vào Ví phụ huynh</small>
+          <h4 class="text-primary mb-0">{{ formatCurrency(totalAllocated) }}</h4>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card bg-light border-0 shadow-sm p-3">
-          <small class="text-muted">Chờ xử lý / Chưa gán Phụ huynh</small>
-          <h4 class="text-warning mb-0">{{ formatCurrency(totalPending) }}</h4>
+          <small class="text-muted">Dòng tiền chưa gán (Cần đối soát)</small>
+          <h4 class="text-warning mb-0">{{ formatCurrency(totalUnallocated) }}</h4>
         </div>
       </div>
     </div>
@@ -67,9 +67,12 @@
               </template>
 
               <template #cell(status)="data">
-                <span v-if="data.item.status === 'SETTLED'" class="badge bg-success text-white">Đã gạch nợ</span>
-                <span v-else-if="data.item.status === 'PARTIALLY_SETTLED'" class="badge bg-info text-white">Gạch nợ 1 phần</span>
-                <span v-else-if="data.item.status === 'UNALLOCATED'" class="badge bg-warning text-dark">Sai mã / Chưa gán</span>
+                <span v-if="data.item.status === 'ALLOCATED' || data.item.parent" class="badge bg-success text-white">
+                  <i class="fas fa-check-circle mr-1"></i>Đã vào ví
+                </span>
+                <span v-else-if="data.item.status === 'UNALLOCATED' || data.item.status === 'PENDING'" class="badge bg-warning text-dark">
+                  <i class="fas fa-clock mr-1"></i>Chưa gán
+                </span>
                 <span v-else class="badge bg-secondary text-white">{{ data.item.status }}</span>
               </template>
 
@@ -565,15 +568,20 @@ export default {
         .filter(t => t.type === 'INFLOW')
         .reduce((sum, t) => sum + (t.amount || 0), 0);
     },
+    totalAllocated() {
+      return this.cashTransactions
+        .filter(t => t.type === 'INFLOW' && (t.status === 'ALLOCATED' || t.parent))
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+    },
+    totalUnallocated() {
+      return this.cashTransactions
+        .filter(t => t.type === 'INFLOW' && !t.parent && (t.status === 'UNALLOCATED' || t.status === 'PENDING'))
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+    },
     totalSettled() {
       return this.settlements
         .filter(s => s.status === 'SUCCESS')
         .reduce((sum, s) => sum + (s.amount || 0), 0);
-    },
-    totalPending() {
-      return this.cashTransactions
-        .filter(t => t.status === 'PENDING' || t.status === 'UNALLOCATED')
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
     }
   },
   mounted() {
