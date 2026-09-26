@@ -81,9 +81,10 @@
                 <button
                   v-if="data.item.status === 'UNALLOCATED' || !data.item.parent"
                   class="btn btn-sm btn-primary"
+                  title="Gán phụ huynh / bé"
                   @click="openModalAssign(data.item)"
                 >
-                  <i class="fas fa-link mr-1"></i>Gán Phụ huynh
+                  <i class="fas fa-link mr-1"></i>Gán
                 </button>
               </template>
             </b-table>
