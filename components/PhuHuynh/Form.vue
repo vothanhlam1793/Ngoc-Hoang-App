@@ -4,7 +4,7 @@
     <div class="card shadow-sm border-0 mb-3 bg-light">
       <div class="card-body py-3">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
-          <b-form inline class="align-items-center" @submit.prevent="applySort">
+          <b-form inline class="align-items-center flex-wrap" @submit.prevent="applySort">
             <span class="mr-2 font-weight-bold text-secondary"><i class="fas fa-filter mr-1"></i>Sắp xếp:</span>
             <b-form-select
               id="parent-sort-field"
@@ -18,14 +18,26 @@
               class="mr-2 mb-2 mb-md-0 rounded-pill"
               aria-label="Chiều sắp xếp"
             />
-            <b-button type="submit" variant="primary" class="rounded-pill px-3" :disabled="busyTable">
+            <b-button type="submit" variant="primary" class="rounded-pill px-3 mr-2 mb-2 mb-md-0" :disabled="busyTable">
               <i class="fas fa-check mr-1"></i> Áp dụng
+            </b-button>
+
+            <!-- Nút Toggle Ẩn / Hiện Phụ huynh Tạm ngưng (Lưu Storage) -->
+            <b-button
+              type="button"
+              :variant="hideDeactive ? 'dark' : 'outline-secondary'"
+              class="rounded-pill px-3 mb-2 mb-md-0 shadow-sm"
+              @click="toggleHideDeactive"
+              :title="hideDeactive ? 'Đang ẩn phụ huynh Deactive. Bấm để hiển thị tất cả.' : 'Đang hiện tất cả. Bấm để ẩn phụ huynh Deactive.'"
+            >
+              <i :class="['fas mr-1', hideDeactive ? 'fa-eye-slash text-warning' : 'fa-eye']"></i>
+              {{ hideDeactive ? 'Đang ẩn Tạm ngưng' : 'Hiện tất cả' }}
             </b-button>
           </b-form>
 
-          <div class="mt-2 mt-md-0">
-            <span class="badge badge-light border px-3 py-2 text-dark font-weight-bold">
-              Tổng số: <span class="text-primary">{{ total }}</span> phụ huynh
+          <div class="mt-2 mt-md-0 d-flex align-items-center">
+            <span class="badge badge-light border px-3 py-2 text-dark font-weight-bold mr-2">
+              Hiển thị: <span class="text-primary">{{ filteredPhuhuynhs.length }}</span> / {{ total }} phụ huynh
             </span>
           </div>
         </div>
@@ -43,7 +55,7 @@
           hover
           responsive
           class="mb-0 align-middle"
-          :items="phuhuynhs"
+          :items="filteredPhuhuynhs"
           :fields="fields"
         >
           <template #cell(code)="row">
@@ -55,11 +67,10 @@
               <a
                 href="#"
                 class="font-weight-bold text-primary mr-2 parent-name-link"
-                @click.prevent="openEditModal(row.item)"
-                title="Bấm để xem/sửa hồ sơ, đổi trạng thái hoặc xóa"
+                @click.prevent="openMasterModal(row.item, 0)"
+                title="Bấm để xem hồ sơ và sổ nợ phụ huynh"
               >
                 {{ row.item.name }}
-                <i class="fas fa-edit text-muted ml-1 small opacity-75"></i>
               </a>
               <span
                 v-if="row.item.status === 'DEACTIVE'"
@@ -123,12 +134,15 @@
           </template>
 
           <template #cell(button)="row">
-            <div class="btn-group btn-group-sm">
-              <b-button variant="outline-primary" class="rounded-pill px-3 mr-1" @click="showModal(row)">
-                <i class="fas fa-wallet mr-1"></i> Sổ nợ
-              </b-button>
-              <b-button variant="light" class="rounded-pill px-2 border" @click="openEditModal(row.item)" title="Hồ sơ & Trạng thái">
-                <i class="fas fa-user-cog text-secondary"></i>
+            <div>
+              <b-button
+                variant="outline-primary"
+                size="sm"
+                class="rounded-pill px-3 font-weight-bold"
+                @click="openMasterModal(row.item, 0)"
+                title="Xem chi tiết hồ sơ & sổ nợ"
+              >
+                <i class="fas fa-id-card mr-1"></i> Chi tiết
               </b-button>
             </div>
           </template>
@@ -159,28 +173,35 @@
       </div>
     </div>
 
-    <!-- Modal Chi tiết Sổ Nợ -->
-    <b-modal v-model="showModalFlag" size="xl" :title="'Sổ Nợ & Lịch Sử Biến Động Tài Chính: ' + slPhuHuynh.name" hide-footer>
-      <DebtForm 
-        :idPhuHuynh="slPhuHuynh.id" 
-        :loadData="loadData"
-      />
-    </b-modal>
-
-    <!-- Modal Hồ sơ & Trạng thái Phụ Huynh -->
+    <!-- Modal Hợp Nhất Phụ Huynh (Phân Tabs: Hồ Sơ & Sổ Nợ) -->
     <b-modal
-      v-model="showEditModalFlag"
-      size="lg"
-      title="Hồ Sơ & Thiết Lập Trạng Thái Phụ Huynh"
+      v-model="showMasterModalFlag"
+      size="xl"
+      :title="'Thông Tin & Tài Chính Phụ Huynh: ' + (activeParent ? activeParent.name : '')"
       hide-footer
+      no-close-on-backdrop
     >
-      <ParentEditModal
-        v-if="selectedParentForEdit"
-        :parentData="selectedParentForEdit"
-        @updated="handleParentUpdated"
-        @deleted="handleParentDeleted"
-        @close="showEditModalFlag = false"
-      />
+      <div v-if="activeParent">
+        <b-tabs pills card v-model="tabIndex">
+          <!-- Tab 1: Hồ sơ & Trạng thái -->
+          <b-tab title="👤 1. Hồ Sơ & Liên Lạc" active>
+            <ParentEditModal
+              :parentData="activeParent"
+              @updated="handleParentUpdated"
+              @deleted="handleParentDeleted"
+              @close="showMasterModalFlag = false"
+            />
+          </b-tab>
+
+          <!-- Tab 2: Sổ nợ & Dòng tiền -->
+          <b-tab title="💳 2. Sổ Nợ & Biến Động Tài Chính">
+            <DebtForm
+              :idPhuHuynh="activeParent.id"
+              :loadData="loadData"
+            />
+          </b-tab>
+        </b-tabs>
+      </div>
     </b-modal>
   </div>
 </template>
@@ -189,6 +210,7 @@
 import { getPhuHuynh } from '~/plugins/phuhuynh.js';
 import DebtForm from '~/components/PhuHuynh/Debt.vue';
 import ParentEditModal from '~/components/PhuHuynh/EditModal.vue';
+import storage from '~/utils/storage.js';
 
 export default {
   components: {
@@ -197,13 +219,11 @@ export default {
   },
   data() {
     return {
-      slPhuHuynh: {
-        name: '',
-      },
-      selectedParentForEdit: null,
+      activeParent: null,
+      tabIndex: 0,
+      showMasterModalFlag: false,
       loadData: 0,
-      showModalFlag: false,
-      showEditModalFlag: false,
+      hideDeactive: false,
       busyTable: true,
       phuhuynhs: [],
       total: 0,
@@ -276,6 +296,10 @@ export default {
     };
   },
   methods: {
+    toggleHideDeactive() {
+      this.hideDeactive = !this.hideDeactive;
+      storage.set('nh_hide_deactive_parents', this.hideDeactive);
+    },
     openEditModal(parent) {
       this.selectedParentForEdit = parent;
       this.showEditModalFlag = true;
@@ -307,10 +331,11 @@ export default {
       }
       return '';
     },
-    showModal(row) {
-      this.slPhuHuynh = row.item;
+    openMasterModal(item, tabIdx = 0) {
+      this.activeParent = item;
+      this.tabIndex = tabIdx;
       this.loadData += 1;
-      this.showModalFlag = true;
+      this.showMasterModalFlag = true;
     },
     applySort() {
       this.sortBy = `${this.selectedSortField}_${this.selectedSortDirection}`;
@@ -346,8 +371,15 @@ export default {
     totalPages() {
       return Math.max(1, Math.ceil(this.total / this.pageSize));
     },
+    filteredPhuhuynhs() {
+      if (!this.hideDeactive) {
+        return this.phuhuynhs;
+      }
+      return this.phuhuynhs.filter((p) => p.status !== 'DEACTIVE');
+    },
   },
   mounted() {
+    this.hideDeactive = storage.getBool('nh_hide_deactive_parents', false);
     this.loadPhuHuynh();
   },
 };

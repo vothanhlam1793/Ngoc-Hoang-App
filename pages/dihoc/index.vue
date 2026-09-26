@@ -32,7 +32,7 @@
             </div>
             <div>
               <h5 class="font-weight-bold text-dark mb-0">{{ lophoc.name }}</h5>
-              <small class="text-muted">Mã lớp: {{ lophoc.code || lophoc.id.substring(0, 6) }}</small>
+              <small class="text-muted">Mã: {{ lophoc.id ? lophoc.id.substring(0, 6) : '' }}</small>
             </div>
           </div>
           <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top">
@@ -72,11 +72,13 @@ export default {
         },
         checkLopHoc(lh){
             var ret = false;
-            if(this.checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan'])){
+            if(!this.isImpersonating && this.checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan'])){
                 return true;
             }
             if(this.checkRole(['giao-vien'])){
-                // console.log(this.$store.state.user);
+                if (this.isImpersonating && this.simulatedClass) {
+                    return lh.id === this.simulatedClass.id;
+                }
                 if(this.$store.state.user && this.$store.state.user.user && this.$store.state.user.user.lophoc){
                     this.$store.state.user.user.lophoc.forEach(function(lophoc){
                         if(lophoc.id == lh.id){
@@ -104,7 +106,13 @@ export default {
             return  this.$store.state.createhocsinh.lophocs;
         },
         roles(){
-            return this.$store.state.user.roles;
+            return this.$store.getters['user/effectiveRoles'] || [];
+        },
+        isImpersonating(){
+            return this.$store.state.user.isImpersonating;
+        },
+        simulatedClass(){
+            return this.$store.state.user.simulatedClass;
         }
     },
     layout: "app"

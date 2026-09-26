@@ -8,6 +8,9 @@
 
     <!-- Main Content Area -->
     <div :class="['main-wrapper', { 'sidebar-collapsed': isCollapsed }]">
+      <!-- Impersonation Indicator Bar -->
+      <ImpersonationBar />
+
       <!-- Minimalist Sticky Topbar -->
       <header class="app-topbar sticky-top bg-white border-bottom px-3 py-2 d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center">
@@ -29,33 +32,78 @@
         </div>
 
         <div class="d-flex align-items-center">
-          <!-- Quick action button: Dòng tiền -->
-          <nuxt-link to="/dongtien" class="btn btn-sm btn-outline-success rounded-pill px-3 mr-2 d-none d-sm-inline-flex align-items-center">
+          <!-- Role Switcher Button for Admin (When not impersonating) -->
+          <div v-if="isRealAdmin && !isImpersonating" class="mr-2">
+            <div class="dropdown">
+              <button
+                class="btn btn-sm btn-outline-warning text-dark font-weight-bold dropdown-toggle rounded-pill px-3 shadow-sm"
+                type="button"
+                id="roleSwitchDropdown"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                <i class="fas fa-chalkboard-teacher text-warning mr-1"></i> Xem góc nhìn Giáo viên
+              </button>
+              <div class="dropdown-menu dropdown-menu-right shadow border-0" aria-labelledby="roleSwitchDropdown" style="max-height: 300px; overflow-y: auto;">
+                <h6 class="dropdown-header text-uppercase font-weight-bold text-muted small">Chọn lớp để thử nghiệm</h6>
+                <a
+                  v-for="lh in classList"
+                  :key="lh.id"
+                  v-if="lh.name"
+                  class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                  href="javascript:void(0)"
+                  @click="simulateTeacher(lh)"
+                >
+                  <span><i class="fas fa-shapes text-primary mr-2"></i>{{ lh.name }}</span>
+                </a>
+                <div v-if="!classList || !classList.length" class="dropdown-item text-muted small">
+                  Đang tải danh sách lớp...
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick action button: Dòng tiền (Chỉ hiện khi là Admin/Kế toán thực sự) -->
+          <nuxt-link
+            v-if="!isImpersonating && checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong'])"
+            to="/dongtien"
+            class="btn btn-sm btn-outline-success rounded-pill px-3 mr-2 d-none d-sm-inline-flex align-items-center"
+          >
             <i class="fas fa-money-bill-wave mr-1"></i> Dòng tiền
           </nuxt-link>
 
           <!-- User quick indicator -->
           <div v-if="currentUser" class="user-pill d-flex align-items-center py-1 px-2 rounded bg-light">
             <span class="small font-weight-semibold text-dark mr-1">{{ currentUser.name || currentUser.username }}</span>
-            <span class="badge badge-primary font-weight-normal" style="font-size: 0.65rem;">{{ getPrimaryRoleLabel() }}</span>
+            <span :class="['badge font-weight-normal', isImpersonating ? 'badge-warning text-dark' : 'badge-primary']" style="font-size: 0.65rem;">
+              {{ getPrimaryRoleLabel() }}
+            </span>
           </div>
         </div>
       </header>
 
       <!-- Page Content -->
-      <main class="page-content container-fluid px-3 py-3">
+      <main :class="['page-content container-fluid px-3 py-3', { 'has-teacher-bottom': isTeacherView }]">
         <Nuxt />
       </main>
+
+      <!-- Teacher Mobile Bottom Navigation -->
+      <TeacherBottomNav />
     </div>
   </div>
 </template>
 
 <script>
 import Sidebar from '~/components/Sidebar.vue';
+import ImpersonationBar from '~/components/ImpersonationBar.vue';
+import TeacherBottomNav from '~/components/Teacher/TeacherBottomNav.vue';
 
 export default {
   components: {
     Sidebar,
+    ImpersonationBar,
+    TeacherBottomNav,
   },
   data() {
     return {
@@ -65,10 +113,22 @@ export default {
   },
   computed: {
     roles() {
-      return this.$store.state.user.roles || [];
+      return this.$store.getters['user/effectiveRoles'] || [];
+    },
+    isImpersonating() {
+      return this.$store.state.user.isImpersonating;
+    },
+    isRealAdmin() {
+      return this.$store.getters['user/isRealAdmin'];
+    },
+    classList() {
+      return this.$store.state.user.classList || [];
     },
     currentUser() {
       return this.$store.state.user.user || (this.$store.$auth && this.$store.$auth.$state.user) || null;
+    },
+    isTeacherView() {
+      return this.roles.includes('giao-vien') || this.isImpersonating;
     },
   },
   methods: {
@@ -82,7 +142,17 @@ export default {
         } catch (e) {}
       }
     },
+    simulateTeacher(lophoc) {
+      this.$store.commit('user/startImpersonation', {
+        role: 'giao-vien',
+        lophoc: lophoc
+      });
+      this.$router.push('/giaovien');
+    },
     getPrimaryRoleLabel() {
+      if (this.isImpersonating) {
+        return 'GV Giả lập';
+      }
       if (this.checkRole(['quan-tri-vien'])) return 'Admin';
       if (this.checkRole(['hieu-truong'])) return 'Hiệu trưởng';
       if (this.checkRole(['hieu-pho'])) return 'Hiệu phó';
@@ -184,6 +254,9 @@ input.larger {
 @media (max-width: 991.98px) {
   .main-wrapper {
     margin-left: 0 !important;
+  }
+  .page-content.has-teacher-bottom {
+    padding-bottom: 75px !important;
   }
 }
 </style>

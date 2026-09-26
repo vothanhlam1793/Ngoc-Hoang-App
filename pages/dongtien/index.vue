@@ -132,52 +132,258 @@
       </b-tab>
     </b-tabs>
 
+    <!-- Modal Gán Dòng tiền cho Phụ huynh / Bé -->
+    <b-modal
+      id="modal-assign-parent"
+      title="🔗 Gán Dòng Tiền Chưa Nhận Diện Cho Bé / Phụ Huynh"
+      size="lg"
+      hide-footer
+      no-close-on-backdrop
+      no-close-on-esc
+    >
+      <div v-if="selectedTx">
+        <!-- Thông tin giao dịch đang gán -->
+        <div class="card bg-light border-0 mb-3 p-3">
+          <div class="row">
+            <div class="col-sm-6 mb-2 mb-sm-0">
+              <div class="small text-muted">Mã dòng tiền:</div>
+              <strong class="text-dark">{{ selectedTx.code }}</strong>
+              <div class="small text-muted mt-1">Nội dung chuyển khoản:</div>
+              <div class="small font-monospace text-primary bg-white p-2 rounded border">
+                {{ selectedTx.bankDescription || '(Không có nội dung)' }}
+              </div>
+            </div>
+            <div class="col-sm-6 text-sm-right">
+              <div class="small text-muted">Số tiền tiếp nhận:</div>
+              <h4 class="text-success font-weight-bold mb-1">+{{ formatCurrency(selectedTx.amount) }}</h4>
+              <div class="small text-muted">Thời gian: {{ formatDateTime(selectedTx.createdAt) }}</div>
+            </div>
+          </div>
+        </div>
+
+        <form @submit.prevent="submitAssign">
+          <!-- Ô tìm kiếm nhanh ưu tiên THEO TÊN BÉ -->
+          <div class="form-group mb-3">
+            <label class="font-weight-bold text-dark d-flex justify-content-between">
+              <span><i class="fas fa-search text-primary mr-1"></i> Tìm nhanh theo Tên Bé / Lớp / Tên Phụ Huynh:</span>
+              <span class="badge badge-info small font-weight-normal">Ưu tiên tìm theo tên bé</span>
+            </label>
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <span class="input-group-text bg-white"><i class="fas fa-child text-info"></i></span>
+              </div>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Gõ tên bé (vd: Gia Hân, An Nhiên...), tên lớp, hoặc tên ba mẹ..."
+                v-model.trim="searchStudentKeyword"
+                autofocus
+              />
+              <div class="input-group-append" v-if="searchStudentKeyword">
+                <button class="btn btn-outline-secondary" type="button" @click="searchStudentKeyword = ''">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Danh sách kết quả gợi ý -->
+            <div
+              v-if="filteredParentOptions.length > 0"
+              class="list-group shadow-sm border rounded"
+              style="max-height: 240px; overflow-y: auto;"
+            >
+              <button
+                type="button"
+                v-for="item in filteredParentOptions"
+                :key="item.id"
+                :class="['list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center', assignForm.parentId === item.id ? 'active' : '']"
+                @click="selectParent(item)"
+              >
+                <div>
+                  <div class="font-weight-bold d-flex align-items-center">
+                    <i class="fas fa-child text-warning mr-1"></i>
+                    <span>{{ item.studentNames || '(Chưa có tên bé)' }}</span>
+                    <span v-if="item.classNames" class="badge badge-secondary ml-2 font-weight-normal">
+                      {{ item.classNames }}
+                    </span>
+                  </div>
+                  <div class="small" :class="assignForm.parentId === item.id ? 'text-white-50' : 'text-muted'">
+                    <i class="fas fa-user-friends mr-1"></i>PH: <strong>{{ item.name }}</strong> (Mã: {{ item.code }})
+                  </div>
+                </div>
+                <div class="text-right small">
+                  <div>Nợ: <strong :class="assignForm.parentId === item.id ? 'text-white' : 'text-danger'">{{ formatCurrency(item.debt) }}</strong></div>
+                  <div>Ví dư: <strong :class="assignForm.parentId === item.id ? 'text-white' : 'text-success'">{{ formatCurrency(item.balance) }}</strong></div>
+                </div>
+              </button>
+            </div>
+            <div v-else-if="searchStudentKeyword" class="p-3 text-center text-muted bg-light rounded border">
+              <i class="fas fa-exclamation-circle mr-1"></i> Không tìm thấy bé hoặc phụ huynh nào khớp với "{{ searchStudentKeyword }}"
+            </div>
+          </div>
+
+          <!-- Thông tin bé & Phụ huynh đã chọn -->
+          <div v-if="selectedParentObj" class="alert alert-success d-flex align-items-center justify-content-between p-3 mb-3">
+            <div>
+              <div class="font-weight-bold text-success">
+                <i class="fas fa-check-circle mr-1"></i> Đã chọn bé: {{ selectedParentObj.studentNames }} ({{ selectedParentObj.classNames }})
+              </div>
+              <div class="small text-dark mt-1">
+                Phụ huynh: <strong>{{ selectedParentObj.name }}</strong> (Mã: {{ selectedParentObj.code }})
+                | Học phí nợ: <span class="text-danger font-weight-bold">{{ formatCurrency(selectedParentObj.debt) }}</span>
+              </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger" @click="assignForm.parentId = ''">
+              Chọn lại
+            </button>
+          </div>
+
+          <!-- Tùy chọn Tự động cấn trừ -->
+          <div class="custom-control custom-checkbox mb-4 p-3 bg-light rounded border">
+            <input
+              type="checkbox"
+              class="custom-control-input"
+              id="autoSettleCheck"
+              v-model="assignForm.autoSettle"
+            />
+            <label class="custom-control-label font-weight-bold text-dark" for="autoSettleCheck">
+              Tự động cấn trừ học phí nếu bé / phụ huynh đang có nợ
+            </label>
+            <div class="small text-muted ml-0 mt-1">
+              Hệ thống sẽ tự động gạch nợ hóa đơn và nạp phần tiền còn dư vào Ví khả dụng của phụ huynh.
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="button" class="btn btn-secondary mr-2" @click="$bvModal.hide('modal-assign-parent')">
+              Hủy bỏ
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary font-weight-bold px-4"
+              :disabled="!assignForm.parentId || assigning"
+            >
+              <b-spinner v-if="assigning" small class="mr-1"></b-spinner>
+              <i v-else class="fas fa-link mr-1"></i>
+              Xác nhận Gán Dòng Tiền
+            </button>
+          </div>
+        </form>
+      </div>
+    </b-modal>
+
     <!-- Modal Ghi nhận thu tiền -->
-    <b-modal id="modal-add-cash" title="Ghi nhận Dòng tiền Thu" hide-footer>
+    <b-modal id="modal-add-cash" title="Ghi nhận Dòng tiền Thu" hide-footer size="lg">
       <form @submit.prevent="submitAddCash">
         <div class="form-group mb-3">
-          <label class="font-weight-bold">Chọn Phụ huynh *</label>
-          <select v-model="cashForm.parentId" class="form-control" required>
-            <option value="">-- Chọn phụ huynh --</option>
-            <option v-for="p in parents" :key="p.id" :value="p.id">
-              {{ p.code }} - {{ p.name }} (Nợ: {{ formatCurrency(p.debt) }})
-            </option>
-          </select>
+          <label class="font-weight-bold">Chọn Bé / Phụ huynh *</label>
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text bg-white"><i class="fas fa-child text-info"></i></span>
+            </div>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Gõ tên bé, tên lớp, hoặc tên phụ huynh để tìm nhanh..."
+              v-model.trim="searchCashStudentKeyword"
+            />
+          </div>
+
+          <!-- Danh sách kết quả gợi ý -->
+          <div
+            v-if="filteredCashParentOptions.length > 0"
+            class="list-group shadow-sm border rounded mb-2"
+            style="max-height: 180px; overflow-y: auto;"
+          >
+            <button
+              type="button"
+              v-for="item in filteredCashParentOptions"
+              :key="item.id"
+              :class="['list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center', cashForm.parentId === item.id ? 'active' : '']"
+              @click="cashForm.parentId = item.id"
+            >
+              <div>
+                <div class="font-weight-bold d-flex align-items-center">
+                  <i class="fas fa-child text-warning mr-1"></i>
+                  <span>{{ item.studentNames || '(Chưa có tên bé)' }}</span>
+                  <span v-if="item.classNames" class="badge badge-secondary ml-2 font-weight-normal">
+                    {{ item.classNames }}
+                  </span>
+                </div>
+                <div class="small" :class="cashForm.parentId === item.id ? 'text-white-50' : 'text-muted'">
+                  PH: <strong>{{ item.name }}</strong> (Mã: {{ item.code }})
+                </div>
+              </div>
+              <div class="text-right small">
+                <div>Nợ: <strong :class="cashForm.parentId === item.id ? 'text-white' : 'text-danger'">{{ formatCurrency(item.debt) }}</strong></div>
+                <div>Ví dư: <strong :class="cashForm.parentId === item.id ? 'text-white' : 'text-success'">{{ formatCurrency(item.balance) }}</strong></div>
+              </div>
+            </button>
+          </div>
+
+          <div v-if="selectedCashParentObj" class="alert alert-success p-2 small mb-0 d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-check-circle mr-1"></i> Đang chọn: <strong>{{ selectedCashParentObj.studentNames }} ({{ selectedCashParentObj.classNames }})</strong>
+              - PH: {{ selectedCashParentObj.name }}
+            </div>
+            <span class="badge badge-light border text-danger">Nợ: {{ formatCurrency(selectedCashParentObj.debt) }}</span>
+          </div>
         </div>
 
         <div class="form-group mb-3">
-          <label class="font-weight-bold">Số tiền (VNĐ) *</label>
+          <label class="font-weight-bold">Số tiền thu (VNĐ) *</label>
           <InputCurrency
             v-model="cashForm.amount"
             placeholder="Ví dụ: 3.000.000"
+            required
           />
         </div>
 
-        <div class="form-group mb-3">
-          <label class="font-weight-bold">Hình thức thu</label>
-          <select v-model="cashForm.paymentMethod" class="form-control">
-            <option value="ACB_BANK">Chuyển khoản ACB</option>
-            <option value="CASH">Tiền mặt</option>
-            <option value="OTHER">Khác</option>
-          </select>
+        <div class="row">
+          <div class="col-md-6 form-group mb-3">
+            <label class="font-weight-bold">Hình thức thu</label>
+            <select v-model="cashForm.paymentMethod" class="form-control">
+              <option value="CASH">Tiền mặt tại trường</option>
+              <option value="ACB_BANK">Chuyển khoản ACB</option>
+              <option value="OTHER">Hình thức khác</option>
+            </select>
+          </div>
+          <div class="col-md-6 form-group mb-3">
+            <label class="font-weight-bold">Ghi chú / Mã tham chiếu</label>
+            <input
+              v-model="cashForm.bankDescription"
+              type="text"
+              class="form-control"
+              placeholder="Ví dụ: Đóng tiền mặt tại văn phòng"
+            />
+          </div>
         </div>
 
-        <div class="form-group mb-3">
-          <label class="font-weight-bold">Ghi chú / Mã tham chiếu</label>
+        <!-- Tùy chọn Tự động gạch nợ học phí -->
+        <div class="custom-control custom-checkbox mb-4 p-3 bg-light rounded border">
           <input
-            v-model="cashForm.bankDescription"
-            type="text"
-            class="form-control"
-            placeholder="Ví dụ: Đóng tiền mặt tại văn phòng"
+            type="checkbox"
+            class="custom-control-input"
+            id="cashAutoSettleCheck"
+            v-model="cashForm.autoSettle"
           />
+          <label class="custom-control-label font-weight-bold text-dark" for="cashAutoSettleCheck">
+            {{ cashForm.autoSettle ? '🟢 Tự động gạch nợ học phí (Nợ giảm ngay)' : '⚪ Chỉ nạp vào Ví khả dụng (Giữ nguyên nợ để kế toán đối soát sau)' }}
+          </label>
+          <div class="small text-muted mt-1">
+            <span v-if="cashForm.autoSettle">Số tiền thu sẽ ưu tiên thanh toán dứt điểm các hóa đơn nợ trước, tiền dư thừa sẽ được lưu vào Ví phụ huynh.</span>
+            <span v-else>Toàn bộ số tiền thu sẽ được cộng vào Ví khả dụng (balance), số nợ (debt) giữ nguyên cho đến khi kế toán bấm nút Cấn trừ nợ.</span>
+          </div>
         </div>
 
         <div class="d-flex justify-content-end gap-2">
           <button type="button" class="btn btn-secondary mr-2" @click="$bvModal.hide('modal-add-cash')">
             Hủy
           </button>
-          <button type="submit" class="btn btn-success" :disabled="submitting">
-            <b-spinner v-if="submitting" small class="mr-1"></b-spinner> Xác nhận & Tự gạch nợ
+          <button type="submit" class="btn btn-success font-weight-bold" :disabled="!cashForm.parentId || submitting">
+            <b-spinner v-if="submitting" small class="mr-1"></b-spinner>
+            <i v-else class="fas fa-save mr-1"></i>
+            {{ cashForm.autoSettle ? 'Xác nhận & Tự Gạch Nợ' : 'Xác nhận Nạp Ví Khả Dụng' }}
           </button>
         </div>
       </form>
@@ -188,6 +394,18 @@
 <script>
 import gql from 'graphql-tag';
 import InputCurrency from '~/components/Common/InputCurrency.vue';
+
+function chuyentiengviet(str) {
+  if (!str) return '';
+  return str
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .trim();
+}
 
 const GET_FINANCIAL_DATA = gql`
   query GetFinancialData {
@@ -225,12 +443,20 @@ const GET_FINANCIAL_DATA = gql`
         name
       }
     }
-    allParents(first: 500) {
+    allParents(first: 2000) {
       id
       code
       name
       debt
       balance
+      hocsinhs {
+        id
+        name
+        lophoc {
+          id
+          name
+        }
+      }
     }
   }
 `;
@@ -269,11 +495,70 @@ export default {
         parentId: '',
         amount: '',
         paymentMethod: 'CASH',
-        bankDescription: ''
+        bankDescription: '',
+        autoSettle: true
+      },
+      searchCashStudentKeyword: '',
+      selectedTx: null,
+      assigning: false,
+      searchStudentKeyword: '',
+      assignForm: {
+        parentId: '',
+        autoSettle: true
       }
     };
   },
   computed: {
+    normalizedParentList() {
+      return this.parents.map(p => {
+        const studentNames = (p.hocsinhs || []).map(h => h.name).filter(Boolean).join(', ');
+        const classNames = (p.hocsinhs || []).map(h => h.lophoc?.name).filter(Boolean).join(', ');
+        const rawFullStr = `${studentNames} ${classNames} ${p.name || ''} ${p.code || ''}`;
+        return {
+          ...p,
+          studentNames,
+          classNames,
+          searchOriginal: rawFullStr.toLowerCase(),
+          searchNonAccent: chuyentiengviet(rawFullStr)
+        };
+      });
+    },
+    filteredParentOptions() {
+      if (!this.searchStudentKeyword) {
+        return this.normalizedParentList.slice(0, 20);
+      }
+      const rawKw = this.searchStudentKeyword.toLowerCase().trim();
+      const nonAccentKw = chuyentiengviet(this.searchStudentKeyword);
+      const keywords = nonAccentKw.split(/\s+/).filter(Boolean);
+
+      return this.normalizedParentList.filter(p => {
+        if (p.searchOriginal.includes(rawKw)) return true;
+        if (p.searchNonAccent.includes(nonAccentKw)) return true;
+        return keywords.every(kw => p.searchNonAccent.includes(kw));
+      }).slice(0, 30);
+    },
+    filteredCashParentOptions() {
+      if (!this.searchCashStudentKeyword) {
+        return this.normalizedParentList.slice(0, 15);
+      }
+      const rawKw = this.searchCashStudentKeyword.toLowerCase().trim();
+      const nonAccentKw = chuyentiengviet(this.searchCashStudentKeyword);
+      const keywords = nonAccentKw.split(/\s+/).filter(Boolean);
+
+      return this.normalizedParentList.filter(p => {
+        if (p.searchOriginal.includes(rawKw)) return true;
+        if (p.searchNonAccent.includes(nonAccentKw)) return true;
+        return keywords.every(kw => p.searchNonAccent.includes(kw));
+      }).slice(0, 30);
+    },
+    selectedCashParentObj() {
+      if (!this.cashForm.parentId) return null;
+      return this.normalizedParentList.find(p => p.id === this.cashForm.parentId);
+    },
+    selectedParentObj() {
+      if (!this.assignForm.parentId) return null;
+      return this.normalizedParentList.find(p => p.id === this.assignForm.parentId);
+    },
     totalInflow() {
       return this.cashTransactions
         .filter(t => t.type === 'INFLOW')
@@ -320,60 +605,103 @@ export default {
         parentId: '',
         amount: '',
         paymentMethod: 'CASH',
-        bankDescription: ''
+        bankDescription: '',
+        autoSettle: true
       };
+      this.searchCashStudentKeyword = '';
       this.$bvModal.show('modal-add-cash');
     },
     async submitAddCash() {
+      if (!this.cashForm.parentId || !this.cashForm.amount) return;
       this.submitting = true;
       try {
-        const client = this.$apolloProvider.defaultClient;
-        // Tạo CashTransaction
-        await client.mutate({
-          mutation: gql`
-            mutation CreateCashTx($data: CashTransactionCreateInput!) {
-              createCashTransaction(data: $data) {
-                id
-                code
-              }
-            }
-          `,
-          variables: {
-            data: {
-              type: 'INFLOW',
-              amount: parseInt(this.cashForm.amount, 10),
-              paymentMethod: this.cashForm.paymentMethod,
-              bankDescription: this.cashForm.bankDescription,
-              status: 'SETTLED',
-              parent: { connect: { id: this.cashForm.parentId } }
-            }
-          }
+        const res = await this.$axios.post('/api/payment-hub/assign-parent', {
+          cashTxData: {
+            amount: parseInt(this.cashForm.amount, 10),
+            paymentMethod: this.cashForm.paymentMethod,
+            bankDescription: this.cashForm.bankDescription || (this.cashForm.paymentMethod === 'CASH' ? 'Thu tiền mặt tại trường' : 'Chuyển khoản')
+          },
+          parentId: this.cashForm.parentId,
+          autoSettle: this.cashForm.autoSettle,
+          isNewTx: true
         });
 
-        // Giảm debt phụ huynh
-        const targetParent = this.parents.find(p => p.id === this.cashForm.parentId);
-        if (targetParent) {
-          const newDebt = Math.max(0, (targetParent.debt || 0) - parseInt(this.cashForm.amount, 10));
-          await client.mutate({
-            mutation: gql`
-              mutation UpdateParentDebt($id: ID!, $debt: Int!) {
-                updateParent(id: $id, data: { debt: $debt }) {
-                  id
-                }
-              }
-            `,
-            variables: { id: targetParent.id, debt: newDebt }
+        if (res.data?.success) {
+          this.$bvToast.toast(
+            this.cashForm.autoSettle
+              ? 'Đã thu tiền và tự động gạch nợ học phí thành công!'
+              : 'Đã nạp số tiền vào Ví khả dụng của phụ huynh!',
+            { title: 'Thành công', variant: 'success', solid: true }
+          );
+          this.$bvModal.hide('modal-add-cash');
+          await this.fetchData();
+        } else {
+          this.$bvToast.toast('Lỗi: ' + (res.data?.message || 'Không thể ghi nhận dòng tiền'), {
+            title: 'Lỗi',
+            variant: 'danger',
+            solid: true
           });
         }
-
-        this.$bvModal.hide('modal-add-cash');
-        this.fetchData();
       } catch (err) {
-        alert('Lỗi: ' + err.message);
+        this.$bvToast.toast('Lỗi: ' + (err.response?.data?.message || err.message), {
+          title: 'Lỗi',
+          variant: 'danger',
+          solid: true
+        });
       } finally {
         this.submitting = false;
       }
     },
+    openModalAssign(item) {
+      this.selectedTx = item;
+      this.searchStudentKeyword = '';
+      this.assignForm = {
+        parentId: '',
+        autoSettle: true
+      };
+      this.$bvModal.show('modal-assign-parent');
+    },
+
+    selectParent(item) {
+      this.assignForm.parentId = item.id;
+    },
+
+    async submitAssign() {
+      if (!this.selectedTx || !this.assignForm.parentId) return;
+      this.assigning = true;
+      try {
+        const res = await this.$axios.post('/api/payment-hub/assign-parent', {
+          cashTxId: this.selectedTx.id,
+          parentId: this.assignForm.parentId,
+          autoSettle: this.assignForm.autoSettle
+        });
+
+        if (res.data?.success) {
+          this.$bvToast.toast('Đã gán dòng tiền và cập nhật số dư/nợ cho bé thành công!', {
+            title: 'Thành công',
+            variant: 'success',
+            solid: true
+          });
+          this.$bvModal.hide('modal-assign-parent');
+          await this.fetchData();
+        } else {
+          this.$bvToast.toast('Lỗi: ' + (res.data?.message || 'Không thể gán dòng tiền'), {
+            title: 'Thất bại',
+            variant: 'danger',
+            solid: true
+          });
+        }
+      } catch (err) {
+        this.$bvToast.toast('Lỗi hệ thống: ' + (err.response?.data?.message || err.message), {
+          title: 'Lỗi',
+          variant: 'danger',
+          solid: true
+        });
+      } finally {
+        this.assigning = false;
+      }
+    },
+
     exportToExcel() {
       // Xuất dữ liệu CSV/Excel đơn giản
       let csvContent = 'data:text/csv;charset=utf-8,\uFEFF';

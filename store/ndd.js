@@ -54,12 +54,28 @@ export const mutations = {
     state.stateLopHoc = data;
   },
   updateDiemDanhHocSinh(state, data) {
-    state.lophoc.hocsinhs.forEach(function (hocsinh) {
-      if (hocsinh.id == data.hocsinh.id) {
-        hocsinh.result = data.result;
-      }
-    });
+    if (state.lophoc && state.lophoc.hocsinhs) {
+      state.lophoc.hocsinhs = state.lophoc.hocsinhs.map(function (hocsinh) {
+        if (hocsinh.id == data.hocsinh.id) {
+          return Object.assign({}, hocsinh, { result: data.result });
+        }
+        return hocsinh;
+      });
+    }
     state.monitor += 1;
+    state.stateButtonEdit = true;
+  },
+  setAllDiemDanh(state, resultVal) {
+    if (state.lophoc && state.lophoc.hocsinhs) {
+      state.lophoc.hocsinhs = state.lophoc.hocsinhs.map(function (hocsinh) {
+        if (hocsinh.status !== 'TAM_NGHI' && hocsinh.status !== 'NGHI_LUON') {
+          return Object.assign({}, hocsinh, { result: resultVal });
+        }
+        return hocsinh;
+      });
+      state.monitor += 1;
+      state.stateButtonEdit = true;
+    }
   },
   updateIdGiaoVien(state, data) {
     state.idGiaoVien = data;
@@ -68,71 +84,66 @@ export const mutations = {
     if (state.phieudiemdanh.id == undefined) {
       console.log("Khong co phieu diem")
     }
-    state.lophoc.hocsinhs.forEach(function (hocsinh) {
-      hocsinh.result = undefined;
-    });
-    state.lophoc.hocsinhs.forEach(function (hocsinh) {
-      state.phieudiemdanh.co.forEach(function (hs) {
-        if (hs.id == hocsinh.id) {
-          hocsinh.result = "1";
+    if (state.lophoc && state.lophoc.hocsinhs) {
+      state.lophoc.hocsinhs = state.lophoc.hocsinhs.map(function (hocsinh) {
+        let isPresent = false;
+        if (state.phieudiemdanh && state.phieudiemdanh.co) {
+          state.phieudiemdanh.co.forEach(function (hs) {
+            if (hs.id == hocsinh.id) {
+              isPresent = true;
+            }
+          });
         }
-      })
-      if (hocsinh.result) {
-
-      } else {
-        hocsinh.result = "0";
-      }
-    });
+        return Object.assign({}, hocsinh, { result: isPresent ? "1" : "0" });
+      });
+    }
     state.monitor += 1;
   },
   mergeDangKiAnToLopHoc(state) {
-    state.lophoc.hocsinhs.forEach(function (hocsinh) {
-      hocsinh.result = undefined;
-    });
-    state.dangkyan.forEach(function (variable) {
-      state.lophoc.hocsinhs.forEach(function (hocsinh) {
-        if (hocsinh.id == variable.idItem) {
-          hocsinh.result = variable.value;
+    if (state.lophoc && state.lophoc.hocsinhs) {
+      state.lophoc.hocsinhs = state.lophoc.hocsinhs.map(function (hocsinh) {
+        let foundVal = "0";
+        if (state.dangkyan && state.dangkyan.length) {
+          state.dangkyan.forEach(function (variable) {
+            if (hocsinh.id == variable.idItem) {
+              foundVal = variable.value || "0";
+            }
+          });
         }
+        return Object.assign({}, hocsinh, { result: foundVal });
       });
-    });
-    console.log(    state.dangkyan);
-    state.lophoc.hocsinhs.forEach(function (hocsinh) {
-      if (hocsinh.result == undefined) {
-        hocsinh.result = "0";
-      }
-    });
-    console.log(state.lophoc);
+    }
     state.monitor += 1;
   },
   mergeDiHocToLopHoc(state) {
-    state.lophoc.hocsinhs.forEach(function (hocsinh) {
-      switch (hocsinh.status) {
-        case "DANG_KY": {
-          hocsinh.result = "0";
-        } break;
-        case "DANG_HOC": {
-          hocsinh.result = "1";
-        } break;
-        case "TAM_NGHI": {
-          hocsinh.result = "0";
-        } break;
-        case "NGHI_LUON": {
-          hocsinh.result = "0";
-        } break;
-        default: {
-          hocsinh.result = "0";
+    if (state.lophoc && state.lophoc.hocsinhs) {
+      state.lophoc.hocsinhs = state.lophoc.hocsinhs.map(function (hocsinh) {
+        let defaultResult = "0";
+        switch (hocsinh.status) {
+          case "DANG_KY":
+            defaultResult = "0";
+            break;
+          case "DANG_HOC":
+            defaultResult = "1";
+            break;
+          case "TAM_NGHI":
+          case "NGHI_LUON":
+            defaultResult = "0";
+            break;
+          default:
+            defaultResult = "0";
         }
-      }
-      return;
-    });
-    // console.log(state);
+        return Object.assign({}, hocsinh, { result: defaultResult });
+      });
+    }
     state.monitor += 1;
   },
   merVeTreToLopHoc(state) {
-    state.lophoc.hocsinhs.forEach(function (hocsinh) {
-      hocsinh.result = "0";
-    });
+    if (state.lophoc && state.lophoc.hocsinhs) {
+      state.lophoc.hocsinhs = state.lophoc.hocsinhs.map(function (hocsinh) {
+        return Object.assign({}, hocsinh, { result: "0" });
+      });
+    }
     state.monitor += 1;
   }
 }
@@ -223,6 +234,18 @@ export const actions = {
                       name
                       status
                       sName
+                      birthday
+                      luuy
+                      parent {
+                        id
+                        name
+                        parents
+                        phone {
+                          id
+                          name
+                          number
+                        }
+                      }
                     }
                     chunhiem {
                       id
@@ -233,11 +256,21 @@ export const actions = {
             }
             `
     }).then(data => {
-      // Cap nhat cai nay danh cho viec loc trang thai học sinh
-      var lophoc = data.data.LopHoc;
-      lophoc.hocsinhs = lophoc.hocsinhs.filter(function(hocsinh){
-        return hocsinh.status != "NGHI_LUON";
-      })
+      // Clone đối tượng để tránh mutate trực tiếp Apollo cache/Vuex state ngoài mutation
+      var rawLopHoc = data.data.LopHoc || {};
+      var rawStudents = rawLopHoc.hocsinhs || [];
+      var filteredStudents = rawStudents
+        .filter(function(hocsinh){
+          return hocsinh.status != "NGHI_LUON";
+        })
+        .map(function(hs) {
+          return Object.assign({}, hs);
+        });
+
+      var lophoc = Object.assign({}, rawLopHoc, {
+        hocsinhs: filteredStudents
+      });
+
       commit("updateLopHoc", lophoc);
       commit("updateStateLopHoc", "READY");
     }).catch(err => {

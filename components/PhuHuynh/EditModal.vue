@@ -7,8 +7,13 @@
           <i class="fas fa-user-edit"></i>
         </div>
         <div>
-          <h5 class="font-weight-bold mb-1 text-dark">{{ localParent.name }}</h5>
-          <div class="d-flex align-items-center flex-wrap">
+          <div class="d-flex align-items-center">
+            <h5 class="font-weight-bold mb-0 mr-2 text-dark">{{ localParent.name }}</h5>
+            <span v-if="isDirty" class="badge badge-warning pulse-badge font-weight-bold px-2 py-1">
+              <i class="fas fa-exclamation-circle mr-1"></i> Có thay đổi chưa lưu
+            </span>
+          </div>
+          <div class="d-flex align-items-center flex-wrap mt-1">
             <span class="badge badge-secondary mr-2 px-2 py-1 font-weight-normal">
               Mã: <strong>{{ localParent.code || 'N/A' }}</strong>
             </span>
@@ -52,20 +57,6 @@
               required
             />
           </div>
-          <!-- Quick suggestions if parent name equals student name -->
-          <div v-if="suggestedNames.length > 0" class="mt-1 d-flex flex-wrap align-items-center">
-            <small class="text-muted mr-1">Gợi ý nhanh:</small>
-            <button
-              v-for="(sug, idx) in suggestedNames"
-              :key="idx"
-              type="button"
-              class="btn btn-xs btn-outline-primary py-0 px-2 mr-1 mb-1 rounded-pill"
-              style="font-size: 0.75rem;"
-              @click="form.name = sug"
-            >
-              {{ sug }}
-            </button>
-          </div>
         </div>
 
         <!-- Trạng thái tài khoản -->
@@ -81,8 +72,7 @@
       <!-- Card Thông tin Bố & Mẹ (Tự động bóc tách từ JSON parents) -->
       <div class="card border-0 bg-light p-3 rounded-lg mb-3">
         <label class="font-weight-bold small text-dark mb-2 d-flex align-items-center justify-content-between">
-          <span><i class="fas fa-users-cog text-info mr-1"></i> Thông tin Bố / Mẹ & Người Giám Hộ</span>
-          <span class="badge badge-pill badge-info" v-if="isParentsJson">Đã chuẩn hóa JSON</span>
+          <span><i class="fas fa-users text-info mr-1"></i> Thông tin Bố / Mẹ & Người Giám Hộ</span>
         </label>
         
         <div class="row">
@@ -275,16 +265,16 @@
           <button
             type="button"
             class="btn btn-secondary rounded-pill px-4 mr-2"
-            @click="$emit('close')"
+            @click="handleCloseBtn"
           >
             Đóng
           </button>
           <button
             type="submit"
-            class="btn btn-primary font-weight-bold rounded-pill px-4 shadow-sm"
+            :class="['btn font-weight-bold rounded-pill px-4 shadow-sm', isDirty ? 'btn-success pulse-btn' : 'btn-primary']"
             :disabled="saving"
           >
-            <i class="fas fa-save mr-1"></i> {{ saving ? 'Đang lưu...' : 'Lưu Thay Đổi' }}
+            <i class="fas fa-save mr-1"></i> {{ saving ? 'Đang lưu...' : (isDirty ? 'Lưu Thay Đổi *' : 'Lưu Thay Đổi') }}
           </button>
         </div>
       </div>
@@ -317,6 +307,7 @@ export default {
         otherNote: '',
       },
       isParentsJson: false,
+      initialSnapshot: '',
       phoneList: [],
       newPhoneNumber: '',
       newPhoneName: '',
@@ -331,18 +322,21 @@ export default {
     isDeactive() {
       return this.localParent?.status === 'DEACTIVE';
     },
-    suggestedNames() {
-      const suggestions = [];
-      const dad = this.parentsObj.dadName?.trim();
-      const mom = this.parentsObj.momName?.trim();
-      const firstStudent = this.localParent?.hocsinhs?.[0]?.name?.trim();
-
-      if (dad) suggestions.push(`${dad} (Bố ${firstStudent || ''})`.trim());
-      if (mom) suggestions.push(`${mom} (Mẹ ${firstStudent || ''})`.trim());
-      if (firstStudent && (!dad && !mom)) suggestions.push(`PH ${firstStudent}`);
-
-      return suggestions.filter(s => s && s !== this.form.name);
-    }
+    currentSnapshot() {
+      return JSON.stringify({
+        name: (this.form.name || '').trim(),
+        status: this.form.status || 'ACTIVE',
+        dadName: (this.parentsObj.dadName || '').trim(),
+        dadPhone: (this.parentsObj.dadPhone || '').trim(),
+        momName: (this.parentsObj.momName || '').trim(),
+        momPhone: (this.parentsObj.momPhone || '').trim(),
+        otherNote: (this.parentsObj.otherNote || '').trim(),
+      });
+    },
+    isDirty() {
+      if (!this.initialSnapshot) return false;
+      return this.currentSnapshot !== this.initialSnapshot;
+    },
   },
   watch: {
     parentData: {
@@ -350,17 +344,39 @@ export default {
       handler(val) {
         if (val) {
           this.localParent = { ...val };
-          this.form.name = val.name || '';
+          this.form.name = (val.name || '').trim();
           this.form.status = val.status || 'ACTIVE';
           this.phoneList = Array.isArray(val.phone) ? [...val.phone] : [];
 
           // Parse parents field
           this.parseParents(val.parents);
+          this.takeSnapshot();
         }
       },
     },
   },
   methods: {
+    takeSnapshot() {
+      this.initialSnapshot = JSON.stringify({
+        name: (this.form.name || '').trim(),
+        status: this.form.status || 'ACTIVE',
+        dadName: (this.parentsObj.dadName || '').trim(),
+        dadPhone: (this.parentsObj.dadPhone || '').trim(),
+        momName: (this.parentsObj.momName || '').trim(),
+        momPhone: (this.parentsObj.momPhone || '').trim(),
+        otherNote: (this.parentsObj.otherNote || '').trim(),
+      });
+    },
+
+    handleCloseBtn() {
+      if (this.isDirty) {
+        if (confirm('CẢNH BÁO: Bạn có thay đổi chưa lưu! Bạn có chắc chắn muốn đóng và hủy bỏ các thay đổi này không?')) {
+          this.$emit('close');
+        }
+      } else {
+        this.$emit('close');
+      }
+    },
     parseParents(raw) {
       this.parentsObj = {
         dadName: '',
@@ -436,6 +452,7 @@ export default {
         this.localParent.status = this.form.status;
         this.localParent.parents = parentsStr;
         this.isParentsJson = parentsStr.startsWith('{');
+        this.takeSnapshot();
 
         this.$bvToast.toast('Đã cập nhật thông tin phụ huynh thành công!', {
           title: 'Thành công',
@@ -656,5 +673,22 @@ export default {
 }
 .badge-white {
   background-color: #ffffff;
+}
+.pulse-badge {
+  animation: pulse-orange 2s infinite;
+}
+.pulse-btn {
+  animation: pulse-green 1.8s infinite;
+  box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+}
+@keyframes pulse-orange {
+  0% { opacity: 0.85; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.03); }
+  100% { opacity: 0.85; transform: scale(0.98); }
+}
+@keyframes pulse-green {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.6); }
+  70% { transform: scale(1.02); box-shadow: 0 0 0 8px rgba(40, 167, 69, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
 }
 </style>

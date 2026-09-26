@@ -45,13 +45,20 @@ export default {
         },
         checkLopHoc(lh){
             var ret = false;
+            if(!this.isImpersonating && this.checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan'])){
+                return true;
+            }
             if(this.checkRole(['giao-vien'])){
-                console.log(this.$store.state.user);
-                this.$store.state.user.user.lophoc.forEach(function(lophoc){
-                    if(lophoc.id == lh.id){
-                        ret = true;
-                    }
-                })
+                if (this.isImpersonating && this.simulatedClass) {
+                    return lh.id === this.simulatedClass.id;
+                }
+                if(this.$store.state.user && this.$store.state.user.user && this.$store.state.user.user.lophoc){
+                    this.$store.state.user.user.lophoc.forEach(function(lophoc){
+                        if(lophoc.id == lh.id){
+                            ret = true;
+                        }
+                    })
+                }
             }
             return ret;
         }
@@ -71,7 +78,13 @@ export default {
             return  this.$store.state.createhocsinh.lophocs;
         },
         roles(){
-            return this.$store.state.user.roles;
+            return this.$store.getters['user/effectiveRoles'] || [];
+        },
+        isImpersonating(){
+            return this.$store.state.user.isImpersonating;
+        },
+        simulatedClass(){
+            return this.$store.state.user.simulatedClass;
         }
     },
     layout: "app"

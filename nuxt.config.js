@@ -4,10 +4,10 @@ function baseURL() {
 
 function baseProxy() {
   if (!process.env.API_BASE_URL) {
-    throw new Error("API_BASE_URL is required");
+    return "http://127.0.0.1:3011";
   }
 
-  return process.env.API_BASE_URL.replace(/\/+$/, "");
+  return process.env.API_BASE_URL.replace(/\/admin\/api\/?$/, "").replace(/\/+$/, "");
 }
 export default {
   ssr: false,
@@ -103,6 +103,8 @@ export default {
   },
   proxy: {
     "/admin/api": baseURL(),
+    "/api/payment-hub": baseURL(),
+    "/api/portal": baseURL(),
   },
   auth: {
     strategies: {

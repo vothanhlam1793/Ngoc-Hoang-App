@@ -175,6 +175,7 @@
       size="lg"
       title="Thu Tiền Học Phí & VietQR Phụ Huynh"
       hide-footer
+      no-close-on-backdrop
     >
       <div class="p-1">
         <PhieuThuCreate
@@ -189,6 +190,7 @@
       v-model="showSettleModal"
       title="Cấn Trừ Nợ Từ Số Dư Ví (Balance -> Debt)"
       hide-footer
+      no-close-on-backdrop
     >
       <div class="p-2" v-if="phuhuynh">
         <div class="alert alert-info py-2 small mb-3">
@@ -239,6 +241,7 @@
       v-model="showRefundModal"
       title="Lập Phiếu Chi Hoàn Tiền Thừa Cho Phụ Huynh"
       hide-footer
+      no-close-on-backdrop
     >
       <div class="p-2" v-if="phuhuynh">
         <div class="alert alert-warning py-2 small mb-3">
@@ -550,6 +553,44 @@ export default {
           fetchPolicy: 'network-only',
         });
 
+        // Query thêm Phiếu Thu gốc từ kế toán (PTT...)
+        const ptRes = await client.query({
+          query: gql`
+            query GetParentPhieuThus($parentId: ID!) {
+              allPhieuThus(where: { parent: { id: $parentId } }, sortBy: createdAt_DESC) {
+                id
+                code
+                total
+                createdAt
+                ghichu
+                itemThu
+              }
+            }
+          `,
+          variables: { parentId: this.idPhuHuynh },
+          fetchPolicy: 'network-only',
+        });
+
+        // Query thêm Học phí kết sổ tháng (PKS...)
+        const iksRes = await client.query({
+          query: gql`
+            query GetParentItemKetSos($parentId: ID!) {
+              allItemKetSos(where: { parent: { id: $parentId } }, sortBy: createdAt_DESC) {
+                id
+                code
+                total
+                createdAt
+                student {
+                  id
+                  name
+                }
+              }
+            }
+          `,
+          variables: { parentId: this.idPhuHuynh },
+          fetchPolicy: 'network-only',
+        });
+
         const items = [];
 
         (ctRes.data?.allCashTransactions || []).forEach((ct) => {
@@ -564,6 +605,34 @@ export default {
             amountClass: isOut ? 'text-danger' : 'text-success',
             typeLabel: isOut ? 'CHI TIỀN MẶT' : (ct.paymentMethod === 'ACB_BANK' ? 'ACB BANK' : 'TIỀN MẶT'),
             badgeClass: isOut ? 'badge-danger' : 'badge-success',
+          });
+        });
+
+        (ptRes.data?.allPhieuThus || []).forEach((pt) => {
+          items.push({
+            date: pt.createdAt,
+            code: pt.code,
+            title: 'Phiếu Thu Tiền (Kế toán)',
+            note: pt.ghichu || pt.itemThu || 'Thu tiền học phí / dịch vụ',
+            amount: pt.total,
+            amountSign: '-',
+            amountClass: 'text-success',
+            typeLabel: 'ĐÃ THU TIỀN',
+            badgeClass: 'badge-success',
+          });
+        });
+
+        (iksRes.data?.allItemKetSos || []).forEach((iks) => {
+          items.push({
+            date: iks.createdAt,
+            code: iks.code,
+            title: `Học Phí Kết Sổ Tháng ${iks.student ? `(${iks.student.name})` : ''}`,
+            note: 'Phát sinh học phí định kỳ',
+            amount: iks.total,
+            amountSign: '+',
+            amountClass: 'text-dark',
+            typeLabel: 'HỌC PHÍ THÁNG',
+            badgeClass: 'badge-warning text-dark',
           });
         });
 

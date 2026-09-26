@@ -89,12 +89,12 @@
           </div>
 
           <div class="col-md-6 col-lg-3 mb-3">
-            <div class="feature-card shadow-sm h-100 p-3" @click="$router.push('/giaovien')">
+            <div class="feature-card shadow-sm h-100 p-3" @click="$router.push('/nhansu')">
               <div class="card-icon bg-info-light text-info mb-3">
-                <i class="fas fa-chalkboard-teacher"></i>
+                <i class="fas fa-users-cog"></i>
               </div>
-              <h4 class="card-title font-weight-bold mb-1">Quản lý giáo viên</h4>
-              <p class="card-desc text-muted mb-0">Danh sách nhân sự, phân công chủ nhiệm</p>
+              <h4 class="card-title font-weight-bold mb-1">Quản lý nhân sự</h4>
+              <p class="card-desc text-muted mb-0">Danh sách nhân sự, phân quyền & phân lớp</p>
               <span class="badge badge-info mt-2">Nhân sự</span>
             </div>
           </div>

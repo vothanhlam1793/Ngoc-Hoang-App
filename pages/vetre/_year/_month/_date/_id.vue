@@ -1,127 +1,359 @@
 <template>
-    <div class="row">
-        <div class="col">
-            <div>
-                <h1>{{ lophoc.name }}</h1>
-                <p>Điểm danh về trễ 17 giờ</p>
-                <p>Ngày {{ $route.params.date }}/{{ $route.params.month }}/{{ $route.params.year }}</p>
-            </div>
-            <ResultDiemDanh v-if="lophoc.id" :lophoc="lophoc" />
-            <div class="text-right">
-                <button @click="$store.dispatch('ndd/createPhieuDiemDanh')" class="btn btn-primary">
-                    Tạo mới</button>
-            </div>
-            <div>
-                <table class="table-bordered table-stripped">
-                    <thead>
-                        <tr class="text-center">
-                            <th>STT</th>
-                            <th>Tên</th>
-                            <th>Điểm danh</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <DiemDanhItemDiemDanh v-for="hocsinh, index in sortHocSinh(lophoc.hocsinhs)" :hocsinh="hocsinh"
-                            :key="hocsinh.id" :counter="count" :index="index" />
-                    </tbody>
-                </table>
-            </div>
+  <div class="attendance-page pb-5 mb-5">
+    <!-- Sub-Nav chuyển đổi nhanh Đi học - Ăn chiều - Về trễ -->
+    <DiemDanhSubNav
+      :year="$route.params.year"
+      :month="$route.params.month"
+      :date="$route.params.date"
+      :classId="$route.params.id"
+      currentTab="vetre"
+    />
+
+    <!-- Compact Header: Nút quay lại + Tên lớp + Chọn Ngày với 2 Mũi Tên -->
+    <div class="card border-0 shadow-sm rounded-lg mb-3 bg-white p-3">
+      <div class="d-flex flex-wrap align-items-center justify-content-between">
+        <div class="d-flex align-items-center mb-2 mb-sm-0">
+          <nuxt-link
+            :to="`/vetre/${$route.params.year}/${$route.params.month}/${$route.params.id}`"
+            class="btn btn-sm btn-light border rounded-pill px-2 py-1 font-weight-bold text-secondary mr-2"
+            title="Quay lại sổ tháng"
+          >
+            <i class="fas fa-arrow-left"></i>
+          </nuxt-link>
+          <h5 class="font-weight-bold text-dark mb-0">
+            {{ lophoc.name || 'Đang tải...' }}
+          </h5>
         </div>
+
+        <!-- Date Switcher: [ ◀ ] [ 📅 Date Picker ] [ ▶ ] -->
+        <div class="date-switcher d-flex align-items-center bg-light border rounded-pill px-1 py-1">
+          <button
+            type="button"
+            class="btn btn-sm btn-light rounded-circle nav-date-btn"
+            @click="changeDateByOffset(-1)"
+            title="Ngày trước đó"
+          >
+            <i class="fas fa-chevron-left text-secondary"></i>
+          </button>
+
+          <div class="date-picker-wrapper mx-1 position-relative" @click="openDatePicker">
+            <span class="badge badge-warning px-2 py-1 font-weight-bold text-dark date-display-badge">
+              <i class="fas fa-calendar-day mr-1"></i> {{ $route.params.date }}/{{ $route.params.month }}/{{ $route.params.year }}
+            </span>
+            <input
+              ref="dateInput"
+              type="date"
+              class="hidden-date-input"
+              :value="currentIsoDate"
+              @change="onDateInputChange"
+            />
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-sm btn-light rounded-circle nav-date-btn"
+            @click="changeDateByOffset(1)"
+            title="Ngày tiếp theo"
+          >
+            <i class="fas fa-chevron-right text-secondary"></i>
+          </button>
+        </div>
+      </div>
     </div>
+
+    <!-- Quick Stats Summary -->
+    <div class="row mb-3" v-if="lophoc && lophoc.hocsinhs">
+      <div class="col-4 pr-1">
+        <div class="stat-box bg-white p-2 rounded text-center shadow-sm border">
+          <span class="text-muted small d-block">Sĩ số</span>
+          <strong class="h5 font-weight-bold text-dark mb-0">{{ activeStudents.length }}</strong>
+        </div>
+      </div>
+      <div class="col-4 px-1">
+        <div class="stat-box bg-white p-2 rounded text-center shadow-sm border border-warning">
+          <span class="text-warning small d-block font-weight-bold text-dark">Về trễ</span>
+          <strong class="h5 font-weight-bold text-warning mb-0">{{ presentCount }}</strong>
+        </div>
+      </div>
+      <div class="col-4 pl-1">
+        <div class="stat-box bg-white p-2 rounded text-center shadow-sm border">
+          <span class="text-muted small d-block">Về đúng giờ</span>
+          <strong class="h5 font-weight-bold text-secondary mb-0">{{ absentCount }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search input -->
+    <div class="card border-0 shadow-sm rounded-lg mb-3 bg-white">
+      <div class="card-body p-3">
+        <div class="input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text bg-light border-right-0"><i class="fas fa-search text-muted"></i></span>
+          </div>
+          <input
+            type="text"
+            class="form-control bg-light border-left-0"
+            v-model="searchKeyword"
+            placeholder="Tìm nhanh tên bé hoặc tên ở nhà..."
+          />
+          <div class="input-group-append" v-if="searchKeyword">
+            <button class="btn btn-light border" type="button" @click="searchKeyword = ''">&times;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danh sách Học Sinh Touch Cards -->
+    <div class="student-list-container">
+      <DiemDanhItemDiemDanh
+        v-for="(hocsinh, index) in filteredStudents"
+        :hocsinh="hocsinh"
+        :key="hocsinh.id"
+        :index="index"
+        @select-student="handleOpenStudentModal"
+      />
+
+      <div v-if="filteredStudents.length === 0" class="text-center py-5 text-muted bg-white rounded shadow-sm">
+        <i class="fas fa-user-slash fa-2x mb-2 text-muted"></i>
+        <p class="mb-0">Không tìm thấy học sinh nào khớp với từ khóa "{{ searchKeyword }}"</p>
+      </div>
+    </div>
+
+    <!-- STICKY BOTTOM ACTION BAR -->
+    <div class="sticky-bottom-bar shadow-lg">
+      <div class="container-fluid d-flex align-items-center justify-content-between px-3 py-2">
+        <div class="d-flex flex-column">
+          <span class="small text-muted font-weight-bold">Bé ở lại trễ:</span>
+          <div class="font-weight-bold text-dark">
+            <span class="text-warning">{{ presentCount }}</span> / {{ activeStudents.length }} bé
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-warning text-dark btn-save-touch rounded-pill px-4 py-2 font-weight-bold shadow"
+          :disabled="saving"
+          @click="saveDiemDanh"
+        >
+          <span v-if="saving"><i class="fas fa-spinner fa-spin mr-1"></i> Đang lưu...</span>
+          <span v-else><i class="fas fa-save mr-1"></i> LƯU VỀ TRỄ</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Popup Thông tin Học Sinh -->
+    <StudentQuickModal
+      :student="selectedStudent"
+      :className="lophoc ? lophoc.name : ''"
+    />
+  </div>
 </template>
+
 <script>
-import ResultDiemDanh from '~/components/DiemDanh/ResultDiemDanh.vue';
+import DiemDanhItemDiemDanh from '~/components/DiemDanh/ItemDiemDanh.vue';
+import StudentQuickModal from '~/components/DiemDanh/StudentQuickModal.vue';
+import DiemDanhSubNav from '~/components/DiemDanh/DiemDanhSubNav.vue';
+
 export default {
-    components: {
-        ResultDiemDanh
+  layout: 'app',
+  components: {
+    DiemDanhItemDiemDanh,
+    StudentQuickModal,
+    DiemDanhSubNav
+  },
+  data() {
+    return {
+      searchKeyword: '',
+      saving: false,
+      selectedStudent: null
+    };
+  },
+  computed: {
+    lophoc() {
+      return this.$store.state.ndd.lophoc || {};
     },
-    data() {
-        return {
-            state: "IDLE",
-            count: 0
+    monitor() {
+      return this.$store.state.ndd.monitor;
+    },
+    stateLopHoc() {
+      return this.$store.state.ndd.stateLopHoc;
+    },
+    activeStudents() {
+      const _ = this.monitor;
+      if (!this.lophoc || !this.lophoc.hocsinhs) return [];
+      const that = this;
+      const list = this.lophoc.hocsinhs.filter(hs => hs.status !== 'NGHI_LUON');
+      return list.sort((a, b) => {
+        let t = (a.name || '').trim().split(' ');
+        let u = (b.name || '').trim().split(' ');
+        let lastNameA = that.chuyentiengviet(t[t.length - 1]);
+        let lastNameB = that.chuyentiengviet(u[u.length - 1]);
+        if (lastNameA < lastNameB) return -1;
+        if (lastNameA > lastNameB) return 1;
+        return 0;
+      });
+    },
+    filteredStudents() {
+      if (!this.searchKeyword.trim()) {
+        return this.activeStudents;
+      }
+      const kw = this.chuyentiengviet(this.searchKeyword.trim().toLowerCase());
+      return this.activeStudents.filter(hs => {
+        const nameClean = this.chuyentiengviet((hs.name || '').toLowerCase());
+        const sNameClean = this.chuyentiengviet((hs.sName || '').toLowerCase());
+        const codeClean = (hs.code || '').toLowerCase();
+        return nameClean.includes(kw) || sNameClean.includes(kw) || codeClean.includes(kw);
+      });
+    },
+    presentCount() {
+      const _ = this.monitor;
+      if (!this.activeStudents) return 0;
+      return this.activeStudents.filter(hs => hs.result === '1' && hs.status !== 'TAM_NGHI').length;
+    },
+    absentCount() {
+      const _ = this.monitor;
+      if (!this.activeStudents) return 0;
+      return this.activeStudents.filter(hs => hs.result !== '1' && hs.status !== 'TAM_NGHI').length;
+    },
+    currentIsoDate() {
+      const { year, month, date } = this.$route.params;
+      return `${year}-${month}-${date}`;
+    }
+  },
+  watch: {
+    stateLopHoc(nS) {
+      if (nS === 'READY') {
+        this.$store.commit('ndd/merVeTreToLopHoc');
+      }
+    }
+  },
+  methods: {
+    openDatePicker() {
+      const input = this.$refs.dateInput;
+      if (input) {
+        if (typeof input.showPicker === 'function') {
+          input.showPicker();
+        } else {
+          input.focus();
+          input.click();
         }
+      }
     },
-    methods: {
-        chuyentiengviet(str) {
-            if (str == undefined) {
-                return "";
-            }
-            return str.normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/đ/g, 'd').replace(/Đ/g, 'D');
-        },
-        sortHocSinh(hocsinhs) {
-            var ret = [];
-            if (hocsinhs) {
-                var that = this;
-                ret = hocsinhs.filter(function (hocsinh) {
-                    return hocsinh.status != "NGHI_LUON";
-                });
-                ret.sort(function (a, b) {
-                    let t = a.name.split(" ");
-                    t = t.filter(e => e != "");
-                    let u = b.name.split(" ");
-                    u = u.filter(e => e != "");
-                    if (that.chuyentiengviet(t[t.length - 1]) < that.chuyentiengviet(u[u.length - 1])) {
-                        return -1;
-                    } else if (that.chuyentiengviet(t[t.length - 1]) > that.chuyentiengviet(u[u.length - 1])) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
-            }
-            return ret;
-        },
-        checkDiemDanh(hocsinh) {
-            var ret = false;
-            this.phieudiemdanh.co.forEach(function (e) {
-                if (e.id == hocsinh.id) {
-                    ret = true;
-                }
-            });
-            return ret;
-        },
-    },
-    watch: {
-        monitor: function (nS, oS) {
+    changeDateByOffset(offsetDays) {
+      const { year, month, date, id } = this.$route.params;
+      const cur = new Date(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(date, 10));
+      cur.setDate(cur.getDate() + offsetDays);
 
-        },
-        stateLopHoc: function (nS, oS) {
-            if (nS == "READY") {
-                this.$store.commit("ndd/merVeTreToLopHoc");
-            }
-        }
-    },
-    computed: {
-        lophoc() {
-            return this.$store.state.ndd.lophoc;
-        },
-        monitor() {
-            return this.$store.state.ndd.monitor;
-        },
-        edit() {
-            return this.$store.state.ndd.edit;
-        },
-        stateLopHoc() {
-            return this.$store.state.ndd.stateLopHoc;
-        }
-    },
-    created() {
-        // Setup
-        if (typeof window !== undefined) {
-            this.$store.commit("ndd/updateType", "VETRE");
-            this.$store.commit("ndd/updateIdLopHoc", this.$route.params.id);
-            this.$store.commit("ndd/updateCode", `${this.$route.params.year}_${this.$route.params.month}_${this.$route.params.date}`);
-            this.$store.commit("ndd/updateIdGiaoVien", this.$store.$auth.$state.user.id)
+      const nextYear = cur.getFullYear().toString();
+      const nextMonth = ('0' + (cur.getMonth() + 1)).slice(-2);
+      const nextDate = ('0' + cur.getDate()).slice(-2);
 
-            // Control
-            this.$store.dispatch("ndd/getLopHoc");
-        }
+      this.$router.push(`/vetre/${nextYear}/${nextMonth}/${nextDate}/${id}`);
     },
-    mounted() {
-
+    onDateInputChange(e) {
+      const val = e.target.value;
+      if (!val) return;
+      const [y, m, d] = val.split('-');
+      const id = this.$route.params.id;
+      this.$router.push(`/vetre/${y}/${m}/${d}/${id}`);
     },
-    layout: "diemdanh"
-}
+    chuyentiengviet(str) {
+      if (!str) return '';
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D');
+    },
+    handleOpenStudentModal(student) {
+      this.selectedStudent = student;
+      this.$bvModal.show('modal-student-quick-info');
+    },
+    async saveDiemDanh() {
+      this.saving = true;
+      try {
+        await this.$store.dispatch('ndd/createPhieuDiemDanh');
+      } catch (e) {
+        console.error('Error saving attendance:', e);
+      } finally {
+        this.saving = false;
+      }
+    }
+  },
+  created() {
+    if (typeof window !== 'undefined') {
+      this.$store.commit('ndd/updateStateEdit', 'create');
+      this.$store.commit('ndd/updateType', 'VETRE17G');
+      this.$store.commit('ndd/updateIdLopHoc', this.$route.params.id);
+      this.$store.commit(
+        'ndd/updateCode',
+        `${this.$route.params.year}_${this.$route.params.month}_${this.$route.params.date}`
+      );
+      if (this.$store.$auth && this.$store.$auth.$state.user) {
+        this.$store.commit('ndd/updateIdGiaoVien', this.$store.$auth.$state.user.id);
+      }
+      this.$store.dispatch('ndd/getLopHoc');
+    }
+  }
+};
 </script>
+
+<style scoped>
+.attendance-page {
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.stat-box {
+  border-radius: 10px;
+}
+
+.sticky-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  z-index: 1030;
+}
+
+.btn-save-touch {
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+.nav-date-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.date-picker-wrapper {
+  cursor: pointer;
+}
+
+.date-display-badge {
+  font-size: 0.82rem;
+  pointer-events: none;
+}
+
+.hidden-date-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@media (min-width: 992px) {
+  .sticky-bottom-bar {
+    left: 250px;
+  }
+}
+</style>

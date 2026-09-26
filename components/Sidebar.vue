@@ -47,229 +47,298 @@
 
       <!-- 2. Navigation Menu (Custom Slim Scroll) -->
       <div class="sidebar-nav custom-scroll py-2">
-        <!-- GROUP 1: TỔNG QUAN -->
-        <div class="nav-section-title px-3 pt-2 pb-1 text-muted" v-if="!collapsed">
-          TỔNG QUAN
-        </div>
-        <ul class="nav flex-column mb-2">
-          <li class="nav-item">
-            <nuxt-link
-              to="/"
-              class="nav-link sidebar-item"
-              exact-active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Trang chủ' : ''"
-            >
-              <i class="fas fa-home nav-icon text-primary"></i>
-              <span v-if="!collapsed" class="nav-text">Trang chủ</span>
-            </nuxt-link>
-          </li>
-        </ul>
+        <!-- ==================== PHÂN HỆ GIÁO VIÊN (GIAO-VIEN HOẶC IMPERSONATING) ==================== -->
+        <template v-if="isTeacherView">
+          <div class="nav-section-title px-3 pt-2 pb-1 text-muted font-weight-bold" v-if="!collapsed">
+            NGHIỆP VỤ LỚP HỌC
+          </div>
+          <ul class="nav flex-column mb-2">
+            <!-- 1. Lớp học của tôi -->
+            <li class="nav-item">
+              <nuxt-link
+                to="/giaovien"
+                class="nav-link sidebar-item nav-item-highlight"
+                exact-active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Lớp học của tôi' : ''"
+              >
+                <i class="fas fa-chalkboard-teacher nav-icon text-success"></i>
+                <span v-if="!collapsed" class="nav-text font-weight-bold">Lớp học của tôi</span>
+                <span v-if="!collapsed" class="badge badge-success badge-pill ml-auto font-weight-normal">Hôm nay</span>
+              </nuxt-link>
+            </li>
 
-        <!-- GROUP 2: TÀI CHÍNH & KẾ TOÁN -->
-        <div
-          v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho']) && !collapsed"
-          class="nav-section-title px-3 pt-2 pb-1 text-muted"
-        >
-          TÀI CHÍNH & KẾ TOÁN
-        </div>
-        <ul
-          v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])"
-          class="nav flex-column mb-2"
-        >
-          <li class="nav-item">
-            <nuxt-link
-              to="/dongtien"
-              class="nav-link sidebar-item nav-item-highlight"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Sổ cái Dòng tiền & Gạch nợ' : ''"
-            >
-              <i class="fas fa-money-bill-wave nav-icon text-success"></i>
-              <span v-if="!collapsed" class="nav-text font-weight-bold">Dòng tiền & Gạch nợ</span>
-              <span v-if="!collapsed" class="badge badge-success badge-pill ml-auto font-weight-normal">Mới</span>
-            </nuxt-link>
-          </li>
+            <!-- 2. Điểm danh (Gom Đi học, Ăn chiều, Về trễ) -->
+            <li class="nav-item">
+              <nuxt-link
+                to="/dihoc"
+                class="nav-link sidebar-item"
+                :class="{ 'active': $route.path.startsWith('/dihoc') || $route.path.startsWith('/anchieu') || $route.path.startsWith('/vetre') }"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Điểm danh lớp' : ''"
+              >
+                <i class="fas fa-calendar-check nav-icon text-primary"></i>
+                <span v-if="!collapsed" class="nav-text">Điểm danh lớp</span>
+              </nuxt-link>
+            </li>
 
-          <li class="nav-item">
-            <nuxt-link
-              to="/no"
-              class="nav-link sidebar-item"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Phụ huynh & Sổ nợ' : ''"
-            >
-              <i class="fas fa-user-friends nav-icon text-info"></i>
-              <span v-if="!collapsed" class="nav-text">Phụ huynh & Sổ nợ</span>
-            </nuxt-link>
-          </li>
+            <!-- 3. Học sinh lớp tôi -->
+            <li class="nav-item">
+              <nuxt-link
+                to="/hocsinh"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Học sinh lớp tôi' : ''"
+              >
+                <i class="fas fa-user-graduate nav-icon text-info"></i>
+                <span v-if="!collapsed" class="nav-text">Học sinh lớp tôi</span>
+              </nuxt-link>
+            </li>
 
-          <li class="nav-item">
-            <nuxt-link
-              to="/phieuthu"
-              class="nav-link sidebar-item"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Phiếu thu/chi ngày' : ''"
-            >
-              <i class="fas fa-receipt nav-icon text-secondary"></i>
-              <span v-if="!collapsed" class="nav-text">Phiếu thu/chi ngày</span>
-            </nuxt-link>
-          </li>
+            <!-- 4. Bảng tin & Thông báo phụ huynh -->
+            <li class="nav-item">
+              <nuxt-link
+                to="/thongbao"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Thông báo phụ huynh' : ''"
+              >
+                <i class="fas fa-bullhorn nav-icon text-danger"></i>
+                <span v-if="!collapsed" class="nav-text">Thông báo phụ huynh</span>
+              </nuxt-link>
+            </li>
+          </ul>
+        </template>
 
-          <li class="nav-item">
-            <nuxt-link
-              to="/hoadon"
-              class="nav-link sidebar-item"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Hoá đơn & Học phí' : ''"
-            >
-              <i class="fas fa-file-invoice-dollar nav-icon text-primary"></i>
-              <span v-if="!collapsed" class="nav-text">Hoá đơn & Học phí</span>
-            </nuxt-link>
-          </li>
+        <!-- ==================== PHÂN HỆ QUẢN LÝ / BAN GIÁM HIỆU / KẾ TOÁN ==================== -->
+        <template v-else>
+          <!-- GROUP 1: TỔNG QUAN -->
+          <div class="nav-section-title px-3 pt-2 pb-1 text-muted" v-if="!collapsed">
+            TỔNG QUAN
+          </div>
+          <ul class="nav flex-column mb-2">
+            <li class="nav-item" v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])">
+              <nuxt-link
+                to="/"
+                class="nav-link sidebar-item"
+                exact-active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Trang chủ' : ''"
+              >
+                <i class="fas fa-home nav-icon text-primary"></i>
+                <span v-if="!collapsed" class="nav-text">Trang chủ Quản lý</span>
+              </nuxt-link>
+            </li>
+          </ul>
 
-          <li class="nav-item">
-            <a
-              :href="`/ketso/${getDateKetSo()}`"
-              class="nav-link sidebar-item"
-              @click="handleNavClick"
-              :title="collapsed ? 'Kết sổ tháng' : ''"
-            >
-              <i class="fas fa-calendar-alt nav-icon text-warning"></i>
-              <span v-if="!collapsed" class="nav-text">Kết sổ tháng</span>
-            </a>
-          </li>
-        </ul>
+          <!-- GROUP 2: TÀI CHÍNH & KẾ TOÁN -->
+          <div
+            v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho']) && !collapsed"
+            class="nav-section-title px-3 pt-2 pb-1 text-muted"
+          >
+            TÀI CHÍNH & KẾ TOÁN
+          </div>
+          <ul
+            v-if="checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong', 'hieu-pho'])"
+            class="nav flex-column mb-2"
+          >
+            <li class="nav-item">
+              <nuxt-link
+                to="/dongtien"
+                class="nav-link sidebar-item nav-item-highlight"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Sổ cái Dòng tiền & Gạch nợ' : ''"
+              >
+                <i class="fas fa-money-bill-wave nav-icon text-success"></i>
+                <span v-if="!collapsed" class="nav-text font-weight-bold">Dòng tiền & Gạch nợ</span>
+                <span v-if="!collapsed" class="badge badge-success badge-pill ml-auto font-weight-normal">Mới</span>
+              </nuxt-link>
+            </li>
 
-        <!-- GROUP 3: HỌC SINH & ĐIỂM DANH -->
-        <div
-          v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan', 'giao-vien']) && !collapsed"
-          class="nav-section-title px-3 pt-2 pb-1 text-muted"
-        >
-          HỌC SINH & LỚP HỌC
-        </div>
-        <ul
-          v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan', 'giao-vien'])"
-          class="nav flex-column mb-2"
-        >
-          <li class="nav-item" v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan'])">
-            <nuxt-link
-              to="/hocsinhv2"
-              class="nav-link sidebar-item"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Danh sách học sinh' : ''"
-            >
-              <i class="fas fa-user-graduate nav-icon text-primary"></i>
-              <span v-if="!collapsed" class="nav-text">Danh sách học sinh</span>
-            </nuxt-link>
-          </li>
+            <li class="nav-item">
+              <nuxt-link
+                to="/no"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Phụ huynh & Sổ nợ' : ''"
+              >
+                <i class="fas fa-user-friends nav-icon text-info"></i>
+                <span v-if="!collapsed" class="nav-text">Phụ huynh & Sổ nợ</span>
+              </nuxt-link>
+            </li>
 
-          <li class="nav-item" v-if="checkRole(['giao-vien'])">
-            <nuxt-link
-              to="/hocsinh"
-              class="nav-link sidebar-item"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Học sinh lớp tôi' : ''"
-            >
-              <i class="fas fa-user-graduate nav-icon text-primary"></i>
-              <span v-if="!collapsed" class="nav-text">Học sinh lớp tôi</span>
-            </nuxt-link>
-          </li>
+            <li class="nav-item">
+              <nuxt-link
+                to="/phieuthu"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Phiếu thu/chi ngày' : ''"
+              >
+                <i class="fas fa-receipt nav-icon text-secondary"></i>
+                <span v-if="!collapsed" class="nav-text">Phiếu thu/chi ngày</span>
+              </nuxt-link>
+            </li>
 
-          <li class="nav-item">
-            <nuxt-link
-              to="/dihoc"
-              class="nav-link sidebar-item"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Điểm danh hàng ngày' : ''"
-            >
-              <i class="fas fa-calendar-check nav-icon text-success"></i>
-              <span v-if="!collapsed" class="nav-text">Điểm danh hàng ngày</span>
-            </nuxt-link>
-          </li>
+            <li class="nav-item">
+              <nuxt-link
+                to="/hoadon"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Hoá đơn & Học phí' : ''"
+              >
+                <i class="fas fa-file-invoice-dollar nav-icon text-primary"></i>
+                <span v-if="!collapsed" class="nav-text">Hoá đơn & Học phí</span>
+              </nuxt-link>
+            </li>
 
-          <li class="nav-item">
-            <nuxt-link
-              to="/vetre"
-              class="nav-link sidebar-item"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Về trễ sau 17h' : ''"
-            >
-              <i class="fas fa-business-time nav-icon text-warning"></i>
-              <span v-if="!collapsed" class="nav-text">Về trễ sau 17h</span>
-            </nuxt-link>
-          </li>
+            <li class="nav-item">
+              <a
+                :href="`/ketso/${getDateKetSo()}`"
+                class="nav-link sidebar-item"
+                @click="handleNavClick"
+                :title="collapsed ? 'Kết sổ tháng' : ''"
+              >
+                <i class="fas fa-calendar-alt nav-icon text-warning"></i>
+                <span v-if="!collapsed" class="nav-text">Kết sổ tháng</span>
+              </a>
+            </li>
+          </ul>
 
-          <li class="nav-item">
-            <nuxt-link
-              to="/anchieu"
-              class="nav-link sidebar-item"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Suất ăn chiều' : ''"
-            >
-              <i class="fas fa-utensils nav-icon text-info"></i>
-              <span v-if="!collapsed" class="nav-text">Suất ăn chiều</span>
-            </nuxt-link>
-          </li>
-        </ul>
+          <!-- GROUP 3: HỌC SINH & ĐIỂM DANH TOÀN TRƯỜNG -->
+          <div
+            v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan']) && !collapsed"
+            class="nav-section-title px-3 pt-2 pb-1 text-muted"
+          >
+            HỌC SINH & LỚP HỌC
+          </div>
+          <ul
+            v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan'])"
+            class="nav flex-column mb-2"
+          >
+            <li class="nav-item">
+              <nuxt-link
+                to="/hocsinhv2"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Danh sách học sinh' : ''"
+              >
+                <i class="fas fa-user-graduate nav-icon text-primary"></i>
+                <span v-if="!collapsed" class="nav-text">Danh sách học sinh</span>
+              </nuxt-link>
+            </li>
 
-        <!-- GROUP 4: VẬN HÀNH & HỆ THỐNG -->
-        <div
-          v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan']) && !collapsed"
-          class="nav-section-title px-3 pt-2 pb-1 text-muted"
-        >
-          HỆ THỐNG & BÁO CÁO
-        </div>
-        <ul
-          v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan'])"
-          class="nav flex-column mb-2"
-        >
-          <li class="nav-item">
-            <nuxt-link
-              to="/thongbao"
-              class="nav-link sidebar-item"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Thông báo phụ huynh' : ''"
-            >
-              <i class="fas fa-bullhorn nav-icon text-danger"></i>
-              <span v-if="!collapsed" class="nav-text">Thông báo phụ huynh</span>
-            </nuxt-link>
-          </li>
+            <li class="nav-item">
+              <nuxt-link
+                to="/dihoc"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Điểm danh hàng ngày' : ''"
+              >
+                <i class="fas fa-calendar-check nav-icon text-success"></i>
+                <span v-if="!collapsed" class="nav-text">Điểm danh hàng ngày</span>
+              </nuxt-link>
+            </li>
 
-          <li class="nav-item">
-            <nuxt-link
-              to="/baocao"
-              class="nav-link sidebar-item"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Báo cáo & Thống kê' : ''"
-            >
-              <i class="fas fa-chart-line nav-icon text-primary"></i>
-              <span v-if="!collapsed" class="nav-text">Báo cáo & Thống kê</span>
-            </nuxt-link>
-          </li>
+            <li class="nav-item">
+              <nuxt-link
+                to="/vetre"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Về trễ sau 17h' : ''"
+              >
+                <i class="fas fa-business-time nav-icon text-warning"></i>
+                <span v-if="!collapsed" class="nav-text">Về trễ sau 17h</span>
+              </nuxt-link>
+            </li>
 
-          <li class="nav-item">
-            <nuxt-link
-              to="/setup"
-              class="nav-link sidebar-item"
-              active-class="active"
-              @click.native="handleNavClick"
-              :title="collapsed ? 'Cài đặt hệ thống' : ''"
-            >
-              <i class="fas fa-sliders-h nav-icon text-secondary"></i>
-              <span v-if="!collapsed" class="nav-text">Cài đặt hệ thống</span>
-            </nuxt-link>
-          </li>
-        </ul>
+            <li class="nav-item">
+              <nuxt-link
+                to="/anchieu"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Suất ăn chiều' : ''"
+              >
+                <i class="fas fa-utensils nav-icon text-info"></i>
+                <span v-if="!collapsed" class="nav-text">Suất ăn chiều</span>
+              </nuxt-link>
+            </li>
+          </ul>
+
+          <!-- GROUP 4: VẬN HÀNH & HỆ THỐNG -->
+          <div
+            v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan']) && !collapsed"
+            class="nav-section-title px-3 pt-2 pb-1 text-muted"
+          >
+            HỆ THỐNG & BÁO CÁO
+          </div>
+          <ul
+            v-if="checkRole(['quan-tri-vien', 'hieu-truong', 'hieu-pho', 'ke-toan'])"
+            class="nav flex-column mb-2"
+          >
+            <li class="nav-item">
+              <nuxt-link
+                to="/thongbao"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Thông báo phụ huynh' : ''"
+              >
+                <i class="fas fa-bullhorn nav-icon text-danger"></i>
+                <span v-if="!collapsed" class="nav-text">Thông báo phụ huynh</span>
+              </nuxt-link>
+            </li>
+
+            <li class="nav-item">
+              <nuxt-link
+                to="/baocao"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Báo cáo & Thống kê' : ''"
+              >
+                <i class="fas fa-chart-line nav-icon text-primary"></i>
+                <span v-if="!collapsed" class="nav-text">Báo cáo & Thống kê</span>
+              </nuxt-link>
+            </li>
+
+            <li class="nav-item" v-if="isAdmin">
+              <nuxt-link
+                to="/nhansu"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Quản lý Nhân sự & Phân quyền' : ''"
+              >
+                <i class="fas fa-users-cog nav-icon text-info"></i>
+                <span v-if="!collapsed" class="nav-text">Quản lý Nhân sự</span>
+              </nuxt-link>
+            </li>
+
+            <li class="nav-item">
+              <nuxt-link
+                to="/setup"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Cài đặt & Quản trị' : ''"
+              >
+                <i class="fas fa-sliders-h nav-icon text-secondary"></i>
+                <span v-if="!collapsed" class="nav-text">Cài đặt & Quản trị</span>
+                <span v-if="!collapsed && isAdmin" class="badge badge-warning text-dark ml-auto" style="font-size: 0.65rem;">ADMIN</span>
+              </nuxt-link>
+            </li>
+          </ul>
+        </template>
       </div>
 
       <!-- 3. Footer: User Profile & Logout -->
@@ -289,14 +358,24 @@
             </div>
           </div>
 
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-danger logout-btn flex-shrink-0"
-            :title="collapsed ? 'Đăng xuất' : ''"
-            @click="logout"
-          >
-            <i class="fas fa-sign-out-alt"></i>
-          </button>
+          <div class="d-flex align-items-center flex-shrink-0">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary mr-1"
+              :title="collapsed ? 'Đổi mật khẩu' : ''"
+              @click="openSelfChangePassword"
+            >
+              <i class="fas fa-key"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger logout-btn"
+              :title="collapsed ? 'Đăng xuất' : ''"
+              @click="logout"
+            >
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
         </div>
 
         <div v-else class="text-center">
@@ -307,10 +386,52 @@
         </div>
       </div>
     </aside>
+
+    <!-- Modal Tự Đổi Mật Khẩu Cá Nhân -->
+    <b-modal id="modal-self-change-pass" title="Đổi Mật Khẩu Cá Nhân" hide-footer centered>
+      <div v-if="currentUser">
+        <p class="small text-muted mb-3">
+          Đổi mật khẩu tài khoản: <strong>{{ currentUser.name || currentUser.username }}</strong>
+        </p>
+        <form @submit.prevent="handleSelfChangePassword">
+          <div class="form-group">
+            <label class="font-weight-bold small">Mật khẩu mới <span class="text-danger">*</span></label>
+            <input
+              type="password"
+              class="form-control"
+              v-model="selfNewPass"
+              required
+              minlength="6"
+              placeholder="Nhập ít nhất 6 ký tự..."
+            />
+          </div>
+          <div class="form-group">
+            <label class="font-weight-bold small">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
+            <input
+              type="password"
+              class="form-control"
+              v-model="selfConfirmPass"
+              required
+              minlength="6"
+              placeholder="Nhập lại mật khẩu..."
+            />
+          </div>
+          <div class="d-flex justify-content-end mt-4 pt-2 border-top">
+            <button type="button" class="btn btn-light mr-2" @click="$bvModal.hide('modal-self-change-pass')">Hủy</button>
+            <button type="submit" class="btn btn-primary font-weight-bold px-4" :disabled="selfLoadingPass">
+              <span v-if="selfLoadingPass"><i class="fas fa-spinner fa-spin mr-1"></i> Đang lưu...</span>
+              <span v-else><i class="fas fa-check mr-1"></i> Cập nhật</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </b-modal>
   </div>
 </template>
 
 <script>
+import gql from 'graphql-tag';
+
 export default {
   props: {
     collapsed: {
@@ -322,9 +443,26 @@ export default {
       default: false
     }
   },
+  data() {
+    return {
+      selfNewPass: '',
+      selfConfirmPass: '',
+      selfLoadingPass: false
+    };
+  },
   computed: {
     roles() {
-      return this.$store.state.user.roles || [];
+      return this.$store.getters['user/effectiveRoles'] || [];
+    },
+    isImpersonating() {
+      return this.$store.state.user.isImpersonating;
+    },
+    isTeacherView() {
+      return this.roles.includes('giao-vien') || this.isImpersonating;
+    },
+    isAdmin() {
+      if (this.isImpersonating) return false;
+      return this.$store.state.user.isAdmin === true || this.roles.includes('super-admin') || this.roles.includes('quan-tri-vien');
     },
     currentUser() {
       return this.$store.state.user.user || (this.$store.$auth && this.$store.$auth.$state.user) || null;
@@ -350,6 +488,7 @@ export default {
       }
     },
     getPrimaryRoleLabel() {
+      if (this.isImpersonating) return 'Giáo viên (Test)';
       if (this.checkRole(['quan-tri-vien'])) return 'Quản trị viên';
       if (this.checkRole(['hieu-truong'])) return 'Hiệu trưởng';
       if (this.checkRole(['hieu-pho'])) return 'Hiệu phó';
@@ -368,6 +507,50 @@ export default {
     checkRole(slugs) {
       if (!this.roles || !this.roles.length) return false;
       return this.roles.some((e1) => slugs.includes(e1));
+    },
+    openSelfChangePassword() {
+      this.selfNewPass = '';
+      this.selfConfirmPass = '';
+      this.$bvModal.show('modal-self-change-pass');
+    },
+    async handleSelfChangePassword() {
+      if (this.selfNewPass !== this.selfConfirmPass) {
+        alert('Mật khẩu xác nhận không khớp! Vui lòng kiểm tra lại.');
+        return;
+      }
+      if (this.selfNewPass.length < 6) {
+        alert('Mật khẩu phải có ít nhất 6 ký tự!');
+        return;
+      }
+      if (!this.currentUser || !this.currentUser.id) {
+        alert('Không tìm thấy thông tin tài khoản đang đăng nhập!');
+        return;
+      }
+
+      this.selfLoadingPass = true;
+      try {
+        const client = this.$apolloProvider.defaultClient;
+        await client.mutate({
+          mutation: gql`
+            mutation ChangeMyPassword($id: ID!, $password: String!) {
+              updateUser(id: $id, data: { password: $password }) {
+                id
+              }
+            }
+          `,
+          variables: {
+            id: this.currentUser.id,
+            password: this.selfNewPass
+          }
+        });
+
+        this.$bvModal.hide('modal-self-change-pass');
+        alert('Đổi mật khẩu thành công! Vui lòng ghi nhớ mật khẩu mới.');
+      } catch (err) {
+        alert('Lỗi đổi mật khẩu: ' + err.message);
+      } finally {
+        this.selfLoadingPass = false;
+      }
     }
   },
   mounted() {
