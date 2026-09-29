@@ -120,6 +120,7 @@ export default {
     proxy: true,
   },
   proxy: {
+    "/api/camera-integration": baseURL(),
     "/admin/api": baseURL(),
     "/api/payment-hub": baseURL(),
     "/api/portal": baseURL(),

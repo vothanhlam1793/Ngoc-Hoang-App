@@ -11,6 +11,7 @@
         </p>
       </div>
       <div>
+        <nuxt-link v-if="isAdmin" to="/setup/camera" class="btn btn-outline-primary btn-sm mr-2"><i class="fas fa-video mr-1"></i>Kết nối camera</nuxt-link>
         <span v-if="isAdmin" class="badge badge-pill badge-primary px-3 py-2">
           <i class="fas fa-shield-alt mr-1"></i> SUPER ADMIN
         </span>

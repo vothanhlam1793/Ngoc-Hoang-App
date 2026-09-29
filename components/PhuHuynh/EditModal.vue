@@ -167,7 +167,8 @@
             :key="p.id || idx"
             class="d-flex align-items-center justify-content-between p-2 bg-white rounded border mb-2"
           >
-            <div class="d-flex align-items-center">
+            <div class="flex-grow-1 mr-2">
+            <div class="d-flex align-items-center flex-wrap">
               <i class="fas fa-phone text-success mr-2"></i>
               <strong class="text-dark">{{ p.number || p }}</strong>
               <span class="badge badge-secondary ml-2 font-weight-normal" v-if="p.name">
@@ -181,6 +182,8 @@
               >
                 Zalo
               </a>
+            </div>
+            <CameraAccount v-if="p.id" :phone-id="p.id" />
             </div>
             <button
               type="button"
@@ -284,8 +287,10 @@
 
 <script>
 import gql from 'graphql-tag';
+import CameraAccount from './CameraAccount.vue';
 
 export default {
+  components: { CameraAccount },
   props: {
     parentData: {
       type: Object,
