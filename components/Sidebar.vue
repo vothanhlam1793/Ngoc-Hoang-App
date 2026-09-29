@@ -259,6 +259,19 @@
                 <span v-if="!collapsed" class="nav-text">Kết sổ tháng</span>
               </a>
             </li>
+
+            <li class="nav-item">
+              <nuxt-link
+                to="/ketsonghihoc"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Kết sổ nghỉ học' : ''"
+              >
+                <i class="fas fa-user-minus nav-icon text-danger"></i>
+                <span v-if="!collapsed" class="nav-text">Kết sổ nghỉ học</span>
+              </nuxt-link>
+            </li>
           </ul>
 
           <!-- GROUP 3: HỌC SINH & ĐIỂM DANH TOÀN TRƯỜNG -->

@@ -25,6 +25,9 @@
 
           <template #cell(scope)="data">
             <span v-if="data.item.scope === 'ALL_SCHOOL'" class="badge bg-success text-white">Toàn trường</span>
+            <span v-else-if="data.item.scope === 'PARENT'" class="badge bg-warning text-dark">
+              <i class="fas fa-user mr-1"></i>PH: {{ data.item.parent ? (data.item.parent.name + ' (' + data.item.parent.code + ')') : 'Phụ huynh' }}
+            </span>
             <span v-else class="badge bg-info text-white">
               Theo lớp: {{ (data.item.classes || []).map(c => c.name).join(', ') }}
             </span>
@@ -143,6 +146,11 @@ const GET_NOTIFICATIONS = gql`
       scope
       status
       publishedAt
+      parent {
+        id
+        code
+        name
+      }
       classes {
         id
         name
