@@ -3,9 +3,11 @@ function baseURL() {
 }
 
 function baseProxy() {
-  if (!process.env.API_BASE_URL) {
+  if (!process.env.API_BASE_URL && process.env.NODE_ENV !== 'production') {
     return "http://127.0.0.1:3011";
   }
+
+  if (!process.env.API_BASE_URL) return '';
 
   return process.env.API_BASE_URL.replace(/\/admin\/api\/?$/, "").replace(/\/+$/, "");
 }

@@ -21,3 +21,10 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+    networks:
+      - shared-services
+
+networks:
+  shared-services:
+    external: true
+    name: ${DOCKER_NETWORK:-shared-services}

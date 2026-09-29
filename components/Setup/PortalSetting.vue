@@ -171,7 +171,7 @@ export default {
     return {
       config: {
         portal_enabled: true,
-        api_key: 'camerangochoang_portal_secret_2026',
+        api_key: '',
         ticket_ttl_seconds: 300,
         active_connections: 0
       },
