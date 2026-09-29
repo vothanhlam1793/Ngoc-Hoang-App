@@ -159,6 +159,11 @@
         <label class="font-weight-bold small text-dark d-flex justify-content-between align-items-center mb-2">
           <span><i class="fas fa-phone-alt text-primary mr-1"></i> Danh sách Số điện thoại liên hệ</span>
         </label>
+        <div v-if="cameraMappingErrors.length" class="alert alert-warning py-2 px-3 small mb-3">
+          <i class="fas fa-exclamation-triangle mr-1"></i>
+          Lớp đang học chưa liên kết camera: <strong>{{ cameraMappingErrors.join(', ') }}</strong>.
+          <nuxt-link to="/setup/camera" class="alert-link ml-1">Cài đặt liên kết lớp</nuxt-link>
+        </div>
 
         <!-- Danh sách SĐT hiện tại -->
         <div v-if="phoneList && phoneList.length" class="mb-3">
@@ -167,8 +172,7 @@
             :key="p.id || idx"
             class="d-flex align-items-center justify-content-between p-2 bg-white rounded border mb-2"
           >
-            <div class="flex-grow-1 mr-2">
-            <div class="d-flex align-items-center flex-wrap">
+            <div class="d-flex align-items-center flex-grow-1 flex-wrap mr-2">
               <i class="fas fa-phone text-success mr-2"></i>
               <strong class="text-dark">{{ p.number || p }}</strong>
               <span class="badge badge-secondary ml-2 font-weight-normal" v-if="p.name">
@@ -182,8 +186,7 @@
               >
                 Zalo
               </a>
-            </div>
-            <CameraAccount v-if="p.id" :phone-id="p.id" />
+              <CameraAccount v-if="p.id" :phone-id="p.id" @mapping-error="updateCameraMappingError" />
             </div>
             <button
               type="button"
@@ -321,6 +324,7 @@ export default {
       deletingPhoneId: null,
       togglingStatus: false,
       deletingParent: false,
+      cameraMappingByPhone: {},
     };
   },
   computed: {
@@ -342,6 +346,9 @@ export default {
       if (!this.initialSnapshot) return false;
       return this.currentSnapshot !== this.initialSnapshot;
     },
+    cameraMappingErrors() {
+      return [...new Set(Object.values(this.cameraMappingByPhone).filter(Boolean))];
+    },
   },
   watch: {
     parentData: {
@@ -352,12 +359,18 @@ export default {
           this.form.name = (val.name || '').trim();
           this.form.status = val.status || 'ACTIVE';
           this.phoneList = Array.isArray(val.phone) ? [...val.phone] : [];
+          this.cameraMappingByPhone = {};
 
           // Parse parents field
           this.parseParents(val.parents);
           this.takeSnapshot();
         }
       },
+    },
+    updateCameraMappingError({ phoneId, message }) {
+      if (!phoneId) return;
+      if (message) this.$set(this.cameraMappingByPhone, phoneId, message.replace(/^Chưa liên kết lớp camera:\s*/, ''));
+      else this.$delete(this.cameraMappingByPhone, phoneId);
     },
   },
   methods: {

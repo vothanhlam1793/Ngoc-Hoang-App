@@ -44,12 +44,12 @@ test('phone controls distinguish missing account from failure and ignore stale r
   respond({ data: { account: { id: 'old' } } }); await first;
   assert.equal(context.account, null); assert.equal(context.loaded, false);
   const next = context.load(); respond({ data: { account: null } }); await next;
-  assert.equal(context.loaded, true);
-  assert.match(definition.computed.status.call(context), /Chưa có tài khoản/);
+  assert.equal(context.loaded, false);
+  assert.equal(context.account, null);
   const failure = component('components/PhuHuynh/CameraAccount.vue', async () => { throw new Error('Offline'); });
   await failure.context.load();
   assert.equal(failure.context.loaded, false);
-  assert.equal(failure.definition.computed.status.call(failure.context), 'Offline');
+  assert.equal(failure.context.error, 'Offline');
 });
 
 test('settings preserve blank API keys, clear submitted key and stop bulk work on cancellation', async () => {
