@@ -250,6 +250,18 @@
 
             <li class="nav-item">
               <a
+                :href="`/lichhoc?year=${getCurrentPeriod().year}&month=${getCurrentPeriod().month}`"
+                class="nav-link sidebar-item"
+                @click="handleNavClick"
+                :title="collapsed ? 'Lịch học & Ngày nghỉ' : ''"
+              >
+                <i class="fas fa-calendar-day nav-icon text-info"></i>
+                <span v-if="!collapsed" class="nav-text">Lịch học & Ngày nghỉ</span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a
                 :href="`/ketso/${getDateKetSo()}`"
                 class="nav-link sidebar-item"
                 @click="handleNavClick"
@@ -541,6 +553,13 @@ export default {
       let a = '00' + (d1.getMonth() + 1).toString();
       a = a.substring(a.length - 2, a.length);
       return `${d1.getFullYear()}/${a}`;
+    },
+    getCurrentPeriod() {
+      const date = new Date();
+      return {
+        year: String(date.getFullYear()),
+        month: String(date.getMonth() + 1).padStart(2, '0')
+      };
     },
     checkRole(slugs) {
       if (!this.roles || !this.roles.length) return false;
