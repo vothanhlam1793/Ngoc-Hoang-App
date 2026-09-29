@@ -389,17 +389,25 @@ export const actions = {
                 }
             }
             `
-    }).then(data => {
-      const result = data.data && data.data.createCDiemDanh;
+    }).then(response => {
+      const result = response.data && response.data.createCDiemDanh;
       if (!result || result.message !== 'SUCCESS' || !result.data || !result.data.id) {
         throw new Error('Không lưu được điểm danh. Dữ liệu chưa được xác nhận, vui lòng kiểm tra và thử lại.');
+      }
+      const confirmed = (result.data.co || []).length + (result.data.khong || []).length;
+      if (confirmed !== co.length + khong.length) {
+        throw new Error('Phiếu điểm danh lưu chưa đủ dữ liệu. Vui lòng thử lại.');
+      }
+      const saved = { present: (result.data.co || []).length, absent: (result.data.khong || []).length, total: confirmed };
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('attendance-saved', { detail: { classId: state.idLopHoc, code: state.code, ...saved } }));
       }
       if (state.edit == "create") {
         var a = location.href.split("/");
         a.splice(a.length - 1, 0, "edit");
-        location.href = a.join("/");
+        return { ...saved, redirect: a.join("/") };
       } else {
-        location.reload();
+        return saved;
       }
     }).catch(err => {
       console.log(err);

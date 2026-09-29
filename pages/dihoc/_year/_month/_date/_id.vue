@@ -299,7 +299,12 @@ export default {
     async saveDiemDanh() {
       this.saving = true;
       try {
-        await this.$store.dispatch('ndd/createPhieuDiemDanh');
+        const saved = await this.$store.dispatch('ndd/createPhieuDiemDanh');
+        if (!saved) return;
+        this.$bvToast.toast(`Đã lưu điểm danh: ${saved.present} có mặt, ${saved.absent} vắng.`, {
+          title: 'Đã lưu đầy đủ', variant: 'success', solid: true
+        });
+        if (saved.redirect) this.$router.replace(saved.redirect);
       } catch (e) {
         console.error('Error saving attendance:', e);
       } finally {

@@ -240,7 +240,12 @@ export default {
     async saveDiemDanh() {
       this.saving = true;
       try {
-        await this.$store.dispatch('ndd/createPhieuDiemDanh');
+        const saved = await this.$store.dispatch('ndd/createPhieuDiemDanh');
+        if (!saved) return;
+        this.$bvToast.toast(`Đã cập nhật: ${saved.present} có mặt, ${saved.absent} vắng.`, {
+          title: 'Đã lưu đầy đủ', variant: 'success', solid: true
+        });
+        this.$store.commit('ndd/updateStateButtonEdit', false);
       } catch (e) {
         console.error('Error updating attendance:', e);
       } finally {

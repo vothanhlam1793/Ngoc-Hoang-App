@@ -296,7 +296,10 @@ export default {
       classes: [],
       todayAttendance: [],
       searchKeyword: '',
-      filterStatus: 'ALL' // ALL, DONE, NOT_YET
+      filterStatus: 'ALL', // ALL, DONE, NOT_YET
+      refreshTimer: null,
+      attendanceSavedHandler: null,
+      visibilityHandler: null
     };
   },
   computed: {
@@ -367,6 +370,22 @@ export default {
   },
   mounted() {
     this.loadData();
+    this.attendanceSavedHandler = event => {
+      if (event.detail?.code === this.todayCode) this.loadData();
+    };
+    this.visibilityHandler = () => {
+      if (document.visibilityState === 'visible') this.loadData();
+    };
+    window.addEventListener('attendance-saved', this.attendanceSavedHandler);
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+    this.refreshTimer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') this.loadData();
+    }, 30000);
+  },
+  beforeDestroy() {
+    window.removeEventListener('attendance-saved', this.attendanceSavedHandler);
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
+    window.clearInterval(this.refreshTimer);
   },
   methods: {
     checkRole(slugs) {
