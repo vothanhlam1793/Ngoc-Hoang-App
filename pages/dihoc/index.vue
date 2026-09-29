@@ -136,6 +136,11 @@
       <p class="text-muted mt-3 mb-0">Đang nạp danh sách lớp và trạng thái điểm danh hôm nay...</p>
     </div>
 
+    <div v-else-if="loadError" class="alert alert-danger shadow-sm border-0" role="alert">
+      <i class="fas fa-exclamation-circle mr-1"></i>{{ loadError }}
+      <button type="button" class="btn btn-sm btn-outline-danger ml-2" @click="loadData">Thử lại</button>
+    </div>
+
     <!-- Empty State -->
     <div v-else-if="!filteredClasses.length" class="card border-0 shadow-sm rounded-lg p-5 text-center bg-white my-3">
       <div class="mb-3 text-muted" style="font-size: 3rem;">
@@ -248,7 +253,7 @@
 import gql from 'graphql-tag';
 
 const GET_DASHBOARD_DATA = gql`
-  query getDihocDashboard($todayCode: String!, $monthCode: String!) {
+  query getDihocDashboard($todayCode: String!) {
     allLopHocs {
       id
       name
@@ -297,6 +302,7 @@ export default {
       todayAttendance: [],
       searchKeyword: '',
       filterStatus: 'ALL', // ALL, DONE, NOT_YET
+      loadError: '',
       refreshTimer: null,
       attendanceSavedHandler: null,
       visibilityHandler: null
@@ -431,6 +437,7 @@ export default {
     async loadData() {
       if (this.loading) return;
       this.loading = true;
+      this.loadError = '';
       try {
         if (!this.$store.state.user.user?.id) {
           await this.$store.dispatch('user/getRole');
@@ -441,8 +448,7 @@ export default {
         const res = await client.query({
           query: GET_DASHBOARD_DATA,
           variables: {
-            todayCode: this.todayCode,
-            monthCode: this.monthCode
+            todayCode: this.todayCode
           },
           fetchPolicy: 'network-only'
         });
@@ -453,6 +459,7 @@ export default {
         }
       } catch (e) {
         console.error('Error loading dihoc dashboard:', e);
+        this.loadError = 'Không tải được dữ liệu điểm danh. Vui lòng thử lại.';
       } finally {
         this.loading = false;
       }
