@@ -174,6 +174,6 @@ export default {
 
   server: {
     host: process.env.HOST || "0.0.0.0", // default: localhost
-    port: parseInt(process.env.PORT, 10) || 3012, // default: 3012
+    port: parseInt(process.env.NUXT_PORT || process.env.PORT, 10) || 3012,
   },
 };
