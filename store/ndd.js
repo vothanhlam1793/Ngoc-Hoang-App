@@ -353,7 +353,7 @@ export const actions = {
       }
     });
     // Tao phieu moi
-    client.mutate({
+    return client.mutate({
       mutation: gql`
             mutation {
                 createCDiemDanh (
@@ -390,6 +390,10 @@ export const actions = {
             }
             `
     }).then(data => {
+      const result = data.data && data.data.createCDiemDanh;
+      if (!result || result.message !== 'SUCCESS' || !result.data || !result.data.id) {
+        throw new Error('Không lưu được điểm danh. Dữ liệu chưa được xác nhận, vui lòng kiểm tra và thử lại.');
+      }
       if (state.edit == "create") {
         var a = location.href.split("/");
         a.splice(a.length - 1, 0, "edit");
@@ -399,6 +403,8 @@ export const actions = {
       }
     }).catch(err => {
       console.log(err);
+      if (typeof window !== 'undefined') window.alert('Không lưu được điểm danh. Vui lòng giữ trang này và thử lại.');
+      return false;
     })
   },
   getAllPhieuDiemDanhOnMonth({ dispatch, commit, state }, data) {

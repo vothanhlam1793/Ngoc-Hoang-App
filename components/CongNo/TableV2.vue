@@ -36,11 +36,11 @@
             <div class="col-6 pr-2">
               <div class="kpi-box kpi-box-balance p-3 rounded-lg text-right">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span class="badge badge-pill badge-success-soft font-weight-normal small">Ví Khả Dụng</span>
+                  <span class="badge badge-pill badge-success-soft font-weight-normal small">Tiền còn dư</span>
                   <i class="fas fa-wallet text-success opacity-75"></i>
                 </div>
                 <div class="kpi-amount text-success font-weight-bold">
-                  +{{ numberWithCommas(phuhuynh.balance || 0) }} đ
+                  {{ numberWithCommas(phuhuynh.balance || 0) }} đ
                 </div>
                 <div class="kpi-subtext text-muted">Số dư tiền đóng trước</div>
               </div>
@@ -49,13 +49,12 @@
             <div class="col-6 pl-2">
               <div class="kpi-box kpi-box-debt p-3 rounded-lg text-right">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span class="badge badge-pill badge-danger-soft font-weight-normal small">Học Phí Còn Nợ</span>
+                  <span class="badge badge-pill badge-danger-soft font-weight-normal small">Còn phải thu</span>
                   <i class="fas fa-file-invoice-dollar text-danger opacity-75"></i>
                 </div>
                 <div :class="['kpi-amount font-weight-bold', phuhuynh.debt > 0 ? 'text-danger' : 'text-success']">
                   {{ numberWithCommas(phuhuynh.debt || 0) }} đ
                 </div>
-                <div class="kpi-subtext text-muted">Tài khoản 131 Phải thu</div>
               </div>
             </div>
           </div>
@@ -64,11 +63,6 @@
 
       <!-- 2. Action Toolbar: Các tác vụ kế toán riêng biệt -->
       <div class="action-toolbar mt-3 pt-3 border-top d-flex flex-column flex-sm-row justify-content-between align-items-sm-center">
-        <div class="small text-muted mb-2 mb-sm-0">
-          <i class="fas fa-shield-alt text-primary mr-1"></i>
-          Nghiệp vụ hạch toán độc lập giữa <strong>Số dư ví</strong> và <strong>Công nợ</strong>
-        </div>
-
         <div class="d-flex align-items-center flex-wrap">
           <!-- 1. Thu tiền & Quét VietQR -->
           <button
@@ -76,24 +70,24 @@
             class="btn btn-success rounded-pill px-3 py-2 mr-2 shadow-sm font-weight-bold d-flex align-items-center"
             @click="showCreatePaymentModal = true"
           >
-            <i class="fas fa-qrcode mr-2"></i> Thu tiền & VietQR
+            <i class="fas fa-qrcode mr-2"></i> Thu tiền
           </button>
 
           <!-- 2. Cấn trừ nợ từ Ví sang Nợ -->
           <button
             type="button"
-            class="btn btn-info text-white rounded-pill px-3 py-2 mr-2 shadow-sm font-weight-bold d-flex align-items-center"
+            class="btn btn-outline-info rounded-pill px-3 py-2 mr-2 d-flex align-items-center"
             :disabled="!phuhuynh.balance || phuhuynh.balance <= 0 || !phuhuynh.debt || phuhuynh.debt <= 0"
             @click="openSettleModal"
-            title="Trích tiền từ số dư ví để gạch nợ học phí"
+            title="Thanh toán học phí từ số dư"
           >
-            <i class="fas fa-arrow-right-arrow-left mr-2"></i> Cấn trừ nợ
+            <i class="fas fa-arrow-right-arrow-left mr-2"></i> Thanh toán từ số dư
           </button>
 
           <!-- 3. Chi hoàn tiền -->
           <button
             type="button"
-            class="btn btn-outline-danger rounded-pill px-3 py-2 shadow-sm font-weight-bold d-flex align-items-center"
+            class="btn btn-outline-danger rounded-pill px-3 py-2 d-flex align-items-center"
             :disabled="!phuhuynh.balance || phuhuynh.balance <= 0"
             @click="openRefundModal"
             title="Chi trả lại tiền thừa từ số dư ví"
@@ -110,12 +104,12 @@
         <b-nav pills class="mb-2 mb-md-0">
           <b-nav-item :active="ledgerTabIndex === 0" @click="ledgerTabIndex = 0">
             <i class="fas fa-file-invoice-dollar mr-1 text-danger"></i>
-            <strong>1. Sổ Công Nợ Học Phí</strong>
+            <strong>Công nợ</strong>
             <span class="badge badge-light border text-danger ml-1">{{ debtHistoryItems.length }}</span>
           </b-nav-item>
           <b-nav-item :active="ledgerTabIndex === 1" @click="ledgerTabIndex = 1">
             <i class="fas fa-wallet mr-1 text-success"></i>
-            <strong>2. Sổ Ví Khả Dụng</strong>
+            <strong>Số dư</strong>
             <span class="badge badge-light border text-success ml-1">{{ balanceHistoryItems.length }}</span>
           </b-nav-item>
         </b-nav>
@@ -218,7 +212,7 @@
                     <div class="small text-muted" style="font-size: 11px;">{{ item.typeLabel }}</div>
                   </td>
                   <td class="text-right pr-3 font-weight-bold text-success">
-                    +{{ numberWithCommas(item.runningBalance) }} đ
+                    {{ numberWithCommas(item.runningBalance) }} đ
                   </td>
                 </tr>
               </tbody>
@@ -232,7 +226,7 @@
     <b-modal
       v-model="showCreatePaymentModal"
       size="lg"
-      title="Thu Tiền Học Phí & VietQR Phụ Huynh"
+      title="Thu tiền"
       hide-footer
       no-close-on-backdrop
     >
@@ -247,24 +241,25 @@
     <!-- Modal Cấn trừ nợ từ Balance sang Debt -->
     <b-modal
       v-model="showSettleModal"
-      title="Cấn Trừ Nợ Từ Số Dư Ví (Balance -> Debt)"
+      title="Thanh toán từ số dư"
       hide-footer
       no-close-on-backdrop
     >
       <div class="p-2" v-if="phuhuynh">
         <div class="alert alert-info py-2 small mb-3">
           <i class="fas fa-info-circle mr-1"></i>
-          Thao tác này sẽ trích tiền từ <strong>Số dư ví</strong> (+{{ numberWithCommas(phuhuynh.balance || 0) }} đ) để gạch nợ cho <strong>Công nợ</strong> ({{ numberWithCommas(phuhuynh.debt || 0) }} đ).
+          <strong>Tiền còn dư:</strong> {{ numberWithCommas(phuhuynh.balance || 0) }} đ.
+          <strong>Còn phải thu:</strong> {{ numberWithCommas(phuhuynh.debt || 0) }} đ.
         </div>
 
         <div class="form-group mb-3">
-          <label class="font-weight-bold small">Số tiền cấn trừ (VNĐ)</label>
+          <label class="font-weight-bold small">Số tiền thanh toán (VNĐ)</label>
           <InputCurrency
             v-model="settleForm.amount"
             :max="maxSettleAmount"
-            placeholder="Nhập số tiền cần cấn trừ..."
+            placeholder="Nhập số tiền thanh toán"
           />
-          <small class="text-muted">Tối đa có thể cấn trừ: <strong>{{ numberWithCommas(maxSettleAmount) }} đ</strong></small>
+          <small class="text-muted">Tối đa: <strong>{{ numberWithCommas(maxSettleAmount) }} đ</strong></small>
         </div>
 
         <div class="form-group mb-3">
@@ -287,9 +282,9 @@
         </div>
 
         <div class="d-flex justify-content-end">
-          <button class="btn btn-secondary mr-2 rounded-pill px-4" @click="showSettleModal = false">Hủy</button>
-          <button class="btn btn-primary font-weight-bold rounded-pill px-4" :disabled="settling" @click="executeSettle">
-            <i class="fas fa-check mr-1"></i> {{ settling ? 'Đang xử lý...' : 'Xác nhận Cấn trừ' }}
+          <button class="btn btn-outline-secondary mr-2 rounded-pill px-4" @click="showSettleModal = false">Hủy</button>
+          <button class="btn btn-outline-primary rounded-pill px-4" :disabled="settling" @click="executeSettle">
+            <i class="fas fa-check mr-1"></i> {{ settling ? 'Đang xử lý...' : 'Xác nhận thanh toán' }}
           </button>
         </div>
       </div>
@@ -298,14 +293,14 @@
     <!-- Modal Chi Hoàn Tiền -->
     <b-modal
       v-model="showRefundModal"
-      title="Lập Phiếu Chi Hoàn Tiền Thừa Cho Phụ Huynh"
+      title="Hoàn tiền"
       hide-footer
       no-close-on-backdrop
     >
       <div class="p-2" v-if="phuhuynh">
         <div class="alert alert-warning py-2 small mb-3">
           <i class="fas fa-exclamation-triangle mr-1"></i>
-          Rút tiền mặt/chuyển khoản từ <strong>Số dư ví</strong> (+{{ numberWithCommas(phuhuynh.balance || 0) }} đ) để hoàn trả cho phụ huynh.
+          Hoàn trả từ <strong>Tiền còn dư</strong> ({{ numberWithCommas(phuhuynh.balance || 0) }} đ) cho phụ huynh.
         </div>
 
         <div class="form-group mb-3">
@@ -315,7 +310,7 @@
             :max="phuhuynh.balance || 0"
             placeholder="Nhập số tiền hoàn..."
           />
-          <small class="text-muted">Số dư ví khả dụng: <strong>{{ numberWithCommas(phuhuynh.balance || 0) }} đ</strong></small>
+          <small class="text-muted">Tiền còn dư: <strong>{{ numberWithCommas(phuhuynh.balance || 0) }} đ</strong></small>
         </div>
 
         <div class="form-group mb-3">
@@ -339,9 +334,9 @@
         </div>
 
         <div class="d-flex justify-content-end">
-          <button class="btn btn-secondary mr-2 rounded-pill px-4" @click="showRefundModal = false">Hủy</button>
-          <button class="btn btn-danger font-weight-bold rounded-pill px-4" :disabled="refunding" @click="executeRefund">
-            <i class="fas fa-hand-holding-dollar mr-1"></i> {{ refunding ? 'Đang xử lý...' : 'Xác nhận Chi tiền' }}
+          <button class="btn btn-outline-secondary mr-2 rounded-pill px-4" @click="showRefundModal = false">Hủy</button>
+          <button class="btn btn-outline-danger rounded-pill px-4" :disabled="refunding" @click="executeRefund">
+            <i class="fas fa-hand-holding-dollar mr-1"></i> {{ refunding ? 'Đang xử lý...' : 'Xác nhận hoàn tiền' }}
           </button>
         </div>
       </div>

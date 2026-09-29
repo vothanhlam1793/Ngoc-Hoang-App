@@ -86,22 +86,6 @@
               >
                 <i class="fas fa-calendar-check text-success mr-2"></i> Điểm danh hàng ngày
               </nuxt-link>
-              <nuxt-link
-                v-if="checkRole(['giao-vien', 'quan-tri-vien', 'hieu-truong'])"
-                class="dropdown-item py-2"
-                to="/vetre"
-                @click.native="closeMenus"
-              >
-                <i class="fas fa-business-time text-warning mr-2"></i> Về trễ sau 17h
-              </nuxt-link>
-              <nuxt-link
-                v-if="checkRole(['giao-vien', 'quan-tri-vien', 'hieu-truong'])"
-                class="dropdown-item py-2"
-                to="/anchieu"
-                @click.native="closeMenus"
-              >
-                <i class="fas fa-utensils text-info mr-2"></i> Suất ăn chiều
-              </nuxt-link>
             </div>
           </li>
 

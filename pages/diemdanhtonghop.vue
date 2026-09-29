@@ -43,10 +43,8 @@
             <table class="table table-striped table-bordered">
                 <thead class="text-center">
                     <tr>
-                        <th>Tên</th>
-                        <th>Đi học</th>
-                        <th>Về trễ</th>
-                        <th>Ăn chiều</th>
+                        <th>Tên lớp</th>
+                        <th>Sổ Đi học hàng ngày</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,18 +54,10 @@
                         <td>{{ lophoc.name }}</td>
                         <td class="text-center">
                             <a 
-                    class="btn btn-info"
-                :href="`/xemdiemdanh?type=DIHOCHANGNGAY&idLopHoc=${lophoc.id}&year=${year}&month=${month}`">Đi học</a>
-                        </td>
-                        <td class="text-center">
-                            <a 
-                    class="btn btn-danger"
-                :href="`/xemdiemdanh?type=VETRE&idLopHoc=${lophoc.id}&year=${year}&month=${month}`">Về trễ</a>
-                        </td>
-                        <td class="text-center">
-                            <a 
-                    class="btn btn-warning"
-                :href="`/xemdiemdanh?type=DIEMDANH545&idLopHoc=${lophoc.id}&year=${year}&month=${month}`">Ăn chiều</a>
+                    class="btn btn-sm btn-outline-success font-weight-bold px-3"
+                :href="`/xemdiemdanh?type=DIHOCHANGNGAY&idLopHoc=${lophoc.id}&year=${year}&month=${month}`">
+                                <i class="fas fa-table mr-1"></i> Xem bảng điểm danh
+                            </a>
                         </td>
                     </tr>
                 </tbody>

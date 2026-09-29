@@ -10,7 +10,12 @@
       <!-- Left: STT + Tên bé (Bỏ icon, cho phép click xem chi tiết bé, chữ xuống dòng tự nhiên không bị mất) -->
       <div
         class="student-main-info d-flex align-items-start flex-grow-1 pr-2 cursor-pointer"
+        role="button"
+        tabindex="0"
+        :aria-label="'Xem thông tin của ' + hocsinh.name"
         @click="$emit('select-student', hocsinh)"
+        @keydown.enter.prevent="$emit('select-student', hocsinh)"
+        @keydown.space.prevent="$emit('select-student', hocsinh)"
         title="Bấm để xem thông tin chi tiết của bé"
       >
         <span class="stt-badge font-weight-bold text-muted mr-2 flex-shrink-0 mt-1">
@@ -28,11 +33,8 @@
             <span v-if="sName && sName.value" class="badge badge-info font-weight-normal mr-1 py-0 px-1" style="font-size: 0.72rem;">
               {{ sName.value }}
             </span>
-            <span v-if="hocsinh.status === 'TAM_NGHI'" class="badge badge-warning text-dark py-0 px-1 font-weight-normal" style="font-size: 0.72rem;">
-              Tạm nghỉ
-            </span>
-            <span v-else class="text-muted small font-italic" style="font-size: 0.72rem;">
-              {{ hocsinh.code || 'Mã: ' + hocsinh.id.substring(0, 5) }}
+            <span v-if="hocsinh.code" class="text-muted small font-italic" style="font-size: 0.72rem;">
+              {{ hocsinh.code }}
             </span>
           </div>
         </div>
@@ -161,6 +163,12 @@ export default {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.student-main-info:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .stt-badge {

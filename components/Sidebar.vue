@@ -23,7 +23,7 @@
           </div>
           <div v-if="!collapsed" class="brand-text">
             <span class="brand-name font-weight-bold text-dark">MN NGỌC HOÀNG</span>
-            <span class="brand-desc text-muted">Quản trị nội bộ v2.0.2</span>
+            <span class="brand-desc text-muted">Quản trị nội bộ</span>
           </div>
         </nuxt-link>
 
@@ -73,7 +73,7 @@
               <nuxt-link
                 to="/dihoc"
                 class="nav-link sidebar-item"
-                :class="{ 'active': $route.path.startsWith('/dihoc') || $route.path.startsWith('/anchieu') || $route.path.startsWith('/vetre') }"
+                :class="{ 'active': $route.path.startsWith('/dihoc') }"
                 @click.native="handleNavClick"
                 :title="collapsed ? 'Điểm danh lớp' : ''"
               >
@@ -150,11 +150,49 @@
                 class="nav-link sidebar-item nav-item-highlight"
                 active-class="active"
                 @click.native="handleNavClick"
-                :title="collapsed ? 'Sổ cái Dòng tiền & Gạch nợ' : ''"
+                :title="collapsed ? 'Thu chi phụ huynh' : ''"
               >
                 <i class="fas fa-money-bill-wave nav-icon text-success"></i>
-                <span v-if="!collapsed" class="nav-text font-weight-bold">Dòng tiền & Gạch nợ</span>
-                <span v-if="!collapsed" class="badge badge-success badge-pill ml-auto font-weight-normal">Mới</span>
+                <span v-if="!collapsed" class="nav-text font-weight-bold">Thu chi phụ huynh</span>
+              </nuxt-link>
+            </li>
+
+            <li class="nav-item">
+              <nuxt-link
+                to="/quytruong"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Quỹ trường' : ''"
+              >
+                <i class="fas fa-wallet nav-icon text-success"></i>
+                <span v-if="!collapsed" class="nav-text">Quỹ trường</span>
+              </nuxt-link>
+            </li>
+
+            <li v-if="isAdmin" class="nav-item">
+              <nuxt-link
+                to="/khoanphi"
+                class="nav-link sidebar-item"
+                :class="{ 'active': $route.path === '/khoanphi' }"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Tra cứu khoản phí' : ''"
+              >
+                <i class="fas fa-tags nav-icon text-primary"></i>
+                <span v-if="!collapsed" class="nav-text">Tra cứu khoản phí</span>
+              </nuxt-link>
+            </li>
+
+            <li v-if="isAdmin" class="nav-item">
+              <nuxt-link
+                to="/khoanphi/cauhinh"
+                class="nav-link sidebar-item"
+                :class="{ 'active': $route.path === '/khoanphi/cauhinh' }"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Cấu hình & Cron phí' : ''"
+              >
+                <i class="fas fa-sliders-h nav-icon text-info"></i>
+                <span v-if="!collapsed" class="nav-text">Cấu hình & Cron phí</span>
               </nuxt-link>
             </li>
 
@@ -194,6 +232,19 @@
               >
                 <i class="fas fa-file-invoice-dollar nav-icon text-primary"></i>
                 <span v-if="!collapsed" class="nav-text">Hoá đơn & Học phí</span>
+              </nuxt-link>
+            </li>
+
+            <li class="nav-item">
+              <nuxt-link
+                to="/sanpham"
+                class="nav-link sidebar-item"
+                active-class="active"
+                @click.native="handleNavClick"
+                :title="collapsed ? 'Sản phẩm & Đồng phục' : ''"
+              >
+                <i class="fas fa-tshirt nav-icon text-info"></i>
+                <span v-if="!collapsed" class="nav-text">Sản phẩm & Đồng phục</span>
               </nuxt-link>
             </li>
 
@@ -244,32 +295,6 @@
               >
                 <i class="fas fa-calendar-check nav-icon text-success"></i>
                 <span v-if="!collapsed" class="nav-text">Điểm danh hàng ngày</span>
-              </nuxt-link>
-            </li>
-
-            <li class="nav-item">
-              <nuxt-link
-                to="/vetre"
-                class="nav-link sidebar-item"
-                active-class="active"
-                @click.native="handleNavClick"
-                :title="collapsed ? 'Về trễ sau 17h' : ''"
-              >
-                <i class="fas fa-business-time nav-icon text-warning"></i>
-                <span v-if="!collapsed" class="nav-text">Về trễ sau 17h</span>
-              </nuxt-link>
-            </li>
-
-            <li class="nav-item">
-              <nuxt-link
-                to="/anchieu"
-                class="nav-link sidebar-item"
-                active-class="active"
-                @click.native="handleNavClick"
-                :title="collapsed ? 'Suất ăn chiều' : ''"
-              >
-                <i class="fas fa-utensils nav-icon text-info"></i>
-                <span v-if="!collapsed" class="nav-text">Suất ăn chiều</span>
               </nuxt-link>
             </li>
           </ul>

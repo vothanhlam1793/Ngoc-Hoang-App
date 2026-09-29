@@ -14,7 +14,7 @@
             </div>
             <div class="row">
                 <div class="col text-center text-danger">
-                    <h2 class="font-weight-bold mb-0">PHIẾU THU HỌC PHÍ THÁNG {{ month }}/{{ year }}</h2>
+                    <h2 class="font-weight-bold mb-0">PHIẾU HỌC PHÍ THÁNG {{ month }}/{{ year }}</h2>
                 </div>
             </div>
             <div class="row mt-0 mb-1">
@@ -68,7 +68,7 @@
                                 <td></td>
                             </tr>
                             <tr class="text-danger font-weight-bold">
-                                <td colspan="2" class="text-center"><strong>THỰC THU</strong></td>
+                                <td colspan="2" class="text-center"><strong>TỔNG PHẢI THU</strong></td>
                                 <td class="text-right p-1">
                                     <input type="text" v-model="adjustAmount" class="thucthu-input-inline" @input="onAmountInput" />
                                 </td>

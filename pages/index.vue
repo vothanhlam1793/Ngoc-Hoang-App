@@ -23,7 +23,7 @@
         <i class="fas fa-chalkboard-teacher text-primary mr-2"></i> Nghiệp Vụ Lớp Học
       </h3>
       <div class="row">
-        <div class="col-md-6 col-lg-3 mb-3">
+        <div class="col-md-6 col-lg-4 mb-3">
           <div class="feature-card shadow-sm h-100 p-3" @click="$router.push('/dihoc')">
             <div class="card-icon bg-success-light text-success mb-3">
               <i class="fas fa-calendar-check"></i>
@@ -34,29 +34,7 @@
           </div>
         </div>
 
-        <div class="col-md-6 col-lg-3 mb-3">
-          <div class="feature-card shadow-sm h-100 p-3" @click="$router.push('/vetre')">
-            <div class="card-icon bg-warning-light text-warning mb-3">
-              <i class="fas fa-business-time"></i>
-            </div>
-            <h4 class="card-title font-weight-bold mb-1">Về trễ sau 17h</h4>
-            <p class="card-desc text-muted mb-0">Chấm giờ trả trẻ muộn sau giờ quy định</p>
-            <span class="badge badge-warning text-dark mt-2">Theo dõi</span>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3 mb-3">
-          <div class="feature-card shadow-sm h-100 p-3" @click="$router.push('/anchieu')">
-            <div class="card-icon bg-info-light text-info mb-3">
-              <i class="fas fa-utensils"></i>
-            </div>
-            <h4 class="card-title font-weight-bold mb-1">Suất ăn chiều</h4>
-            <p class="card-desc text-muted mb-0">Ghi nhận bé đăng ký ăn phụ xế chiều</p>
-            <span class="badge badge-info mt-2">Ăn uống</span>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3 mb-3">
+        <div class="col-md-6 col-lg-4 mb-3">
           <div class="feature-card shadow-sm h-100 p-3" @click="$router.push('/hocsinh')">
             <div class="card-icon bg-primary-light text-primary mb-3">
               <i class="fas fa-user-graduate"></i>
@@ -64,6 +42,17 @@
             <h4 class="card-title font-weight-bold mb-1">Thông tin học sinh</h4>
             <p class="card-desc text-muted mb-0">Danh sách và thông tin liên hệ các bé</p>
             <span class="badge badge-primary mt-2">Hồ sơ</span>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-3">
+          <div class="feature-card shadow-sm h-100 p-3" @click="$router.push('/thongbao')">
+            <div class="card-icon bg-danger-light text-danger mb-3">
+              <i class="fas fa-bullhorn"></i>
+            </div>
+            <h4 class="card-title font-weight-bold mb-1">Thông báo phụ huynh</h4>
+            <p class="card-desc text-muted mb-0">Gửi thông báo & nhắc học phí phụ huynh</p>
+            <span class="badge badge-danger mt-2">Tin nhắn</span>
           </div>
         </div>
       </div>
@@ -77,7 +66,7 @@
           <i class="fas fa-user-graduate text-primary mr-2"></i> Học Sinh & Giảng Dạy
         </h3>
         <div class="row">
-          <div class="col-md-6 col-lg-3 mb-3">
+          <div class="col-md-6 col-lg-4 mb-3">
             <div class="feature-card shadow-sm h-100 p-3" @click="$router.push('/hocsinhv2')">
               <div class="card-icon bg-primary-light text-primary mb-3">
                 <i class="fas fa-users-cog"></i>
@@ -88,7 +77,7 @@
             </div>
           </div>
 
-          <div class="col-md-6 col-lg-3 mb-3">
+          <div class="col-md-6 col-lg-4 mb-3">
             <div class="feature-card shadow-sm h-100 p-3" @click="$router.push('/nhansu')">
               <div class="card-icon bg-info-light text-info mb-3">
                 <i class="fas fa-users-cog"></i>
@@ -99,7 +88,7 @@
             </div>
           </div>
 
-          <div class="col-md-6 col-lg-3 mb-3">
+          <div class="col-md-6 col-lg-4 mb-3">
             <div class="feature-card shadow-sm h-100 p-3" @click="$router.push('/diemdanhtonghop')">
               <div class="card-icon bg-success-light text-success mb-3">
                 <i class="fas fa-calendar-alt"></i>
@@ -107,17 +96,6 @@
               <h4 class="card-title font-weight-bold mb-1">Điểm danh tổng tháng</h4>
               <p class="card-desc text-muted mb-0">Bảng theo dõi chuyên cần toàn trường</p>
               <span class="badge badge-success mt-2">Báo cáo tháng</span>
-            </div>
-          </div>
-
-          <div class="col-md-6 col-lg-3 mb-3">
-            <div class="feature-card shadow-sm h-100 p-3" @click="$router.push('/vetre/18g')">
-              <div class="card-icon bg-warning-light text-warning mb-3">
-                <i class="fas fa-clock"></i>
-              </div>
-              <h4 class="card-title font-weight-bold mb-1">Về trễ sau 18 giờ</h4>
-              <p class="card-desc text-muted mb-0">Tổng hợp danh sách các bé đón trễ</p>
-              <span class="badge badge-warning text-dark mt-2">Theo dõi</span>
             </div>
           </div>
         </div>

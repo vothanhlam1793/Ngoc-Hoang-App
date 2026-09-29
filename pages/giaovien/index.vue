@@ -134,7 +134,7 @@
       </div>
 
       <!-- 1. Điểm danh Đi học -->
-      <div class="col-12 col-md-6 col-lg-3 mb-3">
+      <div class="col-12 col-md-6 mb-3">
         <div
           class="action-card card border-0 shadow-sm p-3 h-100"
           @click="$router.push(`/dihoc/${currentYear}/${currentMonth}/${currentClass.id}`)"
@@ -157,56 +157,8 @@
         </div>
       </div>
 
-      <!-- 2. Điểm danh Ăn Chiều -->
-      <div class="col-12 col-md-6 col-lg-3 mb-3">
-        <div
-          class="action-card card border-0 shadow-sm p-3 h-100"
-          @click="$router.push(`/anchieu/${currentYear}/${currentMonth}/${currentClass.id}`)"
-        >
-          <div class="d-flex align-items-center mb-3">
-            <div class="action-icon bg-info-light text-info mr-3">
-              <i class="fas fa-utensils"></i>
-            </div>
-            <div>
-              <h6 class="font-weight-bold text-dark mb-0">Suất ăn chiều</h6>
-              <small class="text-muted">Ghi nhận bữa xế</small>
-            </div>
-          </div>
-          <p class="text-muted small mb-3 flex-grow-1">Theo dõi danh sách các bé ăn chiều và cập nhật cho nhà bếp.</p>
-          <div class="text-right">
-            <span class="btn btn-sm btn-outline-info rounded-pill px-3">
-              Mở sổ <i class="fas fa-arrow-right ml-1"></i>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. Điểm danh Về Trễ -->
-      <div class="col-12 col-md-6 col-lg-3 mb-3">
-        <div
-          class="action-card card border-0 shadow-sm p-3 h-100"
-          @click="$router.push(`/vetre/${currentYear}/${currentMonth}/${currentClass.id}`)"
-        >
-          <div class="d-flex align-items-center mb-3">
-            <div class="action-icon bg-warning-light text-warning mr-3">
-              <i class="fas fa-clock"></i>
-            </div>
-            <div>
-              <h6 class="font-weight-bold text-dark mb-0">Đón trễ sau 17h</h6>
-              <small class="text-muted">Tính phí trông muộn</small>
-            </div>
-          </div>
-          <p class="text-muted small mb-3 flex-grow-1">Ghi nhận giờ đón trễ của các bé sau khung giờ 17h00 hàng ngày.</p>
-          <div class="text-right">
-            <span class="btn btn-sm btn-outline-warning rounded-pill px-3 text-dark font-weight-bold">
-              Mở sổ <i class="fas fa-arrow-right ml-1"></i>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. Danh sách học sinh lớp -->
-      <div class="col-12 col-md-6 col-lg-3 mb-3">
+      <!-- 2. Danh sách học sinh lớp -->
+      <div class="col-12 col-md-6 mb-3">
         <div
           class="action-card card border-0 shadow-sm p-3 h-100"
           @click="$router.push(`/hocsinh/lophoc/${currentClass.id}`)"

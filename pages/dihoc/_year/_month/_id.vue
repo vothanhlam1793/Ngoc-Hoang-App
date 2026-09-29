@@ -29,30 +29,6 @@
           </a>
         </div>
       </div>
-
-      <!-- Thanh Sub-Nav chuyển đổi giữa các Sổ tháng -->
-      <div class="d-flex justify-content-center">
-        <div class="bg-light p-1 rounded-pill border d-inline-flex">
-          <nuxt-link
-            :to="`/dihoc/${$route.params.year}/${$route.params.month}/${idLopHoc}`"
-            class="btn btn-sm btn-success text-white font-weight-bold px-3 rounded-pill shadow-sm"
-          >
-            <i class="fas fa-calendar-check mr-1"></i> Sổ Đi Học
-          </nuxt-link>
-          <nuxt-link
-            :to="`/anchieu/${$route.params.year}/${$route.params.month}/${idLopHoc}`"
-            class="btn btn-sm text-secondary font-weight-bold px-3 rounded-pill"
-          >
-            <i class="fas fa-utensils mr-1"></i> Sổ Ăn Chiều
-          </nuxt-link>
-          <nuxt-link
-            :to="`/vetre/${$route.params.year}/${$route.params.month}/${idLopHoc}`"
-            class="btn btn-sm text-secondary font-weight-bold px-3 rounded-pill"
-          >
-            <i class="fas fa-clock mr-1"></i> Sổ Về Trễ
-          </nuxt-link>
-        </div>
-      </div>
     </div>
 
     <!-- Danh sách các ngày trong tháng dạng Lưới Thẻ Cảm Ứng (Touch Grid) -->

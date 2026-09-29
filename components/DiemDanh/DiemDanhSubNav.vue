@@ -1,5 +1,5 @@
 <template>
-  <div class="diemdanh-sub-nav mb-3">
+  <div class="diemdanh-sub-nav mb-3 d-none">
     <div class="sub-nav-wrapper">
       <!-- 1. Đi học -->
       <nuxt-link
@@ -9,26 +9,6 @@
       >
         <i class="fas fa-calendar-check mr-1"></i>
         <span>Đi Học</span>
-      </nuxt-link>
-
-      <!-- 2. Ăn chiều -->
-      <nuxt-link
-        :to="`/anchieu/${year}/${month}/${date}/${classId}`"
-        class="sub-nav-btn"
-        :class="{ 'active': currentTab === 'anchieu' }"
-      >
-        <i class="fas fa-utensils mr-1"></i>
-        <span>Ăn Chiều</span>
-      </nuxt-link>
-
-      <!-- 3. Về trễ -->
-      <nuxt-link
-        :to="`/vetre/${year}/${month}/${date}/${classId}`"
-        class="sub-nav-btn"
-        :class="{ 'active': currentTab === 'vetre' }"
-      >
-        <i class="fas fa-clock mr-1"></i>
-        <span>Về Trễ</span>
       </nuxt-link>
     </div>
   </div>

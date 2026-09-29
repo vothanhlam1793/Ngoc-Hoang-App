@@ -126,7 +126,7 @@ export const getters = {
 export const actions = {
     getRole({commit, dispatch}){
         var client = this.app.apolloProvider.defaultClient;
-        client.query({
+        return client.query({
             query: gql`
             query {
                 User(where: {id: "${this.$auth.$state.user.id}"}){

@@ -26,8 +26,7 @@
 
           <!-- Breadcrumb / Page Title Indicator -->
           <div class="topbar-title font-weight-bold text-dark d-flex align-items-center">
-            <span class="text-muted font-weight-normal small mr-2 d-none d-md-inline">Hệ thống Quản lý /</span>
-            <span>MN Ngọc Hoàng</span>
+            <span>{{ pageTitle }}</span>
           </div>
         </div>
 
@@ -36,17 +35,17 @@
           <div v-if="isRealAdmin && !isImpersonating" class="mr-2">
             <div class="dropdown">
               <button
-                class="btn btn-sm btn-outline-warning text-dark font-weight-bold dropdown-toggle rounded-pill px-3 shadow-sm"
+                class="btn btn-sm btn-outline-secondary dropdown-toggle"
                 type="button"
                 id="roleSwitchDropdown"
                 data-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false"
               >
-                <i class="fas fa-chalkboard-teacher text-warning mr-1"></i> Xem góc nhìn Giáo viên
+                <i class="fas fa-chalkboard-teacher mr-1" aria-hidden="true"></i> Góc nhìn GV
               </button>
               <div class="dropdown-menu dropdown-menu-right shadow border-0" aria-labelledby="roleSwitchDropdown" style="max-height: 300px; overflow-y: auto;">
-                <h6 class="dropdown-header text-uppercase font-weight-bold text-muted small">Chọn lớp để thử nghiệm</h6>
+                <h6 class="dropdown-header text-uppercase font-weight-bold text-muted small">Chọn lớp để xem</h6>
                 <a
                   v-for="lh in classList"
                   :key="lh.id"
@@ -64,13 +63,13 @@
             </div>
           </div>
 
-          <!-- Quick action button: Dòng tiền (Chỉ hiện khi là Admin/Kế toán thực sự) -->
+          <!-- Quick action: Thu chi phụ huynh (giữ nguyên quyền hiển thị) -->
           <nuxt-link
             v-if="!isImpersonating && checkRole(['quan-tri-vien', 'ke-toan', 'hieu-truong'])"
             to="/dongtien"
             class="btn btn-sm btn-outline-success rounded-pill px-3 mr-2 d-none d-sm-inline-flex align-items-center"
           >
-            <i class="fas fa-money-bill-wave mr-1"></i> Dòng tiền
+            <i class="fas fa-money-bill-wave mr-1"></i> Thu chi phụ huynh
           </nuxt-link>
 
           <!-- User quick indicator -->
@@ -112,6 +111,50 @@ export default {
     };
   },
   computed: {
+    pageTitle() {
+      const titles = {
+        '/': 'Trang chủ Quản lý',
+        '/dongtien': 'Thu chi phụ huynh',
+        '/quytruong': 'Quỹ trường',
+        '/khoanphi/cauhinh': 'Cấu hình hệ thống khoản phí',
+        '/khoanphi': 'Tra cứu khoản phí',
+        '/no': 'Phụ huynh & Sổ nợ',
+        '/phieuthu': 'Phiếu thu/chi ngày',
+        '/hoadon': 'Hoá đơn & Học phí',
+        '/ketso': 'Kết sổ tháng',
+        '/danhsachketso': 'Danh sách kết sổ',
+        '/ketsonghihoc': 'Kết sổ nghỉ học',
+        '/giaovien/diemdanh': 'Điểm danh lớp',
+        '/giaovien': 'Lớp học của tôi',
+        '/hocsinh': 'Học sinh',
+        '/hocsinhv2': 'Danh sách học sinh',
+        '/hocsinhv3': 'Danh sách học sinh',
+        '/phuhuynh': 'Phụ huynh',
+        '/phuhuynhv2': 'Phụ huynh',
+        '/dihoc': 'Điểm danh hàng ngày',
+        '/diemdanh': 'Điểm danh',
+        '/diemdanhtonghop': 'Điểm danh tổng hợp',
+        '/xemdiemdanh': 'Xem điểm danh',
+        '/diemdanhvetre': 'Điểm danh về trễ',
+        '/ddvt': 'Điểm danh về trễ',
+        '/vetre': 'Về trễ sau 17h',
+        '/anchieu': 'Suất ăn chiều',
+        '/lichhoc': 'Lịch học',
+        '/caidatlichhoc': 'Cài đặt lịch học',
+        '/thongbao': 'Thông báo phụ huynh',
+        '/baocao': 'Báo cáo & Thống kê',
+        '/doanhthu': 'Doanh thu',
+        '/nhansu': 'Quản lý Nhân sự',
+        '/setup': 'Cài đặt & Quản trị',
+        '/cai-dat/monapay': 'Cài đặt MonaPay',
+        '/sanpham': 'Sản phẩm',
+      };
+      const path = this.$route.path.replace(/\/+$/, '') || '/';
+      const route = Object.keys(titles)
+        .sort((a, b) => b.length - a.length)
+        .find(key => path === key || (key !== '/' && path.startsWith(`${key}/`)));
+      return route ? titles[route] : 'MN Ngọc Hoàng';
+    },
     roles() {
       return this.$store.getters['user/effectiveRoles'] || [];
     },

@@ -20,7 +20,7 @@
             </div>
             <div class="row">
                 <div class="col text-center text-danger">
-                    <h4>PHIẾU THU HỌC PHÍ THÁNG {{ month }}/{{ year }}</h4>
+                    <h4>PHIẾU HỌC PHÍ THÁNG {{ month }}/{{ year }}</h4>
                 </div>
             </div>
             <div class="row mt-1">
@@ -114,7 +114,7 @@
                                 <td class="tb-col-3 p-1"></td>
                             </tr>
                             <tr class="text-danger">
-                                <td class="tb-col-1 p-1 text-center"><strong>THỰC THU</strong></td>
+                                <td class="tb-col-1 p-1 text-center"><strong>TỔNG PHẢI THU</strong></td>
                                 <td class="tb-col-2 p-1 text-right"><strong>{{ numberWithCommas(item.data.total) }}</strong></td>
                                 <td class="tb-col-3 p-1"></td>
                             </tr>

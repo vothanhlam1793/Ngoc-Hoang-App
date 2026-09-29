@@ -1,71 +1,84 @@
 <template>
-    <tr>
-        <td>{{ item.hocsinh.name }}</td>
-        <td class="text-right" >{{ numberWithCommas(item.data.total) }}</td>
-        <td class="text-right" >{{ numberWithCommas(item.data.hocphi) }}</td>
-        <td class="text-right" >{{ numberWithCommas(item.data.csvc) }}</td>
-        <td class="text-right" >{{ numberWithCommas(item.data.camera) }}</td>
-        <!-- <td class="text-right" >{{ numberWithCommas(item.data.totalHoaDon) }}</td> -->
-        <td class="text-right" >{{ numberWithCommas(item.data.ngoaigio) }}</td>
-        <td class="text-right" >{{ numberWithCommas(item.data.an545) }}</td>
-        <td class="text-right" >{{ numberWithCommas(item.data.phimorong) }} 
-            <b-button 
-            :key="`btn-${item.id}`"
-            @click="showModal(`md-${item.id}`)"
-            >v</b-button>
-            <b-modal 
-            :key="`md-${item.id}`"
-            :id="`md-${item.id}`" 
-            :title="item.hocsinh.name" ok-only>
-                <table class="table table-bordered table-striped">
-                    <tr>
-                        <th>Phí</th>
-                        <th>Tiền</th>
-                    </tr>
-                    <tr v-for="key in Object.keys(item.data.detailPhiMoRong)" :class="getClass(item.data.detailPhiMoRong[key].checked)">
-                        <td>{{ item.data.detailPhiMoRong[key].label }}</td>
-                        <td class="text-right">
-                            {{ numberWithCommas(item.data.detailPhiMoRong[key].value) }}
-                        </td>
-                    </tr>
-                </table>
-            </b-modal>
-        </td>
-        <td class="text-right" >{{ numberWithCommas(item.data.khac) }}</td>
-        <td>{{ item.data.note }}</td>
-        <td class="text-center" >{{ numberWithCommas(item.data.ngaynghi) }}</td>
-        <td class="text-right" >{{ numberWithCommas(item.data.thanhtiennghi) }}</td>
-    </tr>
+  <tr>
+    <td class="font-weight-semibold text-dark sticky-col-student">{{ item.hocsinh ? item.hocsinh.name : '' }}</td>
+    <td class="text-right font-weight-bold text-success">{{ numberWithCommas(item.data.total) }}</td>
+    <td class="text-right">{{ numberWithCommas(item.data.hocphi) }}</td>
+    <td class="text-right">{{ numberWithCommas(item.data.csvc) }}</td>
+    <td class="text-right">{{ numberWithCommas(item.data.camera) }}</td>
+    <td class="text-right">
+      {{ numberWithCommas(item.data.phimorong) }}
+      <b-button
+        size="sm"
+        variant="light"
+        class="border py-0 px-1 ml-1"
+        :key="`btn-${item.id}`"
+        @click="showModal(`md-${item.id}`)"
+      >
+        <i class="fas fa-ellipsis-h"></i>
+      </b-button>
+      <b-modal
+        :key="`md-${item.id}`"
+        :id="`md-${item.id}`"
+        :title="`Chi tiết phí mở rộng: ${item.hocsinh ? item.hocsinh.name : ''}`"
+        ok-only
+        ok-title="Đóng"
+      >
+        <table class="table table-bordered table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Khoản phí</th>
+              <th class="text-right">Số tiền (đ)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="key in Object.keys(item.data.detailPhiMoRong || {})"
+              :key="key"
+              :class="getClass(item.data.detailPhiMoRong[key].checked)"
+            >
+              <td>{{ item.data.detailPhiMoRong[key].label }}</td>
+              <td class="text-right">
+                {{ numberWithCommas(item.data.detailPhiMoRong[key].value) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </b-modal>
+    </td>
+    <td class="text-right">{{ numberWithCommas(item.data.khac) }}</td>
+    <td class="small text-muted">{{ item.data.note }}</td>
+    <td class="text-center font-weight-bold">{{ numberWithCommas(item.data.ngaynghi) }}</td>
+    <td class="text-right text-danger font-weight-bold">{{ numberWithCommas(item.data.thanhtiennghi) }}</td>
+  </tr>
 </template>
+
 <script>
 export default {
-    data(){
-        return {
-
-        }
+  props: ['item'],
+  methods: {
+    getClass(checked) {
+      return checked ? 'table-success' : '';
     },
-    methods: {
-        getClass(checked){
-            if(checked){
-                return "table-success"
-            } else {
-                return ""
-            }
-        },
-        showModal(id){
-            this.$bvModal.show(id);
-        },
-        numberWithCommas(x) {
-            if(x){
-                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            } else {
-                return "0";
-            }
-        }
+    showModal(id) {
+      this.$bvModal.show(id);
     },
-    created(){
-        console.log(this.item);
-    },
-    props: ['item']
-}
+    numberWithCommas(x) {
+      if (!x) return '0';
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+  }
+};
 </script>
+
+<style scoped>
+.sticky-col-student {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background-color: #ffffff !important;
+  box-shadow: inset -1px 0 0 #dee2e6, 2px 0 4px rgba(0, 0, 0, 0.04);
+}
+tr:hover .sticky-col-student {
+  background-color: #f8f9fa !important;
+}
+</style>

@@ -13,7 +13,25 @@ export default {
   ssr: false,
   render: {
     resourceHints: false,
+    etag: true,
+    static: {
+      maxAge: 1000 * 60 * 60 * 24 * 30, // 30 ngày
+    },
+    dist: {
+      maxAge: 1000 * 60 * 60 * 24 * 365, // 1 năm
+    },
   },
+  serverMiddleware: [
+    (req, res, next) => {
+      // Chỉ gắn chống cache cho các request HTML và tài liệu chính
+      if (!req.url.startsWith("/_nuxt/") && !req.url.startsWith("/__webpack_hmr")) {
+        res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        res.setHeader("Pragma", "no-cache");
+        res.setHeader("Expires", "0");
+      }
+      next();
+    },
+  ],
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: "MN Ngọc Hoàng",

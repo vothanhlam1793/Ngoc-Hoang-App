@@ -80,7 +80,8 @@
             </div>
           </b-tab>
 
-          <!-- Vùng 3: Phí Dịch vụ & Ngoài giờ -->
+          <!-- Vùng 3: Phí Dịch vụ & Ngoài giờ (Tạm ẩn theo yêu cầu nhà trường) -->
+          <!--
           <b-tab>
             <template #title>
               <i class="fas fa-clock mr-2 text-info"></i>
@@ -111,6 +112,7 @@
               </div>
             </div>
           </b-tab>
+          -->
 
           <!-- Vùng 4: Phí Mở rộng (Phụ thu & Hoạt động) -->
           <b-tab>
