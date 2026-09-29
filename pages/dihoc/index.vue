@@ -435,7 +435,7 @@ export default {
         if (!this.$store.state.user.user?.id) {
           await this.$store.dispatch('user/getRole');
         }
-        const client = this.$apollo?.defaultClient || this.app?.apolloProvider?.defaultClient;
+        const client = this.$apolloProvider?.defaultClient || this.$apollo?.defaultClient;
         if (!client) throw new Error('Apollo client not ready');
 
         const res = await client.query({
