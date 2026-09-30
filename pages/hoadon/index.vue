@@ -206,7 +206,7 @@
                 <div class="row align-items-center">
                   <div class="col-md-4 form-group mb-1">
                     <label class="small text-muted mb-1">Kỳ thu</label>
-                    <input v-model="tRow.billingMonth" type="month" class="form-control form-control-sm font-weight-bold text-dark" />
+                    <VietnameseMonthPicker v-model="tRow.billingMonth" size="sm" class="font-weight-bold text-dark" />
                   </div>
                   <div class="col-md-4 form-group mb-1">
                     <label class="small text-muted mb-1">Số tiền (đ)</label>

@@ -35,6 +35,23 @@
       <button type="button" class="btn btn-sm btn-outline-danger" @click="loadDefinitions">Thử lại</button>
     </div>
 
+    <div v-if="activeRun" class="card shadow-sm mb-4" :class="activeRun.status === 'RUNNING' ? 'border-primary' : 'border-success'">
+      <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong><i class="fas mr-2" :class="activeRun.status === 'RUNNING' ? 'fa-sync-alt fa-spin text-primary' : 'fa-check-circle text-success'"></i>{{ activeRun.status === 'RUNNING' ? 'Đang tạo phí' : 'Đã hoàn tất đợt tạo phí' }}: {{ activeRun.code }}</strong>
+          <span class="font-weight-bold text-primary">{{ activeRun.processedCount || 0 }}/{{ activeRun.totalTargets || '?' }}</span>
+        </div>
+        <div class="progress" style="height: 20px;">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" :style="{ width: runProgressPercent + '%' }">
+            {{ runProgressPercent }}%
+          </div>
+        </div>
+        <div class="small text-muted mt-2">
+          Đã tạo: {{ activeRun.createdCount || 0 }} · Bỏ qua: {{ activeRun.skippedCount || 0 }} · Lỗi: {{ activeRun.failedCount || 0 }}<span v-if="activeRun.status === 'RUNNING'">. Có thể rời trang, đợt vẫn tiếp tục chạy.</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Main Table of Definitions -->
     <div class="card border-0 shadow-sm rounded-lg mb-4 bg-white">
       <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
@@ -233,8 +250,9 @@
           Bạn đang yêu cầu phát sinh cho hạng mục: <strong>{{ selectedDef.name }}</strong> (<code>{{ selectedDef.code }}</code>).
         </div>
         <div class="form-group">
-          <label class="font-weight-bold small">Tháng tính phí</label>
-          <input v-model="runOptions.billingMonth" type="month" class="form-control" />
+          <label class="font-weight-bold small">{{ selectedDef.generatorKey === 'ABSENCE_V1' ? 'Tháng điểm danh cần đối soát' : 'Tháng tính phí' }}</label>
+          <VietnameseMonthPicker v-model="runOptions.billingMonth" :disabled="running" :clearable="false" />
+          <small v-if="selectedDef.generatorKey === 'ABSENCE_V1'" class="text-muted">Có thể chạy tháng hiện tại sau khi xác nhận: các ngày học sau ngày chạy (giờ Việt Nam) được tính là có mặt, không ghi điểm danh giả. Không khai báo ngày nhập học thì tính từ đầu tháng. Đến ngày chạy, ngày có lịch học mà không có điểm danh có mặt được tính nghỉ. Nghỉ đủ 3 ngày học liên tiếp được giảm cả chuỗi; không nối qua hai tháng. Khoản giảm trừ áp dụng tháng kế tiếp.</small>
         </div>
         <div class="form-group mb-4">
           <div class="custom-control custom-checkbox">
@@ -277,7 +295,7 @@
           <div class="row">
             <div class="col-6 form-group mb-2">
               <label class="small font-weight-bold">Tháng tính phí</label>
-              <input v-model="manualForm.billingMonth" type="month" class="form-control form-control-sm" />
+              <VietnameseMonthPicker v-model="manualForm.billingMonth" size="sm" :disabled="submittingManual" />
             </div>
             <div class="col-6 form-group mb-2">
               <label class="small font-weight-bold">Năm học</label>
@@ -374,6 +392,7 @@
                 <th>Loại</th>
                 <th>Thời gian</th>
                 <th>Kết quả</th>
+                <th class="text-right">Tiến độ</th>
                 <th class="text-right">Đã tạo</th>
                 <th class="text-right">Bỏ qua</th>
                 <th class="text-right">Lỗi</th>
@@ -396,6 +415,7 @@
                     {{ r.status }}
                   </span>
                 </td>
+                <td class="text-right small">{{ r.processedCount || 0 }}/{{ r.totalTargets || 0 }}</td>
                 <td class="text-right text-success font-weight-bold">{{ r.createdCount }}</td>
                 <td class="text-right text-muted">{{ r.skippedCount }}</td>
                 <td class="text-right text-danger font-weight-bold">{{ r.failedCount }}</td>
@@ -403,10 +423,13 @@
                   <button type="button" class="btn btn-xs btn-outline-info" @click="viewRunDetail(r.id)">
                     <i class="fas fa-eye"></i>
                   </button>
+                  <button type="button" class="btn btn-xs btn-outline-danger ml-1" :disabled="r.status === 'RUNNING' || deletingRun" @click="deleteRun(r)" title="Xóa đợt và khoản phí đã tạo">
+                    <i class="fas fa-trash"></i>
+                  </button>
                 </td>
               </tr>
               <tr v-if="!runsList.length">
-                <td colspan="10" class="text-center py-4 text-muted">Chưa có nhật ký lần chạy nào.</td>
+                <td colspan="11" class="text-center py-4 text-muted">Chưa có nhật ký lần chạy nào.</td>
               </tr>
             </tbody>
           </table>
@@ -419,11 +442,18 @@
     <!-- ======================================================== -->
     <b-modal v-model="runDetailModalOpen" :title="`Chi tiết đợt chạy: ${runDetail ? runDetail.code : ''}`" hide-footer size="lg">
       <div v-if="runDetail">
+        <div v-if="runDetail.errorSummary" class="alert alert-danger" role="alert">{{ runDetail.errorSummary }}</div>
+        <div v-if="runDetail.calculationPeriod" class="alert alert-info">
+          Tháng đối soát: {{ runDetail.calculationPeriod.month }} · Kỳ áp dụng: {{ runDetail.calculationPeriod.appliedMonth }}<br>
+          Điểm danh tính đến: {{ runDetail.calculationPeriod.attendanceThrough.split('-').reverse().join('/') }}.
+          <span v-if="runDetail.calculationPeriod.early">Các ngày học sau ngày tính được coi là đi học bình thường trong phép tính; không thay đổi điểm danh.</span>
+        </div>
         <div class="row mb-3 small">
           <div class="col-4">Hạng mục: <strong>{{ runDetail.defName }}</strong></div>
           <div class="col-4">Kỳ phí: <strong>{{ runDetail.billingMonth || runDetail.schoolYear }}</strong></div>
           <div class="col-4">Người chạy: <strong>{{ runDetail.runByName }}</strong></div>
         </div>
+        <div class="small text-muted mb-3">Tiến độ: <strong>{{ runDetail.processedCount || 0 }}/{{ runDetail.totalTargets || 0 }}</strong> · Đã tạo: <strong>{{ runDetail.createdCount }}</strong> · Bỏ qua: <strong>{{ runDetail.skippedCount }}</strong> · Lỗi: <strong>{{ runDetail.failedCount }}</strong></div>
 
         <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
           <table class="table table-sm table-hover mb-0">
@@ -444,7 +474,14 @@
                     {{ it.status }}
                   </span>
                 </td>
-                <td class="small text-muted">{{ it.reason || it.feeCode || '' }}</td>
+                <td class="small text-muted">{{ it.reason || it.feeCode || '' }}
+                  <div v-if="it.evidence && it.evidence.creditDays !== undefined">
+                    <div v-if="it.evidence.attendanceThrough">Điểm danh đến {{ it.evidence.attendanceThrough.split('-').reverse().join('/') }} · {{ (it.evidence.assumedPresent || []).length }} ngày học còn lại tính có mặt.</div>
+                    <div v-if="it.evidence.startDate && it.evidence.endDate">Kỳ tính: {{ it.evidence.startDate.split('-').reverse().join('/') }} – {{ it.evidence.endDate.split('-').reverse().join('/') }}</div>
+                    {{ it.evidence.creditDays }} ngày × {{ formatMoney(it.evidence.unitPrice) }}đ · Áp dụng {{ it.evidence.appliedMonth }}
+                    <div v-for="(streak, si) in it.evidence.streaks" :key="si">{{ streak.join(', ') }}</div>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -508,9 +545,12 @@ export default {
       runsModalOpen: false,
       loadingRuns: false,
       runsList: [],
+      deletingRun: false,
       // Modal Run Detail
       runDetailModalOpen: false,
       runDetail: null,
+      activeRun: null,
+      runPollTimer: null,
     };
   },
   computed: {
@@ -525,12 +565,37 @@ export default {
       }
       return list;
     },
+    runProgressPercent() {
+      if (!this.activeRun?.totalTargets) return 0;
+      return Math.min(100, Math.round((this.activeRun.processedCount || 0) * 100 / this.activeRun.totalTargets));
+    },
   },
   mounted() {
     this.setDefaultMonth();
     this.loadDefinitions();
   },
+  beforeDestroy() {
+    this.stopRunPolling();
+  },
   methods: {
+    async deleteRun(run) {
+      if (this.deletingRun || run.status === 'RUNNING') return;
+      const count = run.trigger === 'PREVIEW' ? 0 : run.createdCount;
+      if (!await this.$bvModal.msgBoxConfirm(`Xóa đợt ${run.code} và ${count} khoản phí do đợt này tạo?`,
+        { title: 'Xóa đợt tạo phí', okTitle: 'Xóa đợt', cancelTitle: 'Hủy', okVariant: 'danger' })) return;
+      this.deletingRun = true;
+      try {
+        const res = await paymentHubRequest(this, 'delete', `fee-runs/${run.id}`);
+        this.runsList = this.runsList.filter(item => item.id !== run.id);
+        if (this.runDetail?.id === run.id) { this.runDetail = null; this.runDetailModalOpen = false; }
+        if (this.activeRun && (this.activeRun.id === run.id || this.activeRun.runId === run.id)) {
+          this.stopRunPolling(); this.activeRun = null;
+        }
+        this.$bvToast.toast(`Đã xóa đợt và ${res.data.data.deletedFees} khoản phí.`, { variant: 'success', solid: true });
+      } catch (error) {
+        this.$bvToast.toast(error.response?.data?.error || error.message, { variant: 'danger', solid: true });
+      } finally { this.deletingRun = false; }
+    },
     async ensureUserLoaded() {
       if (!this.$store.state.user.user?.id) {
         await this.$store.dispatch('user/getRole');
@@ -625,6 +690,11 @@ export default {
     },
     openRunModal(def) {
       this.selectedDef = def;
+      if (def.generatorKey === 'ABSENCE_V1') {
+        const date = new Date();
+        date.setDate(1); date.setMonth(date.getMonth() - 1);
+        this.runOptions.billingMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      } else this.setDefaultMonth();
       this.runOptions.dryRun = false;
       this.runModalOpen = true;
     },
@@ -633,16 +703,24 @@ export default {
       this.running = true;
       try {
         await this.ensureUserLoaded();
-        const res = await paymentHubRequest(this, 'post', `fee-definitions/${this.selectedDef.id}/run`, this.runOptions);
+        const options = { ...this.runOptions, confirmEarly: false };
+        if (this.selectedDef.generatorKey === 'ABSENCE_V1') {
+          const today = new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 10);
+          if (options.billingMonth > today.slice(0, 7)) throw new Error('Không thể đối soát tháng tương lai');
+          if (options.billingMonth === today.slice(0, 7)) {
+            options.confirmEarly = await this.$bvModal.msgBoxConfirm(
+              `Tháng chưa kết thúc. Điểm danh được tính đến hết ${today.split('-').reverse().join('/')}. Các ngày học sau đó được xem là đi học bình thường, không phát sinh giảm trừ và không ghi thêm điểm danh. Tiếp tục?`,
+              { title: 'Xác nhận đối soát sớm', okTitle: 'Tiếp tục', cancelTitle: 'Hủy' });
+            if (!options.confirmEarly) return;
+          }
+        }
+        const res = await paymentHubRequest(this, 'post', `fee-definitions/${this.selectedDef.id}/run`, options);
         const data = res.data?.data;
         this.runModalOpen = false;
-        this.$bvToast.toast(
-          `Hoàn tất: Tạo mới ${data.createdCount}, Bỏ qua ${data.skippedCount}, Lỗi ${data.failedCount}`,
-          { variant: data.failedCount > 0 ? 'warning' : 'success', solid: true, title: 'Kết quả chạy' }
-        );
-        this.loadDefinitions();
         if (data.runId) {
-          this.viewRunDetail(data.runId);
+          this.activeRun = data;
+          this.$bvToast.toast('Đợt tạo phí đã bắt đầu. Tiến độ sẽ tự cập nhật.', { variant: 'info', solid: true });
+          this.startRunPolling(data.runId);
         }
       } catch (err) {
         this.$bvToast.toast(err.response?.data?.error || err.message || 'Lỗi thực thi', { variant: 'danger', solid: true });
@@ -684,6 +762,35 @@ export default {
         this.runDetailModalOpen = true;
       } catch (err) {
         this.$bvToast.toast(err.response?.data?.error || err.message || 'Lỗi tải chi tiết', { variant: 'danger', solid: true });
+      }
+    },
+    startRunPolling(runId) {
+      this.stopRunPolling();
+      this.pollRun(runId);
+      this.runPollTimer = window.setInterval(() => this.pollRun(runId), 1200);
+    },
+    stopRunPolling() {
+      if (this.runPollTimer) window.clearInterval(this.runPollTimer);
+      this.runPollTimer = null;
+    },
+    async pollRun(runId) {
+      try {
+        await this.ensureUserLoaded();
+        const res = await paymentHubRequest(this, 'get', `fee-runs/${runId}`);
+        const run = res.data?.data;
+        if (!run) return;
+        this.activeRun = run;
+        if (run.status === 'RUNNING') return;
+        this.stopRunPolling();
+        this.$bvToast.toast(
+          `${run.isDryRun ? 'Xem trước' : 'Hoàn tất'}: Tạo mới ${run.createdCount}, Bỏ qua ${run.skippedCount}, Lỗi ${run.failedCount}`,
+          { variant: run.failedCount > 0 ? 'warning' : 'success', solid: true, title: 'Kết quả tạo phí' }
+        );
+        this.loadDefinitions();
+        this.viewRunDetail(runId);
+      } catch (err) {
+        this.stopRunPolling();
+        this.$bvToast.toast(err.response?.data?.error || err.message || 'Không thể cập nhật tiến độ', { variant: 'danger', solid: true });
       }
     },
     async openManualBulkModal() {

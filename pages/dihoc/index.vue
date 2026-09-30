@@ -416,7 +416,7 @@ export default {
       return this.isAdmin;
     },
     getStudentCount(lophoc) {
-      return (lophoc.hocsinhs || []).length;
+      return (lophoc.hocsinhs || []).filter(student => student.status !== 'NGHI_LUON').length;
     },
     getTeacherNames(lophoc) {
       if (!lophoc.chunhiem || !lophoc.chunhiem.length) return '';

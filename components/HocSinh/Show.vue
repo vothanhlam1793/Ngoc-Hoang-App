@@ -40,7 +40,7 @@
                 <label class="small font-weight-bold">Ngày sinh</label>
                 <input
                   v-model="form.birthday"
-                  type="date"
+                  type="text" placeholder="DD/MM/YYYY"
                   class="form-control"
                 />
               </div>
@@ -48,7 +48,7 @@
                 <label class="small font-weight-bold">Ngày vào học</label>
                 <input
                   v-model="form.dateAccess"
-                  type="date"
+                  type="text" placeholder="DD/MM/YYYY"
                   class="form-control"
                 />
               </div>
@@ -163,6 +163,7 @@
 
 <script>
 import gql from 'graphql-tag';
+import { schoolDate, displaySchoolDate } from '~/utils/schoolDate';
 import { getVariableByKey, createVariable, updateVariable } from '~/plugins/variable.js';
 
 export default {
@@ -256,7 +257,7 @@ export default {
         this.form.hocphigiam = hs.hocphigiam || '0';
         this.form.luuy = hs.luuy || '';
         if (hs.birthday) {
-          this.form.birthday = hs.birthday.substring(0, 10);
+          this.form.birthday = displaySchoolDate(hs.birthday);
         }
 
         // 3. Tải các biến mở rộng (Tên ở nhà, Ăn chiều, Camera, Ngày vào học)
@@ -283,7 +284,7 @@ export default {
           }
           this.dateAccessVar = dVar;
           if (this.dateAccessVar && this.dateAccessVar.value) {
-            this.form.dateAccess = this.dateAccessVar.value.substring(0, 10);
+            this.form.dateAccess = displaySchoolDate(this.dateAccessVar.value);
           }
         } catch (e) {}
       } catch (err) {
@@ -298,6 +299,10 @@ export default {
 
       try {
         // 1. Cập nhật bản ghi Student
+        const birthday = this.form.birthday ? schoolDate(this.form.birthday) : null;
+        const admission = this.form.dateAccess ? schoolDate(this.form.dateAccess) : '';
+        if (this.form.birthday && !birthday) throw new Error('Ngày sinh không hợp lệ. Nhập DD/MM/YYYY');
+        if (this.form.dateAccess && !admission) throw new Error('Ngày nhập học không hợp lệ. Nhập DD/MM/YYYY');
         const updateData = {
           name: this.form.name,
           status: this.form.status,
@@ -307,7 +312,7 @@ export default {
         };
 
         if (this.form.birthday) {
-          updateData.birthday = new Date(this.form.birthday).toISOString();
+          updateData.birthday = `${birthday}T00:00:00.000Z`;
         }
 
         if (this.form.lophocId) {
@@ -336,7 +341,7 @@ export default {
         await this.syncVariable('SNAME', this.form.sName, this.sNameVar);
         await this.syncVariable('AN545', this.form.an545, this.an545Var);
         await this.syncVariable('CAMERA', this.form.camera, this.cameraVar);
-        await this.syncVariable('DATE-ACCESS', this.form.dateAccess, this.dateAccessVar);
+        await this.syncVariable(this.dateAccessVar?.key || 'DATE-ACCESS', admission, this.dateAccessVar);
 
         this.$bvToast.toast(`Đã lưu toàn bộ thông tin học sinh: ${this.form.name}`, {
           title: 'Cập nhật thành công',

@@ -1,5 +1,6 @@
 <template>
     <div class="table-bordered">
+        <div v-if="dateError" class="alert alert-warning">{{ dateError }}</div>
         <table
             class=""
             v-if="stateResult"
@@ -40,6 +41,7 @@
 </template>
 <script>
 import moment from 'moment';
+import { schoolDate } from '~/utils/schoolDate';
 function getMonthRange(month, year) {
     // Tạo đối tượng Date cho ngày đầu tiên của tháng
     var startDate = new Date(Date.UTC(year, month - 1, 1));
@@ -74,6 +76,7 @@ export default {
             result: [],
             stateResult: false,
             accessDate: {}
+            ,dateError: ''
         }
     },
     created() {
@@ -136,6 +139,13 @@ export default {
             }
         },
         calculate() {
+            this.dateError = '';
+            const admission = this.accessDate.id ? schoolDate(this.accessDate.value) : null;
+            if (this.accessDate.id && !admission) {
+                this.dateError = `Ngày nhập học không hợp lệ: ${this.accessDate.value}. Vui lòng sửa theo DD/MM/YYYY.`;
+                this.stateResult = false;
+                return;
+            }
             var that = this;
             var dates = [];
             // console.log(this.lichhoc);
@@ -145,7 +155,7 @@ export default {
                     if (this.accessDate.id) {
                         // console.log(this.accessDate.value);
                         let d1 = moment(`${this.year}-${this.month}-${this.lichhoc[j].date.toString().padStart(2, '0')}`);
-                        let d2 = moment(this.accessDate.value);
+                        let d2 = moment(admission, 'YYYY-MM-DD', true);
                         // console.log(d1.unix(), d1, d2.unix(), d2);
                         if (d1.unix() < d2.unix()) {
                             dates.push("0");

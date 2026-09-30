@@ -89,6 +89,7 @@
 
       <!-- Teacher Mobile Bottom Navigation -->
       <TeacherBottomNav />
+      <SupportChat />
     </div>
   </div>
 </template>
@@ -97,12 +98,14 @@
 import Sidebar from '~/components/Sidebar.vue';
 import ImpersonationBar from '~/components/ImpersonationBar.vue';
 import TeacherBottomNav from '~/components/Teacher/TeacherBottomNav.vue';
+import SupportChat from '~/components/SupportChat.vue';
 
 export default {
   components: {
     Sidebar,
     ImpersonationBar,
     TeacherBottomNav,
+    SupportChat,
   },
   data() {
     return {
@@ -114,6 +117,7 @@ export default {
     pageTitle() {
       const titles = {
         '/': 'Trang chủ Quản lý',
+        '/huongdan': 'Sổ tay nghiệp vụ',
         '/dongtien': 'Thu chi phụ huynh',
         '/quytruong': 'Quỹ trường',
         '/khoanphi/cauhinh': 'Cấu hình hệ thống khoản phí',

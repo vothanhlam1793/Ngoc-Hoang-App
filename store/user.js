@@ -132,6 +132,7 @@ export const actions = {
                 User(where: {id: "${this.$auth.$state.user.id}"}){
                   name
                   isAdmin
+                  isSuperAdmin
                   lophoc {
                     id
                     name

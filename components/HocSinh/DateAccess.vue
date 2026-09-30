@@ -23,18 +23,18 @@
                 <b-input-group class="mb-3">
                     <b-form-input
                         id="example-input"
-                        v-model="variable.value"
+                        v-model="dateText"
                         type="text"
-                        placeholder="YYYY-MM-DD"
+                        placeholder="DD/MM/YYYY"
                         autocomplete="off"
                         @change="changed"
                     ></b-form-input>
                     <b-input-group-append>
                         <b-form-datepicker
-                            v-model="variable.value"
+                             v-model="pickerDate"
                             button-only
                             right
-                            locale="en-US"
+                             locale="vi-VN"
                             aria-controls="example-input"
                             @context="onContext"
                         ></b-form-datepicker>
@@ -46,6 +46,7 @@
 </template>
 <script>
 import { BFormDatepicker, BFormInput, BInputGroupAppend, BInputGroup } from 'bootstrap-vue'
+import { schoolDate, displaySchoolDate } from '~/utils/schoolDate';
 import {getVariableByKey, createVariable, updateVariable} from '~/plugins/variable.js'
 export default {
     components: {
@@ -55,6 +56,16 @@ export default {
         "b-input-group-append": BInputGroupAppend
     },
     props: ['hocsinh'],
+    computed: {
+        dateText: {
+            get() { return displaySchoolDate(this.variable.value); },
+            set(value) { this.$set(this.variable, 'value', value); }
+        },
+        pickerDate: {
+            get() { return schoolDate(this.variable.value) || ''; },
+            set(value) { this.$set(this.variable, 'value', value); this.changed(); }
+        }
+    },
     data(){
         return {
             variable: {},
@@ -81,6 +92,9 @@ export default {
             this.state = "CHANGED";
         },
         saveChange(){
+            const date = schoolDate(this.variable.value);
+            if (!date) { this.$bvToast.toast('Ngày nhập học không hợp lệ. Nhập DD/MM/YYYY', { variant: 'danger' }); return; }
+            this.variable.value = date;
             var that = this;
             if(this.variable.id){
                 // update

@@ -113,7 +113,7 @@
               <template #cell(status)="data">
                 <span v-if="data.item.status === 'CANCELLED'" class="badge badge-secondary">Đã hủy</span>
                 <span v-else-if="data.item.status === 'ALLOCATED' || data.item.parent" class="badge bg-success text-white">
-                  Đã gán
+                  {{ data.item.type === 'OUTFLOW' ? 'Đã ghi nhận chi' : 'Đã gán' }}
                 </span>
                 <span v-else-if="data.item.status === 'UNALLOCATED' || data.item.status === 'PENDING'" class="badge bg-warning text-dark">
                   Chưa xác định

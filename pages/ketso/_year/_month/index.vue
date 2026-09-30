@@ -122,7 +122,10 @@
                 </span>
               </td>
               <td class="text-right">
-                <div v-if="isSaved(lophoc)" class="d-inline-flex align-items-center gap-1">
+                <div v-if="feeDocument(lophoc)">
+                  <nuxt-link :to="`/ketso/${year}/${month}/${lophoc.id}`" class="btn btn-sm btn-primary">{{ feeDocument(lophoc).status === 'POSTED' ? 'Xem phiếu Fee' : 'Tiếp tục phiếu Fee' }}</nuxt-link>
+                </div>
+                <div v-else-if="isSaved(lophoc)" class="d-inline-flex align-items-center gap-1">
                   <!-- Xem chi tiết kết sổ -->
                   <a
                     class="btn btn-sm btn-outline-primary rounded-pill px-3 font-weight-semibold mr-1"
@@ -224,12 +227,14 @@
 
 <script>
 import gql from 'graphql-tag';
+import { paymentHubRequest } from '~/utils/paymentHub';
 
 export default {
   layout: 'app',
   data() {
     return {
       year: '',
+      feeDocuments: [],
       month: '',
       monthOptions: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
       deleteModalOpen: false,
@@ -272,6 +277,7 @@ export default {
   },
   methods: {
     loadData() {
+      this.loadFeeDocuments();
       this.$store.dispatch('lophoc/getAllLopHoc');
       this.$store.dispatch('ketso/searchKetSo', {
         code: `${this.year}_${this.month}`
@@ -281,6 +287,7 @@ export default {
       this.loadData();
     },
     changeTime() {
+      this.loadFeeDocuments();
       this.$router.push(`/ketso/${this.year}/${this.month}`);
       this.$store.dispatch('ketso/searchKetSo', {
         code: `${this.year}_${this.month}`
@@ -292,7 +299,14 @@ export default {
       return found || { status: 'NONE' };
     },
     isSaved(lh) {
-      return this.getKetSo(lh).status === 'SAVED';
+      return this.feeDocument(lh)?.status === 'POSTED' || this.getKetSo(lh).status === 'SAVED';
+    },
+    feeDocument(lh) { return this.feeDocuments.find(d => d._id === `MONTHLY:${this.year}-${String(this.month).padStart(2, '0')}:${lh.id}`); },
+    async loadFeeDocuments() {
+      try {
+        await this.$store.dispatch('user/getRole');
+        this.feeDocuments = (await paymentHubRequest(this, 'get', `monthly-fees/${this.year}-${String(this.month).padStart(2, '0')}`)).data.data;
+      } catch (error) { this.$bvToast.toast(error.response?.data?.error || 'Không tải được trạng thái phiếu Fee', { variant: 'warning' }); }
     },
     openDeleteModal(lophoc) {
       this.selectedClassToDelete = lophoc;

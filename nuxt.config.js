@@ -125,6 +125,7 @@ export default {
     "/api/camera-integration": baseURL(),
     "/admin/api": baseURL(),
     "/api/payment-hub": baseURL(),
+    "/api/support": baseURL(),
     "/api/portal": baseURL(),
   },
   auth: {

@@ -3,7 +3,7 @@
     <nuxt-link to="/setup" class="small">← Cài đặt hệ thống</nuxt-link>
     <h4 class="mt-2"><i class="fas fa-video text-primary mr-2"></i>Kết nối camera</h4>
     <p class="text-muted">Tài khoản là SĐT. Quyền camera được tổng hợp theo lớp các bé đang học trong hồ sơ phụ huynh.</p>
-    <div v-if="!isAdmin" class="alert alert-warning">Cần quyền quản trị để cấu hình camera.</div>
+    <div v-if="!isAdmin" class="alert alert-warning">Chỉ super admin kỹ thuật được cấu hình kết nối camera.</div>
     <template v-else>
       <div v-if="error" class="alert alert-danger" role="alert">{{ error }}</div>
       <div v-if="message" class="alert alert-success" role="status">{{ message }}</div>
@@ -60,7 +60,7 @@ export default {
   data: () => ({ config: { baseUrl: '', mapping: {}, apiKeyConfigured: false }, apiKey: '', schoolClasses: [], cameraClasses: [],
     loaded: false, busy: false, error: '', message: '', checkedAt: '', saved: '', progress: '', failures: [] }),
   computed: {
-    isAdmin() { return cameraAdmin(this.$store); },
+    isAdmin() { return !this.$store.state.user.isImpersonating && this.$store.state.user.user?.isSuperAdmin === true; },
     dirty() { return !!this.apiKey || JSON.stringify(this.config) !== this.saved; }
   },
   watch: { isAdmin(value) { if (value && !this.loaded) this.load(); } },

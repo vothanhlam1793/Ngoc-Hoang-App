@@ -35,11 +35,11 @@
             </span>
             <div class="d-flex align-items-center">
               <span class="small font-weight-bold text-muted mr-2">Kỳ thôi học:</span>
-              <input
+              <VietnameseMonthPicker
                 v-model="billingMonth"
-                type="month"
-                class="form-control form-control-sm font-weight-bold"
-                style="max-width: 150px;"
+                size="sm"
+                :clearable="false"
+                class="font-weight-bold"
                 @change="onMonthChange"
               />
             </div>

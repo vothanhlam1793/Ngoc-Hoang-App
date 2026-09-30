@@ -1,6 +1,7 @@
 // Payment Hub management uses Keystone's authenticated User.isAdmin policy.
 export function paymentHubAdmin(store) {
-  return store.state.user.user?.isAdmin === true;
+  return store.state.user.user?.isAdmin === true || store.state.user.user?.isSuperAdmin === true ||
+    (store.state.user.roles || []).some(role => ['hieu-truong', 'ke-toan'].includes(role));
 }
 
 export function paymentHubRequest(vm, method, path, data) {

@@ -192,7 +192,7 @@
                 :title="collapsed ? 'Cấu hình & Cron phí' : ''"
               >
                 <i class="fas fa-sliders-h nav-icon text-info"></i>
-                <span v-if="!collapsed" class="nav-text">Cấu hình & Cron phí</span>
+                <span v-if="!collapsed" class="nav-text">Tạo phí &amp; Lịch tự động</span>
               </nuxt-link>
             </li>
 
@@ -383,13 +383,22 @@
                 :title="collapsed ? 'Cài đặt & Quản trị' : ''"
               >
                 <i class="fas fa-sliders-h nav-icon text-secondary"></i>
-                <span v-if="!collapsed" class="nav-text">Cài đặt & Quản trị</span>
+                <span v-if="!collapsed" class="nav-text">Cài đặt nhà trường</span>
                 <span v-if="!collapsed && isAdmin" class="badge badge-warning text-dark ml-auto" style="font-size: 0.65rem;">ADMIN</span>
               </nuxt-link>
             </li>
           </ul>
         </template>
       </div>
+
+      <ul class="nav flex-column border-top mb-0 py-2">
+        <li class="nav-item">
+          <nuxt-link to="/huongdan" class="nav-link sidebar-item" active-class="active" :title="collapsed ? 'Hướng dẫn' : ''" @click.native="handleNavClick">
+            <i class="fas fa-book-open nav-icon text-primary" aria-hidden="true"></i>
+            <span v-if="!collapsed" class="nav-text">Hướng dẫn</span>
+          </nuxt-link>
+        </li>
+      </ul>
 
       <!-- 3. Footer: User Profile & Logout -->
       <div class="sidebar-footer p-3 border-top bg-white">

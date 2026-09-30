@@ -194,7 +194,7 @@ export default {
   methods: {
     async fetchConfig() {
       try {
-        const res = await axios.get('/api/portal/config');
+        const res = await axios.get('/api/portal/config', { headers: { Authorization: this.$auth.strategy.token.get() } });
         if (res.data?.data) {
           this.config = { ...this.config, ...res.data.data };
         }
@@ -219,7 +219,7 @@ export default {
     async saveConfig() {
       this.saving = true;
       try {
-        await axios.post('/api/portal/config', this.config);
+        await axios.post('/api/portal/config', this.config, { headers: { Authorization: this.$auth.strategy.token.get() } });
         this.$bvToast.toast('Đã lưu cấu hình Cổng Phụ Huynh thành công!', {
           title: 'Thành công',
           variant: 'success',

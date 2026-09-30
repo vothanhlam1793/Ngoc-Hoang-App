@@ -54,7 +54,7 @@
         </div>
         <div class="form-group mb-0">
           <label for="fee-month">Tháng tính phí</label>
-          <input id="fee-month" v-model="filters.billingMonth" type="month" class="form-control">
+          <VietnameseMonthPicker id="fee-month" v-model="filters.billingMonth" />
         </div>
         <div class="filter-actions">
           <button class="btn btn-primary" :disabled="loading"><i class="fas fa-search mr-1" aria-hidden="true"></i>Tra cứu</button>
@@ -144,7 +144,7 @@ export default {
   }),
   computed: {
     pageCount() { return Math.max(1, Math.ceil(this.total / this.pageSize)); },
-    typeOptions() { return this.optionValues('type', ['TUITION', 'CAMERA', 'FACILITY', 'EXTENDED', 'ABSENCE_CREDIT']); },
+    typeOptions() { return this.optionValues('type', ['TUITION', 'CAMERA', 'FACILITY', 'EXTENDED', 'ABSENCE_CREDIT', 'ADJUSTMENT_CREDIT']); },
     sourceOptions() { return this.optionValues('source', ['AUTOMATIC', 'MANUAL']); },
     summaryCards() {
       return [
@@ -192,7 +192,7 @@ export default {
       finally { this.cancelling = false; }
     },
     money(value) { return Number(value || 0).toLocaleString('vi-VN'); },
-    typeLabel(value) { return ({ TUITION: 'Học phí', CAMERA: 'Camera', FACILITY: 'Cơ sở vật chất', EXTENDED: 'Phí mở rộng', ABSENCE_CREDIT: 'Giảm nghỉ học' })[value] || value || 'Chưa phân loại'; },
+    typeLabel(value) { return ({ TUITION: 'Học phí', CAMERA: 'Camera', FACILITY: 'Cơ sở vật chất', EXTENDED: 'Phí mở rộng', ABSENCE_CREDIT: 'Giảm nghỉ học', ADJUSTMENT_CREDIT: 'Giảm trừ khác' })[value] || value || 'Chưa phân loại'; },
     sourceLabel(value) { return ({ MANUAL: 'Chủ động nghiệp vụ', AUTOMATIC: 'Tự động định kỳ' })[value] || value || 'Không rõ'; },
     statusLabel(value) { return ({ ACTIVE: 'Đang hiệu lực', CANCELLED: 'Đã hủy' })[value] || value || 'Không rõ'; },
     subjectName(fee) { const student = fee.student || fee.subject || fee.child || {}; const parent = fee.parent || {}; return student.name || fee.studentName || parent.name || fee.parentName || 'Chưa xác định đối tượng'; },
