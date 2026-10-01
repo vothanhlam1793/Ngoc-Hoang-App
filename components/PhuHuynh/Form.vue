@@ -3,7 +3,35 @@
     <!-- Bộ lọc & Thống kê nhanh -->
     <div class="card shadow-sm border-0 mb-3 bg-light">
       <div class="card-body py-3">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center">
+          <!-- Ô Tìm Kiếm Thông Minh (Mã, Tên PH, SĐT, Tên Bé) -->
+          <div class="search-box-wrapper mb-2 mb-lg-0 mr-lg-3 flex-grow-1" style="max-width: 480px;">
+            <div class="input-group input-group-merge rounded-pill shadow-sm bg-white border">
+              <div class="input-group-prepend">
+                <span class="input-group-text bg-transparent border-0 text-muted pl-3">
+                  <i class="fas fa-search"></i>
+                </span>
+              </div>
+              <input
+                type="text"
+                class="form-control border-0 bg-transparent py-2"
+                placeholder="Tìm theo Tên phụ huynh, Mã PH, SĐT hoặc Tên bé..."
+                v-model="searchKeyword"
+                @input="handleSearchInput"
+              />
+              <div class="input-group-append" v-if="searchKeyword">
+                <button
+                  type="button"
+                  class="btn btn-transparent text-muted pr-3 border-0"
+                  @click="clearSearch"
+                  title="Xóa tìm kiếm"
+                >
+                  <i class="fas fa-times-circle"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
           <b-form inline class="align-items-center flex-wrap" @submit.prevent="applySort">
             <span class="mr-2 font-weight-bold text-secondary"><i class="fas fa-filter mr-1"></i>Sắp xếp:</span>
             <b-form-select
@@ -35,7 +63,7 @@
             </b-button>
           </b-form>
 
-          <div class="mt-2 mt-md-0 d-flex align-items-center">
+          <div class="mt-2 mt-lg-0 d-flex align-items-center">
             <span class="badge badge-light border px-3 py-2 text-dark font-weight-bold mr-2">
               Hiển thị: <span class="text-primary">{{ filteredPhuhuynhs.length }}</span> / {{ total }} phụ huynh
             </span>
@@ -225,6 +253,8 @@ export default {
       loadData: 0,
       hideDeactive: false,
       busyTable: true,
+      searchKeyword: '',
+      searchTimer: null,
       phuhuynhs: [],
       total: 0,
       page: 1,
@@ -296,6 +326,18 @@ export default {
     };
   },
   methods: {
+    handleSearchInput() {
+      clearTimeout(this.searchTimer);
+      this.searchTimer = setTimeout(() => {
+        this.page = 1;
+        this.loadPhuHuynh();
+      }, 300);
+    },
+    clearSearch() {
+      this.searchKeyword = '';
+      this.page = 1;
+      this.loadPhuHuynh();
+    },
     toggleHideDeactive() {
       this.hideDeactive = !this.hideDeactive;
       storage.set('nh_hide_deactive_parents', this.hideDeactive);
@@ -355,6 +397,7 @@ export default {
         first: that.pageSize,
         skip,
         sortBy: that.sortBy,
+        search: that.searchKeyword,
       })
         .then((data) => {
           that.phuhuynhs = data.items;
