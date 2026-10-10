@@ -2,6 +2,7 @@
   <div class="debt-detail-container" v-if="phuhuynh">
     <!-- 1. Header Card: Hồ sơ Phụ huynh & 2 Thẻ KPI Tài chính lớn -->
     <div class="card border-0 shadow-sm bg-white p-3 p-md-4 mb-3 rounded-12">
+      <p v-if="historyError" class="alert alert-danger" role="alert">{{ historyError }} <button class="btn btn-link" @click="fetchFullHistory">Tải lại</button></p>
       <div class="row align-items-center">
         <!-- Thông tin Phụ huynh bên trái -->
         <div class="col-lg-6 mb-3 mb-lg-0">
@@ -66,6 +67,7 @@
         <div class="d-flex align-items-center flex-wrap">
           <!-- 1. Thu tiền & Quét VietQR -->
           <button
+            v-if="canManageMoney"
             type="button"
             class="btn btn-success rounded-pill px-3 py-2 mr-2 shadow-sm font-weight-bold d-flex align-items-center"
             @click="showCreatePaymentModal = true"
@@ -75,9 +77,10 @@
 
           <!-- 2. Cấn trừ nợ từ Ví sang Nợ -->
           <button
+            v-if="canManageMoney"
             type="button"
             class="btn btn-outline-info rounded-pill px-3 py-2 mr-2 d-flex align-items-center"
-            :disabled="!phuhuynh.balance || phuhuynh.balance <= 0 || !phuhuynh.debt || phuhuynh.debt <= 0"
+            :disabled="postingLocked || !phuhuynh.balance || phuhuynh.balance <= 0 || !phuhuynh.debt || phuhuynh.debt <= 0"
             @click="openSettleModal"
             title="Thanh toán học phí từ số dư"
           >
@@ -86,9 +89,10 @@
 
           <!-- 3. Chi hoàn tiền -->
           <button
+            v-if="canManageMoney"
             type="button"
             class="btn btn-outline-danger rounded-pill px-3 py-2 d-flex align-items-center"
-            :disabled="!phuhuynh.balance || phuhuynh.balance <= 0"
+            :disabled="postingLocked || !phuhuynh.balance || phuhuynh.balance <= 0"
             @click="openRefundModal"
             title="Chi trả lại tiền thừa từ số dư ví"
           >
@@ -96,6 +100,7 @@
           </button>
         </div>
       </div>
+      <PostingStatus :state="posting" @retry="retryPosting" />
     </div>
 
     <!-- 3. Bảng 2 Sổ Lũy Tiến Độc Lập: Sổ Công Nợ & Sổ Ví Khả Dụng -->
@@ -133,20 +138,65 @@
               <thead class="bg-light text-secondary small text-uppercase">
                 <tr>
                   <th style="width: 14%;" class="pl-3">NGÀY GIAO DỊCH</th>
-                  <th style="width: 13%;">MÃ CHỨNG TỪ</th>
+                  <th style="width: 15%;">MÃ CHỨNG TỪ</th>
                   <th style="width: 35%;">LOẠI PHIẾU / DIỄN GIẢI KHOẢN THU</th>
                   <th style="width: 18%;" class="text-right">BIẾN ĐỘNG NỢ</th>
-                  <th style="width: 20%;" class="text-right pr-3">DƯ NỢ LŨY TIẾN</th>
+                  <th style="width: 18%;" class="text-right pr-3">DƯ NỢ LŨY TIẾN</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(item, idx) in debtHistoryItems" :key="'debt-' + idx">
                   <td class="small text-muted pl-3">
-                    <i class="far fa-calendar-alt mr-1 text-secondary"></i>
-                    {{ showDate(item.date) }}
+                    <div><i class="far fa-calendar-alt mr-1 text-secondary"></i><strong>{{ showDate(item.date) }}</strong></div>
+                    <div class="text-muted" style="font-size: 11px;">{{ showTime(item.date) }}</div>
                   </td>
                   <td>
-                    <span class="badge badge-light border text-dark font-weight-normal px-2 py-1">
+                    <span
+                      v-if="item.documentType === 'HoaDon'"
+                      class="badge badge-light border text-primary font-weight-bold px-2 py-1 voucher-btn"
+                      @click="viewInvoice(item)"
+                      title="Bấm để xem chi tiết hóa đơn này"
+                    >
+                      <i class="fas fa-file-invoice mr-1"></i>{{ item.code || 'Hóa đơn' }}
+                      <i class="fas fa-search-plus ml-1 small opacity-75"></i>
+                    </span>
+                    <span
+                      v-else-if="item.documentType === 'ItemKetSo'"
+                      class="badge badge-light border text-purple font-weight-bold px-2 py-1 voucher-btn"
+                      @click="viewKetSo(item)"
+                      title="Bấm để xem chi tiết phiếu thu học phí tháng này"
+                    >
+                      <i class="fas fa-clipboard-list mr-1"></i>{{ item.code || 'Thu học phí' }}
+                      <i class="fas fa-search-plus ml-1 small opacity-75"></i>
+                    </span>
+                    <span
+                      v-else-if="item.documentType === 'PaymentSettlement'"
+                      class="badge badge-light border text-info font-weight-bold px-2 py-1 voucher-btn"
+                      @click="viewSettlement(item)"
+                      title="Bấm để xem chi tiết giao dịch cấn trừ"
+                    >
+                      <i class="fas fa-receipt mr-1"></i>{{ item.code || 'Cấn trừ' }}
+                      <i class="fas fa-info-circle ml-1 small opacity-75"></i>
+                    </span>
+                    <span
+                      v-else-if="item.documentType === 'PhieuThu'"
+                      class="badge badge-light border text-success font-weight-bold px-2 py-1 voucher-btn"
+                      @click="viewReceipt(item)"
+                      title="Bấm để xem phiếu thu tiền mặt / gạch nợ"
+                    >
+                      <i class="fas fa-money-bill-wave mr-1"></i>{{ item.code || 'Phiếu thu' }}
+                      <i class="fas fa-search-plus ml-1 small opacity-75"></i>
+                    </span>
+                    <span
+                      v-else-if="item.documentType === 'FinancialCorrection'"
+                      class="badge badge-light border text-danger font-weight-bold px-2 py-1 voucher-btn"
+                      @click="viewCorrection(item)"
+                      title="Bấm để xem chi tiết điều chỉnh / hủy chứng từ"
+                    >
+                      <i class="fas fa-undo-alt mr-1"></i>{{ item.code || 'Điều chỉnh' }}
+                      <i class="fas fa-info-circle ml-1 small opacity-75"></i>
+                    </span>
+                    <span v-else class="badge badge-light border text-dark font-weight-normal px-2 py-1">
                       {{ item.code || 'N/A' }}
                     </span>
                   </td>
@@ -184,20 +234,34 @@
               <thead class="bg-light text-secondary small text-uppercase">
                 <tr>
                   <th style="width: 14%;" class="pl-3">NGÀY GIAO DỊCH</th>
-                  <th style="width: 13%;">MÃ GIAO DỊCH</th>
+                  <th style="width: 15%;">MÃ GIAO DỊCH</th>
                   <th style="width: 35%;">NỘI DUNG NẠP / TRÍCH VÍ</th>
                   <th style="width: 18%;" class="text-right">BIẾN ĐỘNG VÍ</th>
-                  <th style="width: 20%;" class="text-right pr-3">SỐ DƯ VÍ LŨY TIẾN</th>
+                  <th style="width: 18%;" class="text-right pr-3">SỐ DƯ VÍ LŨY TIẾN</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(item, idx) in balanceHistoryItems" :key="'bal-' + idx">
                   <td class="small text-muted pl-3">
-                    <i class="far fa-calendar-alt mr-1 text-secondary"></i>
-                    {{ showDate(item.date) }}
+                    <div><i class="far fa-calendar-alt mr-1 text-secondary"></i><strong>{{ showDate(item.date) }}</strong></div>
+                    <div class="text-muted" style="font-size: 11px;">{{ showTime(item.date) }}</div>
                   </td>
                   <td>
-                    <span class="badge badge-light border text-dark font-weight-normal px-2 py-1">
+                    <span
+                      v-if="item.code && item.code.startsWith('STL')"
+                      class="badge badge-light border text-info font-weight-bold px-2 py-1 voucher-btn"
+                      @click="viewSettlement(item)"
+                      title="Bấm để xem chi tiết cấn trừ"
+                    >
+                      <i class="fas fa-receipt mr-1"></i>{{ item.code }}
+                    </span>
+                    <span
+                      v-else-if="item.code && (item.code.startsWith('CT') || item.code.startsWith('PTT'))"
+                      class="badge badge-light border text-success font-weight-bold px-2 py-1"
+                    >
+                      <i class="fas fa-money-bill-wave mr-1"></i>{{ item.code }}
+                    </span>
+                    <span v-else class="badge badge-light border text-dark font-weight-normal px-2 py-1">
                       {{ item.code || 'N/A' }}
                     </span>
                   </td>
@@ -246,6 +310,7 @@
       no-close-on-backdrop
     >
       <div class="p-2" v-if="phuhuynh">
+        <fieldset :disabled="postingLocked">
         <div class="alert alert-info py-2 small mb-3">
           <i class="fas fa-info-circle mr-1"></i>
           <strong>Tiền còn dư:</strong> {{ numberWithCommas(phuhuynh.balance || 0) }} đ.
@@ -253,6 +318,7 @@
         </div>
 
         <div class="form-group mb-3">
+          <label><input type="checkbox" v-model="settleForm.maximum"> Cấn trừ tối đa tại thời điểm máy chủ nhận yêu cầu</label>
           <label class="font-weight-bold small">Số tiền thanh toán (VNĐ)</label>
           <InputCurrency
             v-model="settleForm.amount"
@@ -262,14 +328,7 @@
           <small class="text-muted">Tối đa: <strong>{{ numberWithCommas(maxSettleAmount) }} đ</strong></small>
         </div>
 
-        <div class="form-group mb-3">
-          <label class="font-weight-bold small">Hình thức thao tác</label>
-          <select class="form-control" v-model="settleForm.settleType">
-            <option value="SCHOOL_TRANSFER">Trường chuyển cấn trừ</option>
-            <option value="PARENT_TRANSFER">Phụ huynh chuyển cấn trừ</option>
-            <option value="MANUAL_ACCOUNTANT">Kế toán gạch nợ thủ công</option>
-          </select>
-        </div>
+        <p class="small text-muted">Số tiền nhập là số chính xác; máy chủ từ chối nếu không đủ ví hoặc nợ, không tự giảm số tiền.</p>
 
         <div class="form-group mb-4">
           <label class="font-weight-bold small">Ghi chú chứng từ</label>
@@ -283,10 +342,12 @@
 
         <div class="d-flex justify-content-end">
           <button class="btn btn-outline-secondary mr-2 rounded-pill px-4" @click="showSettleModal = false">Hủy</button>
-          <button class="btn btn-outline-primary rounded-pill px-4" :disabled="settling" @click="executeSettle">
-            <i class="fas fa-check mr-1"></i> {{ settling ? 'Đang xử lý...' : 'Xác nhận thanh toán' }}
+          <button class="btn btn-outline-primary rounded-pill px-4" :disabled="postingLocked" @click="executeSettle">
+            <i class="fas fa-check mr-1"></i> {{ posting.busy ? 'Đang xử lý...' : 'Xác nhận thanh toán' }}
           </button>
         </div>
+        </fieldset>
+        <PostingStatus :state="posting" @retry="retryPosting" />
       </div>
     </b-modal>
 
@@ -298,9 +359,11 @@
       no-close-on-backdrop
     >
       <div class="p-2" v-if="phuhuynh">
+        <fieldset :disabled="postingLocked">
         <div class="alert alert-warning py-2 small mb-3">
           <i class="fas fa-exclamation-triangle mr-1"></i>
           Hoàn trả từ <strong>Tiền còn dư</strong> ({{ numberWithCommas(phuhuynh.balance || 0) }} đ) cho phụ huynh.
+          Đây là ghi sổ chi tiền, không tự chuyển tiền ngân hàng.
         </div>
 
         <div class="form-group mb-3">
@@ -335,8 +398,355 @@
 
         <div class="d-flex justify-content-end">
           <button class="btn btn-outline-secondary mr-2 rounded-pill px-4" @click="showRefundModal = false">Hủy</button>
-          <button class="btn btn-outline-danger rounded-pill px-4" :disabled="refunding" @click="executeRefund">
-            <i class="fas fa-hand-holding-dollar mr-1"></i> {{ refunding ? 'Đang xử lý...' : 'Xác nhận hoàn tiền' }}
+          <button class="btn btn-outline-danger rounded-pill px-4" :disabled="postingLocked" @click="executeRefund">
+            <i class="fas fa-hand-holding-dollar mr-1"></i> {{ posting.busy ? 'Đang xử lý...' : 'Xác nhận hoàn tiền' }}
+          </button>
+        </div>
+        </fieldset>
+        <PostingStatus :state="posting" @retry="retryPosting" />
+      </div>
+    </b-modal>
+
+    <!-- Modal Chi tiết Hóa đơn (In / Xuất hóa đơn) -->
+    <InvoiceModal
+      v-model="showInvoiceModal"
+      :invoice="selectedInvoice"
+      :can-cancel="false"
+    />
+
+    <!-- Modal Chi tiết Giao dịch Cấn trừ nợ (STL) -->
+    <b-modal
+      v-model="showSettlementModal"
+      title="Chi tiết giao dịch cấn trừ nợ"
+      hide-footer
+      centered
+      size="md"
+    >
+      <div v-if="selectedSettlement" class="p-2">
+        <div class="text-center pb-3 border-bottom mb-3">
+          <div class="badge badge-info px-3 py-2 font-weight-bold mb-2" style="font-size: 1rem;">
+            {{ selectedSettlement.code || 'Phiếu cấn trừ' }}
+          </div>
+          <h4 class="font-weight-bold text-success mb-1">
+            -{{ numberWithCommas(selectedSettlement.amount || 0) }} đ
+          </h4>
+          <div class="text-muted small">{{ selectedSettlement.settleTypeLabel }}</div>
+        </div>
+
+        <div class="small mb-3">
+          <div class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Thời gian thực hiện:</span>
+            <strong>{{ showDateTime(selectedSettlement.date) }}</strong>
+          </div>
+          <div class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Nội dung / Ghi chú:</span>
+            <span class="text-right font-weight-bold text-dark" style="max-width: 65%;">
+              {{ selectedSettlement.note || 'Trích từ ví để cấn trừ nợ' }}
+            </span>
+          </div>
+          <div class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Trạng thái đối soát:</span>
+            <span class="badge badge-success font-weight-normal px-2 py-1">Thành công (Đã đối soát)</span>
+          </div>
+        </div>
+
+        <div v-if="selectedSettlement.relatedInvoiceId" class="mt-3 text-center">
+          <button
+            type="button"
+            class="btn btn-outline-primary btn-sm rounded-pill px-3 font-weight-bold"
+            @click="openRelatedInvoice(selectedSettlement.relatedInvoiceId)"
+          >
+            <i class="fas fa-file-invoice mr-1"></i> Xem hóa đơn liên quan ({{ selectedSettlement.relatedInvoiceCode }})
+          </button>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+          <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" @click="showSettlementModal = false">
+            Đóng
+          </button>
+        </div>
+      </div>
+    </b-modal>
+
+    <!-- Modal Chi tiết Phiếu thu tiền (PTT) -->
+    <b-modal
+      v-model="showReceiptModal"
+      title="Phiếu thu tiền mặt / Gạch nợ"
+      hide-footer
+      centered
+      size="lg"
+    >
+      <div v-if="selectedReceipt" class="p-3">
+        <!-- Vùng in Phiếu Thu -->
+        <div class="receipt-paper p-4 bg-white border rounded shadow-sm">
+          <div class="row align-items-center pb-2 border-bottom mb-3">
+            <div class="col-3 text-center">
+              <img src="/student.png" alt="Logo Mầm non Ngọc Hoàng" class="img-fluid" style="max-height: 65px;" />
+              <div class="text-uppercase font-weight-bold mt-1" style="font-size: 8px;">
+                Ngoc Hoang Kindergarten
+              </div>
+            </div>
+            <div class="col-9">
+              <h5 class="font-weight-bold text-danger mb-1 text-uppercase">Trường Mầm Non Ngọc Hoàng</h5>
+              <div class="small text-muted mb-0">
+                <i class="fas fa-map-marker-alt text-danger mr-1"></i> Số 14, Đường 16, P. Linh Chiểu, TP. Thủ Đức, TP.HCM
+              </div>
+              <div class="small text-dark font-weight-bold">
+                <i class="fas fa-phone-alt text-success mr-1"></i> Hotline: 0933.064.964 - 0978.087.992
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center my-3">
+            <h4 class="font-weight-bold text-dark text-uppercase mb-1">PHIẾU THU TIỀN MẶT</h4>
+            <div class="small text-muted font-italic">
+              Số phiếu: <strong class="text-primary">{{ selectedReceipt.code }}</strong> — Ngày lập: {{ showDateTime(selectedReceipt.date) }}
+            </div>
+          </div>
+
+          <div class="bg-light p-3 rounded mb-3 border small">
+            <div class="row">
+              <div class="col-sm-6 mb-2 mb-sm-0">
+                <div>Họ và tên người nộp: <strong class="text-dark">{{ phuhuynh ? phuhuynh.name : '—' }}</strong></div>
+                <div class="text-muted">Mã phụ huynh: <span class="badge badge-secondary">{{ phuhuynh ? phuhuynh.code : '—' }}</span></div>
+              </div>
+              <div class="col-sm-6">
+                <div>Nội dung thu: <strong class="text-dark">{{ selectedReceipt.note || 'Thu tiền gạch nợ học phí' }}</strong></div>
+                <div class="text-muted">Hình thức: <strong>Tiền mặt tại trường</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-success d-flex justify-content-between align-items-center py-3 px-4 mb-4">
+            <span class="font-weight-bold text-uppercase">Số tiền đã thu:</span>
+            <span class="font-weight-bold text-success" style="font-size: 1.4rem;">
+              {{ numberWithCommas(selectedReceipt.amount || 0) }} đ
+            </span>
+          </div>
+
+          <div class="row text-center mt-4 pt-2">
+            <div class="col-6">
+              <div class="font-weight-bold small text-uppercase">Người nộp tiền</div>
+              <div class="text-muted small font-italic">(Ký, ghi rõ họ tên)</div>
+              <div style="height: 60px;"></div>
+              <div class="small font-weight-bold text-dark">{{ phuhuynh ? phuhuynh.name : '' }}</div>
+            </div>
+            <div class="col-6">
+              <div class="font-weight-bold small text-uppercase">Người thu tiền / Thủ quỹ</div>
+              <div class="text-muted small font-italic">(Ký, đóng dấu)</div>
+              <div style="height: 60px;"></div>
+              <div class="small font-weight-bold text-dark">Kế toán nhà trường</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+          <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 mr-2" @click="printWindow">
+            <i class="fas fa-print mr-1"></i> In phiếu thu
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" @click="showReceiptModal = false">
+            Đóng
+          </button>
+        </div>
+      </div>
+    </b-modal>
+
+    <!-- Modal Chi tiết Phiếu Thu Học Phí (ItemKetSo) -->
+    <b-modal
+      v-model="showKetSoModal"
+      title="Chi tiết phiếu thu học phí tháng"
+      hide-footer
+      centered
+      size="lg"
+    >
+      <div v-if="selectedKetSo" class="p-3">
+        <!-- Vùng phiếu kết sổ -->
+        <div class="receipt-paper p-4 bg-white border rounded shadow-sm">
+          <div class="row align-items-center pb-2 border-bottom mb-3">
+            <div class="col-3 text-center">
+              <img src="/student.png" alt="Logo Mầm non Ngọc Hoàng" class="img-fluid" style="max-height: 65px;" />
+              <div class="text-uppercase font-weight-bold mt-1" style="font-size: 8px;">
+                Ngoc Hoang Kindergarten
+              </div>
+            </div>
+            <div class="col-9">
+              <h5 class="font-weight-bold text-danger mb-1 text-uppercase">Trường Mầm Non Ngọc Hoàng</h5>
+              <div class="small text-muted mb-0">
+                <i class="fas fa-map-marker-alt text-danger mr-1"></i> Số 14, Đường 16, P. Linh Chiểu, TP. Thủ Đức, TP.HCM
+              </div>
+              <div class="small text-dark font-weight-bold">
+                <i class="fas fa-phone-alt text-success mr-1"></i> Hotline: 0933.064.964 - 0978.087.992
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center my-3">
+            <h4 class="font-weight-bold text-danger text-uppercase mb-1">
+              PHIẾU THU HỌC PHÍ — {{ selectedKetSo.periodLabel }}
+            </h4>
+            <div class="small text-muted font-italic">
+              Mã phiếu: <strong class="text-primary">{{ selectedKetSo.code }}</strong> — Lớp: <strong class="text-dark">{{ selectedKetSo.className }}</strong>
+            </div>
+          </div>
+
+          <div class="bg-light p-3 rounded mb-3 border small">
+            <div class="row">
+              <div class="col-sm-6 mb-2 mb-sm-0">
+                <div>Họ và tên học sinh: <strong class="text-dark" style="font-size: 1rem;">{{ selectedKetSo.studentName }}</strong></div>
+                <div>Lớp học: <strong class="text-primary">{{ selectedKetSo.className }}</strong></div>
+              </div>
+              <div class="col-sm-6">
+                <div>Phụ huynh: <strong>{{ phuhuynh ? phuhuynh.name : '—' }}</strong></div>
+                <div>Mã PH: <span class="badge badge-secondary">{{ phuhuynh ? phuhuynh.code : '—' }}</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bảng kê các khoản tiền trong kỳ kết sổ -->
+          <div class="table-responsive mb-3">
+            <table class="table table-bordered table-sm mb-0 align-middle">
+              <thead class="thead-light small text-uppercase font-weight-bold">
+                <tr>
+                  <th style="width: 8%;" class="text-center">STT</th>
+                  <th style="width: 62%;">Khoản mục phí</th>
+                  <th style="width: 30%;" class="text-right">Số tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-center">1</td>
+                  <td>Học phí chính khóa</td>
+                  <td class="text-right font-weight-bold">{{ numberWithCommas(selectedKetSo.details.hocphi || 0) }} đ</td>
+                </tr>
+                <tr>
+                  <td class="text-center">2</td>
+                  <td>Cơ sở vật chất</td>
+                  <td class="text-right font-weight-bold">{{ numberWithCommas(selectedKetSo.details.csvc || 0) }} đ</td>
+                </tr>
+                <tr>
+                  <td class="text-center">3</td>
+                  <td>Phí Camera</td>
+                  <td class="text-right font-weight-bold">{{ numberWithCommas(selectedKetSo.details.camera || 0) }} đ</td>
+                </tr>
+                <tr>
+                  <td class="text-center">4</td>
+                  <td>Tiền ăn ngoài giờ / Ăn 545</td>
+                  <td class="text-right font-weight-bold">{{ numberWithCommas((selectedKetSo.details.an545 || 0) + (selectedKetSo.details.ngoaigio || 0)) }} đ</td>
+                </tr>
+                <tr v-if="selectedKetSo.details.phimorong > 0">
+                  <td class="text-center">5</td>
+                  <td>
+                    Phí mở rộng
+                    <span v-if="selectedKetSo.details.note_phimorong" class="text-muted small ml-1">
+                      ({{ selectedKetSo.details.note_phimorong }})
+                    </span>
+                  </td>
+                  <td class="text-right font-weight-bold">{{ numberWithCommas(selectedKetSo.details.phimorong || 0) }} đ</td>
+                </tr>
+                <tr v-if="selectedKetSo.details.khac && selectedKetSo.details.khac !== 0" class="table-light">
+                  <td class="text-center text-muted">•</td>
+                  <td>
+                    <span :class="selectedKetSo.details.khac < 0 ? 'text-success font-weight-bold' : 'text-dark'">
+                      {{ selectedKetSo.details.khac < 0 ? 'Giảm trừ khác' : 'Thu khác' }}
+                    </span>
+                    <span v-if="selectedKetSo.details.note_khac || selectedKetSo.details.note" class="text-muted small ml-1">
+                      ({{ selectedKetSo.details.note_khac || selectedKetSo.details.note }})
+                    </span>
+                  </td>
+                  <td class="text-right font-weight-bold" :class="selectedKetSo.details.khac < 0 ? 'text-success' : 'text-dark'">
+                    {{ selectedKetSo.details.khac < 0 ? '-' : '' }}{{ numberWithCommas(selectedKetSo.details.khac < 0 ? -selectedKetSo.details.khac : selectedKetSo.details.khac) }} đ
+                  </td>
+                </tr>
+                <tr v-if="selectedKetSo.details.thanhtiennghi > 0 || selectedKetSo.details.ngaynghi > 0" class="table-light">
+                  <td class="text-center text-muted">•</td>
+                  <td class="text-muted">
+                    Giảm trừ ngày nghỉ <span v-if="selectedKetSo.details.ngaynghi > 0">(Nghỉ <strong>{{ selectedKetSo.details.ngaynghi }}</strong> ngày)</span>
+                  </td>
+                  <td class="text-right font-weight-bold text-success">
+                    -{{ numberWithCommas(selectedKetSo.details.thanhtiennghi || 0) }} đ
+                  </td>
+                </tr>
+                <tr v-if="selectedKetSo.details.totalHoaDon > 0" class="table-light">
+                  <td class="text-center text-muted">•</td>
+                  <td>
+                    Hóa đơn / Phụ phí phát sinh kèm theo
+                    <span v-if="selectedKetSo.details.hoadons && selectedKetSo.details.hoadons.length" class="text-muted small">
+                      ({{ selectedKetSo.details.hoadons.map(h => h.code).join(', ') }})
+                    </span>
+                  </td>
+                  <td class="text-right font-weight-bold text-primary">
+                    +{{ numberWithCommas(selectedKetSo.details.totalHoaDon) }} đ
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="table-warning">
+                  <td colspan="2" class="text-right font-weight-bold text-uppercase text-dark" style="font-size: 1rem;">
+                    Tổng cộng phiếu thu học phí:
+                  </td>
+                  <td class="text-right font-weight-bold text-danger" style="font-size: 1.15rem;">
+                    {{ numberWithCommas(selectedKetSo.total || 0) }} đ
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="small text-muted font-italic">
+            <i class="fas fa-info-circle mr-1"></i> Khoản phí này đã được ghi nhận vào Sổ Công Nợ phụ huynh.
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+          <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 mr-2" @click="printWindow">
+            <i class="fas fa-print mr-1"></i> In phiếu thu học phí
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" @click="showKetSoModal = false">
+            Đóng
+          </button>
+        </div>
+      </div>
+    </b-modal>
+
+    <!-- Modal Chi tiết Điều Chỉnh Tài Chính (FinancialCorrection) -->
+    <b-modal
+      v-model="showCorrectionModal"
+      title="Chi tiết điều chỉnh / Hủy chứng từ"
+      hide-footer
+      centered
+      size="md"
+    >
+      <div v-if="selectedCorrection" class="p-2">
+        <div class="text-center pb-3 border-bottom mb-3">
+          <div class="badge badge-warning px-3 py-2 font-weight-bold mb-2" style="font-size: 1rem;">
+            {{ selectedCorrection.code || 'Điều chỉnh tài chính' }}
+          </div>
+          <h4 :class="['font-weight-bold mb-1', selectedCorrection.isUp ? 'text-danger' : 'text-success']">
+            {{ selectedCorrection.isUp ? '+' : '-' }}{{ numberWithCommas(selectedCorrection.amount || 0) }} đ
+          </h4>
+          <div class="text-muted small">Nghiệp vụ kiểm soát & hủy chứng từ có kiểm toán</div>
+        </div>
+
+        <div class="small mb-3">
+          <div class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Thời gian thực hiện:</span>
+            <strong>{{ showDateTime(selectedCorrection.date) }}</strong>
+          </div>
+          <div class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Lý do điều chỉnh:</span>
+            <span class="text-right font-weight-bold text-danger" style="max-width: 65%;">
+              {{ selectedCorrection.reason || 'Hủy / điều chỉnh chứng từ sai sót' }}
+            </span>
+          </div>
+          <div v-if="selectedCorrection.documentId" class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Chứng từ liên quan:</span>
+            <span class="text-right text-primary font-weight-bold">{{ selectedCorrection.documentId }}</span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+          <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" @click="showCorrectionModal = false">
+            Đóng
           </button>
         </div>
       </div>
@@ -348,16 +758,24 @@
 import gql from 'graphql-tag';
 import PhieuThuCreate from '~/components/PhieuThu/Create.vue';
 import InputCurrency from '~/components/Common/InputCurrency.vue';
+import InvoiceModal from '~/components/HoaDon/InvoiceModal.vue';
+import { paymentHubAdmin, paymentHubRequest } from '~/utils/paymentHub';
+import postingMixin from '~/utils/postingMixin';
+import { postingMoney } from '~/utils/financialPosting';
 
 export default {
+  mixins: [postingMixin],
+  postingScope: 'parent-wallet',
   components: {
     PhieuThuCreate,
     InputCurrency,
+    InvoiceModal,
   },
   props: ['idPhuHuynh', 'loadData'],
   data() {
     return {
       phuhuynh: null,
+      historyError: '',
       ledgerTabIndex: 0,
       debtHistoryItems: [],
       balanceHistoryItems: [],
@@ -365,9 +783,20 @@ export default {
       showCreatePaymentModal: false,
       showSettleModal: false,
       showRefundModal: false,
+      showInvoiceModal: false,
+      selectedInvoice: null,
+      showSettlementModal: false,
+      selectedSettlement: null,
+      showReceiptModal: false,
+      selectedReceipt: null,
+      showKetSoModal: false,
+      selectedKetSo: null,
+      showCorrectionModal: false,
+      selectedCorrection: null,
       settling: false,
       refunding: false,
       settleForm: {
+        maximum: false,
         amount: 0,
         settleType: 'SCHOOL_TRANSFER',
         note: '',
@@ -380,6 +809,7 @@ export default {
     };
   },
   computed: {
+    canManageMoney() { return paymentHubAdmin(this.$store); },
     maxSettleAmount() {
       if (!this.phuhuynh) return 0;
       return Math.min(this.phuhuynh.balance || 0, this.phuhuynh.debt || 0);
@@ -387,128 +817,43 @@ export default {
   },
   methods: {
     openSettleModal() {
+      if (!this.canManageMoney || this.postingLocked) return;
+      this.settleForm.maximum = false;
       this.settleForm.amount = this.maxSettleAmount;
       this.settleForm.note = 'Trường chuyển cấn trừ nợ từ số dư ví';
       this.showSettleModal = true;
     },
     openRefundModal() {
+      if (!this.canManageMoney || this.postingLocked) return;
       this.refundForm.amount = this.phuhuynh?.balance || 0;
       this.refundForm.reason = 'Hoàn trả số dư ví cho phụ huynh';
       this.showRefundModal = true;
     },
     async executeSettle() {
-      if (!this.settleForm.amount || this.settleForm.amount <= 0) return;
-      this.settling = true;
-      const client = this.$apolloProvider.defaultClient;
-
+      if (!this.canManageMoney || this.postingLocked) return;
       try {
-        const createSettlementQuery = gql`
-          mutation CreateSettlement($data: PaymentSettlementCreateInput!) {
-            createPaymentSettlement(data: $data) {
-              id
-              code
-              amount
-            }
-          }
-        `;
-
-        await client.mutate({
-          mutation: createSettlementQuery,
-          variables: {
-            data: {
-              parent: { connect: { id: this.idPhuHuynh } },
-              amount: parseInt(this.settleForm.amount, 10),
-              settleType: this.settleForm.settleType,
-              status: 'SUCCESS',
-              note: this.settleForm.note || 'Cấn trừ nợ từ số dư ví',
-            },
-          },
-        });
-
-        this.$bvToast.toast(`Đã cấn trừ ${this.numberWithCommas(this.settleForm.amount)} đ thành công!`, {
-          title: 'Thành công',
-          variant: 'success',
-          solid: true,
-        });
-
-        this.showSettleModal = false;
-        await this.fetchFullHistory();
-      } catch (err) {
-        console.error('Lỗi khi cấn trừ nợ:', err);
-        this.$bvToast.toast('Không thể thực hiện cấn trừ nợ.', {
-          title: 'Lỗi',
-          variant: 'danger',
-          solid: true,
-        });
-      } finally {
-        this.settling = false;
-      }
+        await this.submitPosting('settlements/transfer', { parentId: this.idPhuHuynh,
+          amount: this.settleForm.maximum ? null : postingMoney(this.settleForm.amount), reason: this.settleForm.note.trim() });
+      } catch (error) { this.posting.error = error.message; }
     },
     async executeRefund() {
-      if (!this.refundForm.amount || this.refundForm.amount <= 0) return;
-      this.refunding = true;
-      const client = this.$apolloProvider.defaultClient;
-
+      if (!this.canManageMoney || this.postingLocked) return;
       try {
-        await client.mutate({
-          mutation: gql`
-            mutation CreateCashTx($data: CashTransactionCreateInput!) {
-              createCashTransaction(data: $data) {
-                id
-                code
-              }
-            }
-          `,
-          variables: {
-            data: {
-              type: 'OUTFLOW',
-              amount: parseInt(this.refundForm.amount, 10),
-              paymentMethod: this.refundForm.paymentMethod,
-              bankDescription: this.refundForm.reason || 'Chi hoàn tiền phụ huynh',
-              status: 'SETTLED',
-              parent: { connect: { id: this.idPhuHuynh } },
-            },
-          },
-        });
-
-        const newBalance = Math.max(0, (this.phuhuynh.balance || 0) - this.refundForm.amount);
-        await client.mutate({
-          mutation: gql`
-            mutation UpdateParentBalance($id: ID!, $balance: Int!) {
-              updateParent(id: $id, data: { balance: $balance }) {
-                id
-                balance
-              }
-            }
-          `,
-          variables: {
-            id: this.idPhuHuynh,
-            balance: newBalance,
-          },
-        });
-
-        this.$bvToast.toast(`Đã lập phiếu chi hoàn tiền ${this.numberWithCommas(this.refundForm.amount)} đ thành công!`, {
-          title: 'Thành công',
-          variant: 'success',
-          solid: true,
-        });
-
-        this.showRefundModal = false;
-        await this.fetchFullHistory();
-      } catch (err) {
-        console.error('Lỗi khi hoàn tiền:', err);
-        this.$bvToast.toast('Không thể lập phiếu chi hoàn tiền.', {
-          title: 'Lỗi',
-          variant: 'danger',
-          solid: true,
-        });
-      } finally {
-        this.refunding = false;
-      }
+        const reason = this.refundForm.reason.trim();
+        if (!reason || reason.length > 500) throw new Error('Nhập lý do hoàn tiền, tối đa 500 ký tự.');
+        await this.submitPosting('cash-transactions/outflow', { parentId: this.idPhuHuynh,
+          amount: postingMoney(this.refundForm.amount), reason, paymentMethod: this.refundForm.paymentMethod });
+      } catch (error) { this.posting.error = error.message; }
+    },
+    async onPostingCompleted(result) {
+      if (!result.refreshOnly) { this.showSettleModal = false; this.showRefundModal = false; }
+      await this.fetchFullHistory();
+      this.$emit('updated');
     },
     async fetchFullHistory() {
       if (!this.idPhuHuynh) return;
       const client = this.$apolloProvider.defaultClient;
+      this.historyError = '';
 
       try {
         const pRes = await client.query({
@@ -558,7 +903,7 @@ export default {
 
         const stRes = await client.query({
           query: gql`
-            query GetParentSettlements($parentId: ID!) {
+            query GetParentSettlementsAndDocuments($parentId: ID!) {
               allPaymentSettlements(where: { parent: { id: $parentId } }, sortBy: settledAt_DESC) {
                 id
                 code
@@ -568,13 +913,68 @@ export default {
                 note
                 settledAt
               }
+              allHoaDons(where: { parent: { id: $parentId } }, sortBy: createdAt_DESC) {
+                id
+                code
+                type
+                total
+                giamgia
+                createdAt
+                status
+                student {
+                  id
+                  name
+                  lophoc {
+                    id
+                    name
+                  }
+                }
+                items {
+                  id
+                  price
+                  amount
+                  total
+                  sanpham {
+                    id
+                    name
+                    code
+                  }
+                }
+              }
+              allPhieuThus(where: { parent: { id: $parentId } }, sortBy: createdAt_DESC) {
+                id
+                code
+                total
+                status
+                ghichu
+                createdAt
+              }
+              allItemKetSos(where: { hocsinh: { parent: { id: $parentId } } }) {
+                id
+                data
+                total
+                code
+                status
+                lophoc {
+                  id
+                  name
+                }
+                phieuketso {
+                  id
+                  code
+                }
+                hocsinh {
+                  id
+                  name
+                }
+              }
             }
           `,
           variables: { parentId: this.idPhuHuynh },
           fetchPolicy: 'network-only',
         });
 
-        // Query vết Log công nợ chuẩn (Nguồn sự thật duy nhất cho Sổ Công Nợ Lũy Tiến)
+        // Query vết Log công nợ chuẩn (Nguồn sự thật cho Sổ Công Nợ Lũy Tiến)
         const logRes = await client.query({
           query: gql`
             query GetParentDebtLogs($parentId: String!) {
@@ -595,114 +995,202 @@ export default {
         });
 
         // 1. SỔ CÔNG NỢ HỌC PHÍ (DEBT LEDGER)
-        // Kế thừa toàn bộ log nợ cũ + Hợp nhất trực tiếp các phiếu đối soát thực tế mới (PaymentSettlement STL)
         const rawLogs = logRes.data?.allLogs || [];
         const settlements = stRes.data?.allPaymentSettlements || [];
+        const hoadons = stRes.data?.allHoaDons || [];
+        const phieuThus = stRes.data?.allPhieuThus || [];
+        const itemKetSos = stRes.data?.allItemKetSos || [];
 
-        const debtEvents = [];
+        const hdMap = new Map(hoadons.map(h => [String(h.id), h]));
+        const stlMap = new Map(settlements.map(s => [String(s.id), s]));
+        const ptMap = new Map(phieuThus.map(pt => [String(pt.id), pt]));
+        const iksMap = new Map(itemKetSos.map(iks => [String(iks.id), iks]));
 
-        // 1.1 Đưa các log biến động nợ vào danh sách
-        rawLogs.forEach((log) => {
+        // 1.1 Khởi tạo các sự kiện với mã chứng từ chuẩn xác
+        const rawEvents = rawLogs.map((log) => {
           const isUp = log.type === 'UP';
-          let title = 'Biến động công nợ';
+          let doc = null;
+          let docType = log.itemS;
+          let code = '';
+          let title = '';
           let note = '';
+          let relatedInvoiceCode = '';
+          let relatedInvoiceId = '';
 
-          switch (log.itemS) {
-            case 'ItemKetSo':
-              title = 'Học phí kết sổ tháng';
-              note = 'Phát sinh công nợ học phí định kỳ';
-              break;
-            case 'HoaDon':
-              title = 'Hóa đơn dịch vụ / Bán lẻ';
-              note = 'Phát sinh nợ hóa đơn';
-              break;
-            case 'PhieuThu':
-              title = 'Phiếu thu tiền (Kế toán)';
-              note = 'Thu tiền mặt / Chuyển khoản gạch nợ';
-              break;
-            case 'PaymentSettlement':
-              title = 'Nghiệp vụ Cấn trừ nợ từ Ví';
-              note = 'Trích số dư ví để cấn trừ nợ';
-              break;
-            default:
-              title = log.itemS || 'Giao dịch hạch toán';
+          if (log.itemS === 'HoaDon') {
+            doc = hdMap.get(log.idItemS);
+            code = doc?.code || (log.idItemS ? `HD_${log.idItemS.slice(-6).toUpperCase()}` : 'HD');
+            title = doc?.type === 'NHAPHOC'
+              ? 'Hóa đơn nhập học & Thu phí'
+              : (doc?.type === 'BANLE' ? 'Hóa đơn dịch vụ / Bán lẻ' : 'Hóa đơn học phí');
+            const studentText = doc?.student?.name ? `Bé ${doc.student.name} • ` : '';
+            const itemsText = doc?.items?.length
+              ? doc.items.map(it => it.sanpham?.name || 'Khoản thu').join(', ')
+              : 'Phát sinh nợ hóa đơn';
+            note = studentText + itemsText;
+          } else if (log.itemS === 'PaymentSettlement') {
+            doc = stlMap.get(log.idItemS);
+            code = doc?.code || (log.idItemS ? `STL_${log.idItemS.slice(-6).toUpperCase()}` : '');
+            title = doc?.settleType === 'SCHOOL_TRANSFER'
+              ? 'Trường trích số dư cấn trừ nợ'
+              : (doc?.settleType === 'AUTO_ACB'
+                ? 'Tự động cấn trừ từ số dư ví'
+                : (doc?.settleType === 'MANUAL_ACCOUNTANT'
+                  ? 'Kế toán cấn trừ tiền mặt / ngân hàng'
+                  : 'Nghiệp vụ cấn trừ nợ từ ví'));
+            note = doc?.note || 'Trích số dư ví để cấn trừ nợ';
+            if (doc?.note) {
+              const m = doc.note.match(/HD\w+/);
+              if (m) {
+                relatedInvoiceCode = m[0];
+                const matchedHd = hoadons.find(h => h.code === m[0]);
+                if (matchedHd) relatedInvoiceId = matchedHd.id;
+              }
+            }
+          } else if (log.itemS === 'PhieuThu') {
+            doc = ptMap.get(log.idItemS);
+            code = doc?.code || (log.idItemS ? `PTT_${log.idItemS.slice(-6).toUpperCase()}` : 'PTT');
+            title = 'Phiếu thu tiền (Kế toán)';
+            note = doc?.ghichu || 'Thu tiền gạch nợ học phí';
+          } else if (log.itemS === 'ItemKetSo') {
+            doc = iksMap.get(log.idItemS);
+            const pksCode = doc?.phieuketso?.code || '';
+            if (pksCode && pksCode.includes('_')) {
+              const [y, m] = pksCode.split('_');
+              code = `KS-${m}/${y}`;
+            } else if (doc?.code) {
+              code = doc.code;
+            } else {
+              code = log.idItemS ? `KS_${log.idItemS.slice(-6).toUpperCase()}` : 'KẾT SỔ';
+            }
+            title = 'Phiếu thu học phí định kỳ';
+            const studentText = doc?.hocsinh?.name ? `Bé ${doc.hocsinh.name}` : '';
+            const classText = doc?.lophoc?.name ? ` • Lớp ${doc.lophoc.name}` : '';
+            const periodText = pksCode ? ` • Kỳ ${pksCode}` : '';
+            note = (studentText || classText || periodText) ? `${studentText}${classText}${periodText}` : 'Phát sinh công nợ học phí định kỳ';
+          } else if (log.itemS === 'FinancialCorrection') {
+            code = log.idItemS ? `DC_${log.idItemS.slice(-6).toUpperCase()}` : 'ĐIỀU CHỈNH';
+            title = 'Điều chỉnh / Hoàn tác tài chính';
+            note = log.reason || 'Hủy hoặc điều chỉnh chứng từ công nợ';
+          } else if (log.itemS === 'FinancialDataRemediation') {
+            code = 'QUỸ VÍ';
+            title = 'Hiệu chỉnh kỹ thuật hệ thống';
+            note = log.reason || 'Đối soát và chuyển nợ âm thành số dư ví';
+          } else if (log.itemS === 'PhieuThuCancellation') {
+            code = log.idItemS ? `HUY_${log.idItemS.slice(-6).toUpperCase()}` : 'HỦY';
+            title = 'Hủy phiếu thu';
+            note = 'Hoàn lại công nợ từ phiếu thu bị hủy';
+          } else {
+            code = log.idItemS ? `${log.itemS?.substring(0, 3).toUpperCase()}_${log.idItemS.slice(-6).toUpperCase()}` : (log.itemS || 'LOG');
+            title = log.itemS || 'Giao dịch hạch toán';
+            note = '';
           }
 
           const changeNum = parseInt(log.valueChange || 0, 10);
-          const runningDebtNum = parseInt(log.value || 0, 10);
+          const timeMs = new Date(log.createdAt).getTime();
 
-          debtEvents.push({
+          return {
             id: log.id,
             rawIdItemS: log.idItemS || '',
-            date: log.createdAt,
-            createdTime: log.createdTime || (new Date(log.createdAt).getTime() / 1000),
-            code: log.idItemS ? `${log.itemS?.substring(0, 3).toUpperCase()}_${log.idItemS.substring(log.idItemS.length - 6)}` : (log.itemS || 'LOG'),
+            itemS: log.itemS,
+            documentType: docType,
+            documentId: log.idItemS || doc?.id || '',
+            code,
             title,
             note,
             amount: changeNum,
             amountSign: isUp ? '+' : '-',
             amountClass: isUp ? 'text-danger font-weight-bold' : 'text-success font-weight-bold',
             typeLabel: isUp ? 'TĂNG NỢ (+)' : 'GIẢM NỢ (-)',
-            runningBalance: runningDebtNum,
-            isVoucher: false,
-          });
+            type: log.type,
+            isUp,
+            date: log.createdAt,
+            timeMs,
+            rawDoc: doc,
+            relatedInvoiceCode,
+            relatedInvoiceId,
+          };
         });
 
-        // 1.2 Bổ sung các Phiếu Đối Soát Cấn Trừ Mới (PaymentSettlement STL) nếu chưa có trong Log
+        // 1.2 Lọc khử trùng lặp các bản ghi log kép trong cùng giao dịch:
+        const cleanEvents = [];
+        for (let i = 0; i < rawEvents.length; i++) {
+          const cur = rawEvents[i];
+          if (cur.itemS === 'PaymentSettlement' && !cur.rawIdItemS) {
+            const hasSibling = rawEvents.some((other, oIdx) => oIdx !== i && other.itemS === 'PaymentSettlement' && other.rawIdItemS && Math.abs(other.timeMs - cur.timeMs) < 1500 && other.amount === cur.amount);
+            if (hasSibling) continue;
+          }
+          if (cur.itemS === 'PhieuThu') {
+            const hasSibling = rawEvents.some((other, oIdx) => oIdx !== i && other.itemS === 'PaymentSettlement' && other.rawIdItemS === cur.rawIdItemS && Math.abs(other.timeMs - cur.timeMs) < 1500);
+            if (hasSibling) continue;
+          }
+          cleanEvents.push(cur);
+        }
+
+        // 1.3 Bổ sung Phiếu Cấn Trừ Mới (PaymentSettlement STL) nếu chưa có trong Log
         settlements.forEach((st) => {
           if (st.status === 'SUCCESS' && (st.amount || 0) > 0) {
-            // Kiểm tra xem settlement này đã có bản ghi log tương ứng chưa
-            const alreadyInLog = debtEvents.some((ev) => ev.rawIdItemS === st.id || (ev.code && ev.code.includes(st.code)));
+            const alreadyInLog = cleanEvents.some((ev) => ev.documentId === st.id || (ev.code && ev.code === st.code));
             if (!alreadyInLog) {
               const settleDate = st.settledAt || new Date().toISOString();
-              debtEvents.push({
+              cleanEvents.push({
                 id: st.id,
                 rawIdItemS: st.id,
+                itemS: 'PaymentSettlement',
+                documentType: 'PaymentSettlement',
+                documentId: st.id,
                 date: settleDate,
-                createdTime: new Date(settleDate).getTime() / 1000,
+                timeMs: new Date(settleDate).getTime(),
                 code: st.code || 'STL',
-                title: 'Phiếu Cấn Trừ Nợ Từ Ví (STL)',
-                note: st.note || (st.settleType === 'SCHOOL_TRANSFER' ? 'Trường chuyển cấn trừ nợ từ số dư ví' : 'Cấn trừ nợ từ số dư ví'),
+                title: st.settleType === 'SCHOOL_TRANSFER'
+                  ? 'Trường trích số dư cấn trừ nợ'
+                  : (st.settleType === 'AUTO_ACB'
+                    ? 'Tự động cấn trừ từ số dư ví'
+                    : 'Cấn trừ nợ từ số dư ví'),
+                note: st.note || 'Cấn trừ nợ từ số dư ví',
                 amount: st.amount || 0,
                 amountSign: '-',
                 amountClass: 'text-success font-weight-bold',
                 typeLabel: 'CẤN TRỪ (-)',
-                runningBalance: null, // Sẽ tính lũy tiến chuẩn xác
-                isVoucher: true,
+                isUp: false,
+                rawDoc: st,
               });
             }
           }
         });
 
-        // Sắp xếp theo dòng thời gian tăng dần để tính runningBalance chuẩn xác
-        debtEvents.sort((a, b) => (a.createdTime || new Date(a.date).getTime()) - (b.createdTime || new Date(b.date).getTime()));
-        
-        let currentRunningDebt = 0;
-        debtEvents.forEach((ev) => {
-          if (ev.isVoucher) {
-            currentRunningDebt = Math.max(0, currentRunningDebt - ev.amount);
-            ev.runningBalance = currentRunningDebt;
-          } else {
-            if (ev.runningBalance !== null && !isNaN(ev.runningBalance)) {
-              currentRunningDebt = ev.runningBalance;
-            } else {
-              currentRunningDebt = ev.amountSign === '+' ? (currentRunningDebt + ev.amount) : Math.max(0, currentRunningDebt - ev.amount);
-              ev.runningBalance = currentRunningDebt;
-            }
+        // 1.4 Sắp xếp dòng thời gian từ Cũ đến Mới (ASC) để tính Dư nợ lũy tiến chính xác:
+        // Trong cùng khoảng thời gian 1.5s: Hóa đơn phát sinh nợ (UP) luôn đứng trước, Cấn trừ (DOWN) đứng sau
+        cleanEvents.sort((a, b) => {
+          if (Math.abs(a.timeMs - b.timeMs) < 1500) {
+            if (a.isUp !== b.isUp) return a.isUp ? -1 : 1;
           }
+          return a.timeMs - b.timeMs;
         });
 
-        // Đảo lại thời gian giảm dần để đưa giao dịch mới nhất lên đầu bảng
-        debtEvents.sort((a, b) => (b.createdTime || new Date(b.date).getTime()) - (a.createdTime || new Date(a.date).getTime()));
-        this.debtHistoryItems = debtEvents;
+        let currentRunningDebt = 0;
+        cleanEvents.forEach((ev) => {
+          if (ev.isUp) {
+            currentRunningDebt += ev.amount;
+          } else {
+            currentRunningDebt = Math.max(0, currentRunningDebt - ev.amount);
+          }
+          ev.runningBalance = currentRunningDebt;
+        });
+
+        // 1.5 Đảo ngược thứ tự để hiển thị MỚI NHẤT LÊN TRÊN CÙNG (DESC)
+        cleanEvents.reverse();
+        this.debtHistoryItems = cleanEvents;
 
         // --- 2. TÍNH TOÁN SỔ VÍ KHẢ DỤNG (BALANCE LEDGER) ---
         const balanceEvents = [];
 
         (ctRes.data?.allCashTransactions || []).forEach((ct) => {
+          if (ct.status === 'CANCELLED') return;
           const isOut = ct.type === 'OUTFLOW';
           balanceEvents.push({
             date: ct.createdAt,
+            timeMs: new Date(ct.createdAt).getTime(),
             code: ct.code,
             title: isOut ? 'Phiếu Chi Hoàn Tiền' : 'Nạp Ví Tiền Mặt / ACB Bank',
             note: ct.bankDescription || (isOut ? 'Hoàn tiền ví' : 'Nạp tiền vào ví'),
@@ -711,12 +1199,15 @@ export default {
             amountClass: isOut ? 'text-danger font-weight-bold' : 'text-success font-weight-bold',
             typeLabel: isOut ? 'CHI TIỀN (-)' : (ct.paymentMethod === 'ACB_BANK' ? 'NẠP ACB BANK (+)' : 'NẠP TIỀN MẶT (+)'),
             change: isOut ? -(ct.amount || 0) : (ct.amount || 0),
+            rawDoc: ct,
           });
         });
 
         (stRes.data?.allPaymentSettlements || []).forEach((st) => {
+          if (st.status !== 'SUCCESS') return;
           balanceEvents.push({
             date: st.settledAt,
+            timeMs: new Date(st.settledAt).getTime(),
             code: st.code,
             title: 'Trích Ví Cấn Trừ Học Phí',
             note: st.note || 'Trích từ ví để gạch nợ học phí',
@@ -725,24 +1216,27 @@ export default {
             amountClass: 'text-warning text-dark font-weight-bold',
             typeLabel: 'TRÍCH VÍ (-)',
             change: -(st.amount || 0),
+            rawDoc: st,
           });
         });
 
         // Sắp xếp thời gian tăng dần để cộng dồn lũy tiến số dư ví
-        balanceEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+        balanceEvents.sort((a, b) => a.timeMs - b.timeMs);
         let runningBal = 0;
         balanceEvents.forEach((ev) => {
           runningBal = Math.max(0, runningBal + ev.change);
           ev.runningBalance = runningBal;
         });
-        // Đảo lại thời gian giảm dần để giao dịch mới nhất lên đầu bảng
-        balanceEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // Đảo lại thời gian giảm dần để giao dịch MỚI NHẤT LÊN ĐẦU BẢNG
+        balanceEvents.reverse();
         this.balanceHistoryItems = balanceEvents;
       } catch (err) {
         console.error('Lỗi khi tải lịch sử:', err);
+        this.historyError = 'Không tải được số dư/sổ mới nhất. Dữ liệu đang hiển thị có thể đã cũ; hãy tải lại trước khi ghi sổ.';
       }
     },
     createPhieuThu(state) {
+      if (state === 'REFRESH') { this.fetchFullHistory(); return; }
       if (state === 'CREATED') {
         this.showCreatePaymentModal = false;
         this.fetchFullHistory();
@@ -753,10 +1247,120 @@ export default {
         });
       }
     },
+    async viewInvoice(item) {
+      if (item.rawDoc && item.rawDoc.id) {
+        this.selectedInvoice = item.rawDoc;
+        this.showInvoiceModal = true;
+      }
+      const invoiceId = item.documentId || item.rawDoc?.id;
+      if (invoiceId) {
+        try {
+          const res = await paymentHubRequest(this, 'get', `invoices/${invoiceId}`);
+          if (res.data?.data) {
+            this.selectedInvoice = res.data.data;
+            this.showInvoiceModal = true;
+          }
+        } catch (err) {
+          console.error('Lỗi tải chi tiết hóa đơn:', err);
+          if (!this.selectedInvoice) {
+            this.$bvToast.toast('Không tải được hóa đơn: ' + (err.response?.data?.error || err.message || ''), {
+              variant: 'danger',
+              solid: true,
+            });
+          }
+        }
+      }
+    },
+    async openRelatedInvoice(invoiceId) {
+      if (!invoiceId) return;
+      this.showSettlementModal = false;
+      await this.viewInvoice({ documentId: invoiceId });
+    },
+    viewSettlement(item) {
+      this.selectedSettlement = {
+        code: item.code,
+        date: item.date,
+        amount: item.amount,
+        settleTypeLabel: item.title,
+        note: item.note,
+        rawDoc: item.rawDoc,
+        relatedInvoiceCode: item.relatedInvoiceCode || '',
+        relatedInvoiceId: item.relatedInvoiceId || '',
+      };
+      this.showSettlementModal = true;
+    },
+    viewReceipt(item) {
+      this.selectedReceipt = {
+        code: item.code,
+        date: item.date,
+        amount: item.amount,
+        note: item.note,
+        rawDoc: item.rawDoc,
+      };
+      this.showReceiptModal = true;
+    },
+    viewKetSo(item) {
+      const doc = item.rawDoc || {};
+      let parsed = {};
+      try {
+        parsed = typeof doc.data === 'string' ? JSON.parse(doc.data) : (doc.data || {});
+      } catch (_) {
+        parsed = {};
+      }
+      const pksCode = doc.phieuketso?.code || '';
+      let periodLabel = pksCode;
+      if (pksCode && pksCode.includes('_')) {
+        const [y, m] = pksCode.split('_');
+        const numM = parseInt(m, 10);
+        const numY = parseInt(y, 10);
+        const nextM = numM === 12 ? 1 : numM + 1;
+        const nextY = numM === 12 ? numY + 1 : numY;
+        const nextMStr = String(nextM).padStart(2, '0');
+        periodLabel = `Tháng ${nextMStr}/${nextY}`;
+      }
+      this.selectedKetSo = {
+        code: item.code,
+        periodLabel: periodLabel || 'Định kỳ',
+        studentName: doc.hocsinh?.name || (this.phuhuynh?.hocsinhs?.[0]?.name) || 'Học sinh',
+        className: doc.lophoc?.name || 'Chưa phân lớp',
+        total: item.amount || doc.total || parsed.total || 0,
+        details: parsed,
+      };
+      this.showKetSoModal = true;
+    },
+    viewCorrection(item) {
+      this.selectedCorrection = {
+        code: item.code,
+        date: item.date,
+        amount: item.amount,
+        isUp: item.isUp,
+        reason: item.note || 'Điều chỉnh chứng từ',
+        documentId: item.rawIdItemS || '',
+      };
+      this.showCorrectionModal = true;
+    },
+    printWindow() {
+      window.print();
+    },
     showDate(d) {
       if (!d) return '';
       const d1 = new Date(d);
+      if (isNaN(d1.getTime())) return '';
       return `${String(d1.getDate()).padStart(2, '0')}/${String(d1.getMonth() + 1).padStart(2, '0')}/${d1.getFullYear()}`;
+    },
+    showTime(d) {
+      if (!d) return '';
+      const d1 = new Date(d);
+      if (isNaN(d1.getTime())) return '';
+      return `${String(d1.getHours()).padStart(2, '0')}:${String(d1.getMinutes()).padStart(2, '0')}`;
+    },
+    showDateTime(d) {
+      if (!d) return '';
+      const d1 = new Date(d);
+      if (isNaN(d1.getTime())) return '';
+      const time = `${String(d1.getHours()).padStart(2, '0')}:${String(d1.getMinutes()).padStart(2, '0')}`;
+      const date = `${String(d1.getDate()).padStart(2, '0')}/${String(d1.getMonth() + 1).padStart(2, '0')}/${d1.getFullYear()}`;
+      return `${time} ${date}`;
     },
     numberWithCommas(x) {
       if (!x && x !== 0) return '0';
@@ -847,5 +1451,28 @@ export default {
 
 .amount-badge {
   font-size: 0.95rem;
+}
+
+.text-purple {
+  color: #7c3aed !important;
+}
+
+.voucher-btn {
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  user-select: none;
+}
+
+.voucher-btn:hover {
+  background-color: #e2e8f0 !important;
+  color: #0b5ed7 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.receipt-paper {
+  background: #ffffff;
+  color: #212529;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 </style>
